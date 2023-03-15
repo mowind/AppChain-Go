@@ -26,13 +26,13 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
-
-	"github.com/pborman/uuid"
 
 	"github.com/PlatONnetwork/PlatON-Go/accounts"
 	"github.com/PlatONnetwork/PlatON-Go/common"
 	"github.com/PlatONnetwork/PlatON-Go/crypto"
+	"github.com/google/uuid"
 )
 
 const (
@@ -66,19 +66,19 @@ type plainKeyJSON struct {
 
 type encryptedKeyJSONV3 struct {
 	Address string     `json:"address"`
-	Crypto  cryptoJSON `json:"crypto"`
+	Crypto  CryptoJSON `json:"crypto"`
 	Id      string     `json:"id"`
 	Version int        `json:"version"`
 }
 
 type encryptedKeyJSONV1 struct {
 	Address string     `json:"address"`
-	Crypto  cryptoJSON `json:"crypto"`
+	Crypto  CryptoJSON `json:"crypto"`
 	Id      string     `json:"id"`
 	Version string     `json:"version"`
 }
 
-type cryptoJSON struct {
+type CryptoJSON struct {
 	Cipher       string                 `json:"cipher"`
 	CipherText   string                 `json:"ciphertext"`
 	CipherParams cipherparamsJSON       `json:"cipherparams"`
@@ -93,7 +93,7 @@ type cipherparamsJSON struct {
 
 func (k *Key) MarshalJSON() (j []byte, err error) {
 	jStruct := plainKeyJSON{
-		k.Address.String(),
+		hex.EncodeToString(k.Address[:]),
 		hex.EncodeToString(crypto.FromECDSA(k.PrivateKey)),
 		k.Id.String(),
 		version,
@@ -110,10 +110,12 @@ func (k *Key) UnmarshalJSON(j []byte) (err error) {
 	}
 
 	u := new(uuid.UUID)
-	*u = uuid.Parse(keyJSON.Id)
+	*u, err = uuid.Parse(keyJSON.Id)
+	if err != nil {
+		return err
+	}
 	k.Id = *u
-
-	addr, err := common.Bech32ToAddress(keyJSON.Address)
+	addr, err := hex.DecodeString(keyJSON.Address)
 	if err != nil {
 		return err
 	}
@@ -122,14 +124,17 @@ func (k *Key) UnmarshalJSON(j []byte) (err error) {
 		return err
 	}
 
-	k.Address = addr
+	k.Address = common.BytesToAddress(addr)
 	k.PrivateKey = privkey
 
 	return nil
 }
 
 func newKeyFromECDSA(privateKeyECDSA *ecdsa.PrivateKey) *Key {
-	id := uuid.NewRandom()
+	id, err := uuid.NewRandom()
+	if err != nil {
+		panic(fmt.Sprintf("Could not create random uuid: %v", err))
+	}
 	key := &Key{
 		Id:         id,
 		Address:    crypto.PubkeyToAddress(privateKeyECDSA.PublicKey),
@@ -153,6 +158,9 @@ func NewKeyForDirectICAP(rand io.Reader) *Key {
 		panic("key generation: ecdsa.GenerateKey failed: " + err.Error())
 	}
 	key := newKeyFromECDSA(privateKeyECDSA)
+	if !strings.HasPrefix(key.Address.Hex(), "0x00") {
+		return NewKeyForDirectICAP(rand)
+	}
 	return key
 }
 

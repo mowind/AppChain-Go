@@ -26,9 +26,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/PlatONnetwork/PlatON-Go/common"
+	"github.com/stretchr/testify/require"
 )
 
 // TestUnpack tests the general pack/unpack tests in packing_test.go

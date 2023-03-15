@@ -28,7 +28,6 @@ import (
 	"time"
 
 	mapset "github.com/deckarep/golang-set"
-
 	"github.com/PlatONnetwork/PlatON-Go/accounts"
 	"github.com/PlatONnetwork/PlatON-Go/common"
 	"github.com/PlatONnetwork/PlatON-Go/log"
@@ -241,7 +240,13 @@ func (ac *accountCache) scanAccounts() error {
 	if creates.Cardinality() == 0 && deletes.Cardinality() == 0 && updates.Cardinality() == 0 {
 		return nil
 	}
-
+	// Create a helper method to scan the contents of the key files
+	var (
+		buf = new(bufio.Reader)
+		key struct {
+			Address string `json:"address"`
+		}
+	)
 	readAccount := func(path string) *accounts.Account {
 		fd, err := os.Open(path)
 		if err != nil {
@@ -249,26 +254,15 @@ func (ac *accountCache) scanAccounts() error {
 			return nil
 		}
 		defer fd.Close()
-		// Create a helper method to scan the contents of the key files
-		var (
-			buf = new(bufio.Reader)
-			key struct {
-				Address string `json:"address"`
-			}
-		)
 		buf.Reset(fd)
 		// Parse the address.
+		key.Address = ""
 		err = json.NewDecoder(buf).Decode(&key)
-		if err != nil {
-			log.Debug("Failed to decode keystore key", "path", path, "err", err)
-			return nil
-		}
-
-		addr, err := common.Bech32ToAddress(key.Address)
+		addr := common.HexToAddress(key.Address)
 		switch {
 		case err != nil:
 			log.Debug("Failed to decode keystore key", "path", path, "err", err)
-		case (addr == common.Address{}):
+		case addr == common.Address{}:
 			log.Debug("Failed to decode keystore key", "path", path, "err", "missing or zero address")
 		default:
 			return &accounts.Account{

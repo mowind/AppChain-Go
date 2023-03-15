@@ -24,10 +24,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/PlatONnetwork/PlatON-Go/accounts"
-	"github.com/PlatONnetwork/PlatON-Go/common"
 	"github.com/PlatONnetwork/PlatON-Go/crypto"
-	"github.com/pborman/uuid"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -37,7 +37,10 @@ func importPreSaleKey(keyStore keyStore, keyJSON []byte, password string) (accou
 	if err != nil {
 		return accounts.Account{}, nil, err
 	}
-	key.Id = uuid.NewRandom()
+	key.Id, err = uuid.NewRandom()
+	if err != nil {
+		return accounts.Account{}, nil, err
+	}
 	a := accounts.Account{
 		Address: key.Address,
 		URL: accounts.URL{
@@ -86,18 +89,14 @@ func decryptPreSaleKey(fileContent []byte, password string) (key *Key, err error
 	ecKey := crypto.ToECDSAUnsafe(ethPriv)
 
 	key = &Key{
-		Id:         nil,
+		Id:         uuid.UUID{},
 		Address:    crypto.PubkeyToAddress(ecKey.PublicKey),
 		PrivateKey: ecKey,
 	}
-
-	expectedAddr, err := common.Bech32ToAddress(preSaleKeyStruct.EthAddr)
-	if err != nil {
-		return nil, err
-	}
-
-	if expectedAddr != key.Address {
-		err = fmt.Errorf("decrypted addr '%s' not equal to expected addr '%s'", key.Address, preSaleKeyStruct.EthAddr)
+	derivedAddr := hex.EncodeToString(key.Address.Bytes()) // needed because .Hex() gives leading "0x"
+	expectedAddr := preSaleKeyStruct.EthAddr
+	if derivedAddr != expectedAddr {
+		err = fmt.Errorf("decrypted addr '%s' not equal to expected addr '%s'", derivedAddr, expectedAddr)
 	}
 	return key, err
 }

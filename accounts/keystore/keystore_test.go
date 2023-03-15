@@ -17,7 +17,6 @@
 package keystore
 
 import (
-	"github.com/PlatONnetwork/PlatON-Go/crypto"
 	"io/ioutil"
 	"math/rand"
 	"os"
@@ -31,6 +30,7 @@ import (
 
 	"github.com/PlatONnetwork/PlatON-Go/accounts"
 	"github.com/PlatONnetwork/PlatON-Go/common"
+	"github.com/PlatONnetwork/PlatON-Go/crypto"
 	"github.com/PlatONnetwork/PlatON-Go/event"
 )
 
@@ -466,9 +466,9 @@ func tmpKeyStore(t *testing.T, encrypted bool) (string, *KeyStore) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	newS := NewPlaintextKeyStore
+	newKs := NewPlaintextKeyStore
 	if encrypted {
-		newS = func(kd string) *KeyStore { return NewKeyStore(kd, veryLightScryptN, veryLightScryptP) }
+		newKs = func(kd string) *KeyStore { return NewKeyStore(kd, veryLightScryptN, veryLightScryptP) }
 	}
-	return d, newS(d)
+	return d, newKs(d)
 }
