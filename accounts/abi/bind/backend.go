@@ -19,9 +19,9 @@ package bind
 import (
 	"context"
 	"errors"
+	ethereum "github.com/PlatONnetwork/PlatON-Go"
 	"math/big"
 
-	"github.com/PlatONnetwork/PlatON-Go"
 	"github.com/PlatONnetwork/PlatON-Go/common"
 	"github.com/PlatONnetwork/PlatON-Go/core/types"
 )

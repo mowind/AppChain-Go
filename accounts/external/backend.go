@@ -18,10 +18,10 @@ package external
 
 import (
 	"fmt"
+	ethereum "github.com/PlatONnetwork/PlatON-Go"
 	"math/big"
 	"sync"
 
-	"github.com/PlatONnetwork/PlatON-Go"
 	"github.com/PlatONnetwork/PlatON-Go/accounts"
 	"github.com/PlatONnetwork/PlatON-Go/common"
 	"github.com/PlatONnetwork/PlatON-Go/common/hexutil"
@@ -215,29 +215,14 @@ func (api *ExternalSigner) SignTx(account accounts.Account, tx *types.Transactio
 		To:    to,
 		From:  common.NewMixedcaseAddress(account.Address),
 	}
-	switch tx.Type() {
-	case types.LegacyTxType, types.AccessListTxType:
-		args.GasPrice = (*hexutil.Big)(tx.GasPrice())
-	case types.DynamicFeeTxType:
-		args.MaxFeePerGas = (*hexutil.Big)(tx.GasFeeCap())
-		args.MaxPriorityFeePerGas = (*hexutil.Big)(tx.GasTipCap())
-	default:
-		return nil, fmt.Errorf("unsupported tx type %d", tx.Type())
-	}
+	args.GasPrice = (*hexutil.Big)(tx.GasPrice())
+
 	// We should request the default chain id that we're operating with
 	// (the chain we're executing on)
 	if chainID != nil && chainID.Sign() != 0 {
 		args.ChainID = (*hexutil.Big)(chainID)
 	}
-	if tx.Type() != types.LegacyTxType {
-		// However, if the user asked for a particular chain id, then we should
-		// use that instead.
-		if tx.ChainId().Sign() != 0 {
-			args.ChainID = (*hexutil.Big)(tx.ChainId())
-		}
-		accessList := tx.AccessList()
-		args.AccessList = &accessList
-	}
+
 	var res signTransactionResult
 	if err := api.client.Call(&res, "account_signTransaction", args); err != nil {
 		return nil, err
