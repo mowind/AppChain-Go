@@ -13,8 +13,8 @@ root="$PWD"
 
 echo "$root" "$workspace"
 
-hskchaindir="$workspace/src/github.com/hashkey-chain"
-if [ ! -L "$hskchaindir/hashkey-chain" ]; then
+hskchaindir="$workspace/src/github.com/PlatONnetwork"
+if [ ! -L "$hskchaindir/AppChain-Go" ]; then
     mkdir -p "$hskchaindir"
     cd "$hskchaindir"
     ln -s ../../../../../. hashkey-chain
@@ -28,8 +28,8 @@ GOPATH="$workspace"
 export GOPATH
 
 # Run the command inside the workspace.
-cd "$hskchaindir/hashkey-chain"
-PWD="$hskchaindir/hashkey-chain"
+cd "$hskchaindir/AppChain-Go"
+PWD="$hskchaindir/AppChain-Go"
 
 # Launch the arguments with the configured environment.
 exec "$@"
