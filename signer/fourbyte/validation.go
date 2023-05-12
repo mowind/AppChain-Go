@@ -22,8 +22,8 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/signer/core"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/signer/core"
 )
 
 // ValidateTransaction does a number of checks on the supplied transaction, and

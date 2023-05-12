@@ -23,8 +23,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/common/mclock"
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/common/mclock"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
 const (

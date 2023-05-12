@@ -20,7 +20,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/sha256"
 	"errors"
-	"github.com/hashkey-chain/hashkey-chain/p2p/rlpx"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/rlpx"
 	"net"
 	"reflect"
 	"testing"
@@ -28,9 +28,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/log"
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 )
 
 func init() {

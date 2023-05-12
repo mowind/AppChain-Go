@@ -30,7 +30,7 @@ import (
 
 	"github.com/docker/docker/pkg/reexec"
 
-	"github.com/hashkey-chain/hashkey-chain/internal/cmdtest"
+	"github.com/PlatONnetwork/AppChain-Go/internal/cmdtest"
 	"github.com/stretchr/testify/assert"
 )
 

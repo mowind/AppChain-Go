@@ -30,13 +30,13 @@ import (
 	"testing/quick"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/common/vm"
-	"github.com/hashkey-chain/hashkey-chain/core/rawdb"
+	"github.com/PlatONnetwork/AppChain-Go/common/vm"
+	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
 )
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")

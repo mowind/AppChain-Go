@@ -22,7 +22,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 type keyStorePlain struct {

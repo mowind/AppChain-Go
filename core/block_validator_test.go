@@ -21,12 +21,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus"
+	"github.com/PlatONnetwork/AppChain-Go/consensus"
 
-	"github.com/hashkey-chain/hashkey-chain/core/rawdb"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/core/vm"
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 // Tests that simple header verification works, for both good and bad blocks.

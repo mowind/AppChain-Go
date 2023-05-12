@@ -20,7 +20,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 )
 
 // Simulation provides a framework for running actions in a simulated network

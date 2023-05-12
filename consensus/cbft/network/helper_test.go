@@ -25,16 +25,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/protocols"
-	types2 "github.com/hashkey-chain/hashkey-chain/consensus/cbft/types"
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/protocols"
+	types2 "github.com/PlatONnetwork/AppChain-Go/consensus/cbft/types"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/utils"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/utils"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 
-	"github.com/hashkey-chain/hashkey-chain/p2p"
+	"github.com/PlatONnetwork/AppChain-Go/p2p"
 )
 
 var loglevel = flag.Int("loglevel", 4, "verbosity of logs")

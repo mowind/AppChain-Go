@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/metrics"
+	"github.com/PlatONnetwork/AppChain-Go/metrics"
 )
 
 func TestMain(m *testing.M) {

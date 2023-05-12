@@ -21,12 +21,12 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
-	"github.com/hashkey-chain/hashkey-chain/x/plugin"
-	"github.com/hashkey-chain/hashkey-chain/x/restricting"
-	"github.com/hashkey-chain/hashkey-chain/x/xcom"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/x/plugin"
+	"github.com/PlatONnetwork/AppChain-Go/x/restricting"
+	"github.com/PlatONnetwork/AppChain-Go/x/xcom"
 )
 
 // build input data for testing the create restricting plan successfully

@@ -18,9 +18,9 @@
 package xcom
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/core/snapshotdb"
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
 // saves block average pack time (millisecond) to snapshot db.

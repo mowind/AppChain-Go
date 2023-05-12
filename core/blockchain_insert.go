@@ -19,10 +19,10 @@ package core
 import (
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/mclock"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/mclock"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
 // insertStats tracks and reports on block insertion.

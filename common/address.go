@@ -13,9 +13,9 @@ import (
 
 	"github.com/btcsuite/btcd/btcutil/bech32"
 
-	"github.com/hashkey-chain/hashkey-chain/common/bech32util"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/common/bech32util"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
 const (

@@ -1,7 +1,7 @@
 package types
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 	"io"
 )
 

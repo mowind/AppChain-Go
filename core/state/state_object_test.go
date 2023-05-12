@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 func BenchmarkCutOriginal(b *testing.B) {

@@ -20,17 +20,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/common/math"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/signer/core"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/signer/core"
 	"io/ioutil"
 	"path"
 	"strings"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts/keystore"
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/keystore"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 )
 
 var typesStandard = core.Types{

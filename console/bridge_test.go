@@ -19,7 +19,7 @@ package console
 import (
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/internal/jsre"
+	"github.com/PlatONnetwork/AppChain-Go/internal/jsre"
 	"github.com/dop251/goja"
 )
 

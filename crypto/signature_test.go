@@ -22,9 +22,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
-	"github.com/hashkey-chain/hashkey-chain/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
 )
 
 var (

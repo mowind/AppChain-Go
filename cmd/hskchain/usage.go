@@ -24,8 +24,8 @@ import (
 
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/hashkey-chain/hashkey-chain/cmd/utils"
-	"github.com/hashkey-chain/hashkey-chain/internal/debug"
+	"github.com/PlatONnetwork/AppChain-Go/cmd/utils"
+	"github.com/PlatONnetwork/AppChain-Go/internal/debug"
 )
 
 // AppHelpTemplate is the test template for the default, global app help topic.

@@ -23,14 +23,14 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 
 	"github.com/pborman/uuid"
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts/keystore"
-	"github.com/hashkey-chain/hashkey-chain/cmd/utils"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/keystore"
+	"github.com/PlatONnetwork/AppChain-Go/cmd/utils"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 )
 
 type outputGenerate struct {

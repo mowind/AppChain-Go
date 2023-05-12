@@ -27,22 +27,22 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/core/rawdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus"
-	"github.com/hashkey-chain/hashkey-chain/x/xcom"
+	"github.com/PlatONnetwork/AppChain-Go/consensus"
+	"github.com/PlatONnetwork/AppChain-Go/x/xcom"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/core"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/eth/downloader"
-	"github.com/hashkey-chain/hashkey-chain/ethdb"
-	"github.com/hashkey-chain/hashkey-chain/event"
-	"github.com/hashkey-chain/hashkey-chain/p2p"
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
-	"github.com/hashkey-chain/hashkey-chain/params"
-	_ "github.com/hashkey-chain/hashkey-chain/x/xcom"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/eth/downloader"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/event"
+	"github.com/PlatONnetwork/AppChain-Go/p2p"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/params"
+	_ "github.com/PlatONnetwork/AppChain-Go/x/xcom"
 )
 
 var (

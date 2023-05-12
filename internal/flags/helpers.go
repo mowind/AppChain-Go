@@ -22,7 +22,7 @@ import (
 
 	cli "gopkg.in/urfave/cli.v1"
 
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 var (

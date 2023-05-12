@@ -22,8 +22,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts/abi"
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 // Tests that all the selectors contained in the 4byte database are valid.

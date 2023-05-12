@@ -20,9 +20,9 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
-	"github.com/hashkey-chain/hashkey-chain/signer/core"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/signer/core"
 )
 
 func mixAddr(a string) (*common.MixedcaseAddress, error) {

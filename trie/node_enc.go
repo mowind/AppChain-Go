@@ -17,7 +17,7 @@
 package trie
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 func nodeToBytes(n node) []byte {

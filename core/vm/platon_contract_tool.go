@@ -20,10 +20,10 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/log"
-	"github.com/hashkey-chain/hashkey-chain/x/plugin"
-	"github.com/hashkey-chain/hashkey-chain/x/xcom"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/x/plugin"
+	"github.com/PlatONnetwork/AppChain-Go/x/xcom"
 )
 
 func execPlatonContract(input []byte, command map[uint16]interface{}) (ret []byte, err error) {

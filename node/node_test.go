@@ -28,10 +28,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/ethdb"
-	"github.com/hashkey-chain/hashkey-chain/p2p"
-	"github.com/hashkey-chain/hashkey-chain/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/p2p"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
 	"gotest.tools/assert"
 )
 

@@ -20,7 +20,7 @@ package usbwallet
 import (
 	"context"
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 	"io"
 	"math/big"
 	"sync"
@@ -29,10 +29,10 @@ import (
 	"github.com/karalabe/hid"
 
 	ethereum "github.com/hashkey-chain/hashkey-chain"
-	"github.com/hashkey-chain/hashkey-chain/accounts"
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/accounts"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
 // Maximum time between wallet health checks to detect USB unplugs.

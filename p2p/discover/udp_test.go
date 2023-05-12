@@ -33,9 +33,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 	"github.com/davecgh/go-spew/spew"
 )
 

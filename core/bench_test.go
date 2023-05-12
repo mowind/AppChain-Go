@@ -23,15 +23,15 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common/mock"
+	"github.com/PlatONnetwork/AppChain-Go/common/mock"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/math"
-	"github.com/hashkey-chain/hashkey-chain/core/rawdb"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/ethdb"
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 func BenchmarkInsertChain_empty_memdb(b *testing.B) {

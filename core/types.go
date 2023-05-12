@@ -17,12 +17,12 @@
 package core
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/core/state"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/core/vm"
+	"github.com/PlatONnetwork/AppChain-Go/core/state"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm"
 )
 
 // Validator is an interface which defines the standard for block validation. It

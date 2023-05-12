@@ -22,10 +22,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/internal/testlog"
+	"github.com/PlatONnetwork/AppChain-Go/internal/testlog"
 
-	"github.com/hashkey-chain/hashkey-chain/log"
-	"github.com/hashkey-chain/hashkey-chain/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 )

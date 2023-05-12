@@ -26,7 +26,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 )
 
 // Lengths of hashes and addresses in bytes.

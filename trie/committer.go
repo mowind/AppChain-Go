@@ -21,9 +21,9 @@ import (
 	"golang.org/x/crypto/sha3"
 	"sync"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 // committer is a type used for the trie Commit operation. A committer has some

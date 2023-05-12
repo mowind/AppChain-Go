@@ -19,7 +19,7 @@ package tests
 import (
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/core/vm"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm"
 )
 
 func TestVM(t *testing.T) {

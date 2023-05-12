@@ -20,7 +20,7 @@ package gov
 import (
 	"bytes"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 var (

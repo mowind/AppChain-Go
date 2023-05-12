@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 // Forks table defines supported forks and their chain config.

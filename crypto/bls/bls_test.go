@@ -3,14 +3,14 @@ package bls
 import (
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 import (
 	"bytes"
 	"fmt"
 	"strconv"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 )
 
 var unitN = 0

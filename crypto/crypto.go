@@ -32,9 +32,9 @@ import (
 
 	"golang.org/x/crypto/sha3"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/math"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 // SignatureLength indicates the byte length required to carry a signature with recovery id.

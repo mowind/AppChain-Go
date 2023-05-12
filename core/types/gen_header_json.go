@@ -7,8 +7,8 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 )
 
 var _ = (*headerMarshaling)(nil)

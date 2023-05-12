@@ -30,7 +30,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 // Command line flags to configure the interpreters.

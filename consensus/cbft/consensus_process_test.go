@@ -19,16 +19,16 @@ package cbft
 
 import (
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/validator"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/validator"
 	"io/ioutil"
 	"os"
 	"testing"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/wal"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/wal"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/protocols"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/protocols"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
 	"github.com/stretchr/testify/assert"
 )
 

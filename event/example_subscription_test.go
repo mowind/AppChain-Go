@@ -19,7 +19,7 @@ package event_test
 import (
 	"fmt"
 
-	"github.com/hashkey-chain/hashkey-chain/event"
+	"github.com/PlatONnetwork/AppChain-Go/event"
 )
 
 func ExampleNewSubscription() {

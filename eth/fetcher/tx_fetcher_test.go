@@ -23,10 +23,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/mclock"
-	"github.com/hashkey-chain/hashkey-chain/core"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/mclock"
+	"github.com/PlatONnetwork/AppChain-Go/core"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
 )
 
 var (

@@ -18,24 +18,24 @@ package gov
 
 import (
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/common/vm"
+	"github.com/PlatONnetwork/AppChain-Go/common/vm"
 	"math/big"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/x/xcom"
+	"github.com/PlatONnetwork/AppChain-Go/x/xcom"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/node"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/node"
 
-	"github.com/hashkey-chain/hashkey-chain/x/staking"
+	"github.com/PlatONnetwork/AppChain-Go/x/staking"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/mock"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/mock"
 )
 
 var (

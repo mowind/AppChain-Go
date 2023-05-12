@@ -27,7 +27,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
 )
 
 func TestStreamKind(t *testing.T) {

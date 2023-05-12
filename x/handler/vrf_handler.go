@@ -24,15 +24,15 @@ import (
 	"math/big"
 	"sync"
 
-	"github.com/hashkey-chain/hashkey-chain/x/gov"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 
-	"github.com/hashkey-chain/hashkey-chain/core/snapshotdb"
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/crypto/vrf"
-	"github.com/hashkey-chain/hashkey-chain/log"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/vrf"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 var (

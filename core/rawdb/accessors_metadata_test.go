@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/params"
-	"github.com/hashkey-chain/hashkey-chain/x/xcom"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/params"
+	"github.com/PlatONnetwork/AppChain-Go/x/xcom"
 
 	"github.com/stretchr/testify/assert"
 )

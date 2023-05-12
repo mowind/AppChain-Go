@@ -23,8 +23,8 @@ import (
 
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/hashkey-chain/hashkey-chain/cmd/utils"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/cmd/utils"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 )
 
 type outputGenkeypair struct {

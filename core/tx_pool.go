@@ -19,7 +19,7 @@ package core
 import (
 	"errors"
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/x/gov"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 	"math"
 	"math/big"
 	"sort"
@@ -27,14 +27,14 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/prque"
-	"github.com/hashkey-chain/hashkey-chain/core/state"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/event"
-	"github.com/hashkey-chain/hashkey-chain/log"
-	"github.com/hashkey-chain/hashkey-chain/metrics"
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/prque"
+	"github.com/PlatONnetwork/AppChain-Go/core/state"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/event"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/metrics"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 const (

@@ -17,16 +17,16 @@
 package eth
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/miner"
+	"github.com/PlatONnetwork/AppChain-Go/miner"
 	"math/big"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/types"
-	"github.com/hashkey-chain/hashkey-chain/core"
-	"github.com/hashkey-chain/hashkey-chain/eth/downloader"
-	"github.com/hashkey-chain/hashkey-chain/eth/gasprice"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/types"
+	"github.com/PlatONnetwork/AppChain-Go/core"
+	"github.com/PlatONnetwork/AppChain-Go/eth/downloader"
+	"github.com/PlatONnetwork/AppChain-Go/eth/gasprice"
 )
 
 // DefaultFullGPOConfig contains default gasprice oracle settings for full node.

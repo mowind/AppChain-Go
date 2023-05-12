@@ -21,23 +21,23 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/crypto/bls12381"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/bls12381"
 	"math/big"
 
-	"github.com/hashkey-chain/hashkey-chain/log"
-	"github.com/hashkey-chain/hashkey-chain/x/handler"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/x/handler"
 
-	vrf2 "github.com/hashkey-chain/hashkey-chain/crypto/vrf"
+	vrf2 "github.com/PlatONnetwork/AppChain-Go/crypto/vrf"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto/blake2b"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/blake2b"
 
-	"github.com/hashkey-chain/hashkey-chain/common/vm"
+	"github.com/PlatONnetwork/AppChain-Go/common/vm"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/math"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/crypto/bn256"
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/bn256"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 
 	//lint:ignore SA1019 Needed for precompile
 	"golang.org/x/crypto/ripemd160"

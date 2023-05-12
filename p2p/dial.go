@@ -24,9 +24,9 @@ import (
 	"net"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/log"
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
-	"github.com/hashkey-chain/hashkey-chain/p2p/netutil"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/netutil"
 )
 
 const (

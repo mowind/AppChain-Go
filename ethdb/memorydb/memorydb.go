@@ -23,8 +23,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
 )
 
 var (

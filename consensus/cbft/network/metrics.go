@@ -18,10 +18,10 @@
 package network
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/protocols"
-	"github.com/hashkey-chain/hashkey-chain/metrics"
-	"github.com/hashkey-chain/hashkey-chain/p2p"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/protocols"
+	"github.com/PlatONnetwork/AppChain-Go/metrics"
+	"github.com/PlatONnetwork/AppChain-Go/p2p"
 )
 
 var (

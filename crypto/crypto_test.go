@@ -26,8 +26,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 )
 
 var testAddrString = "lax1ju8gz29tsd8gatqh4w8rsyhszpnceau340amnz"

@@ -17,7 +17,7 @@
 
 package reward
 
-import "github.com/hashkey-chain/hashkey-chain/common"
+import "github.com/PlatONnetwork/AppChain-Go/common"
 
 var (
 	ErrDelegationNotFound = common.NewBizError(305001, "Delegation info not found")

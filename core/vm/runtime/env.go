@@ -17,9 +17,9 @@
 package runtime
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/core"
-	"github.com/hashkey-chain/hashkey-chain/core/snapshotdb"
-	"github.com/hashkey-chain/hashkey-chain/core/vm"
+	"github.com/PlatONnetwork/AppChain-Go/core"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm"
 )
 
 func NewEnv(cfg *Config) *vm.EVM {

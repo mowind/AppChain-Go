@@ -30,7 +30,7 @@ import (
 	"golang.org/x/crypto/pbkdf2"
 	"golang.org/x/text/unicode/norm"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 )
 
 const (

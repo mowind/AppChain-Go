@@ -25,9 +25,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/event"
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/event"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 // Msg defines the structure of a p2p message.

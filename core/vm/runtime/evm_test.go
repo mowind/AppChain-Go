@@ -6,11 +6,11 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/core/rawdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/core/state"
-	"github.com/hashkey-chain/hashkey-chain/core/vm"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/state"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm"
 )
 
 type account struct{}

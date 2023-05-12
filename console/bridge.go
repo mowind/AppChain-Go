@@ -19,19 +19,19 @@ package console
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/console/prompt"
+	"github.com/PlatONnetwork/AppChain-Go/console/prompt"
 	"io"
 	"reflect"
 	"strings"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts/scwallet"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
-	"github.com/hashkey-chain/hashkey-chain/internal/jsre"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/scwallet"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/internal/jsre"
 	"github.com/dop251/goja"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts/usbwallet"
-	"github.com/hashkey-chain/hashkey-chain/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/usbwallet"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
 )
 
 // bridge is a collection of JavaScript utility methods to bride the .js runtime

@@ -18,8 +18,8 @@
 package consensus
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/crypto/bls"
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/bls"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 )
 
 type EvidenceType uint8

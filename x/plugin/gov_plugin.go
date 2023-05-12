@@ -18,21 +18,21 @@ package plugin
 
 import (
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/core/snapshotdb"
-	"github.com/hashkey-chain/hashkey-chain/ethdb"
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 	"math"
 	"math/big"
 	"sync"
 
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/log"
-	"github.com/hashkey-chain/hashkey-chain/x/gov"
-	"github.com/hashkey-chain/hashkey-chain/x/xcom"
-	"github.com/hashkey-chain/hashkey-chain/x/xutil"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
+	"github.com/PlatONnetwork/AppChain-Go/x/xcom"
+	"github.com/PlatONnetwork/AppChain-Go/x/xutil"
 )
 
 var (

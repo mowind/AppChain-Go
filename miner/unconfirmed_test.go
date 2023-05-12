@@ -19,8 +19,8 @@ package miner
 import (
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
 )
 
 // noopChainRetriever is an implementation of headerRetriever that always

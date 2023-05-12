@@ -22,21 +22,21 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
 
-	"github.com/hashkey-chain/hashkey-chain/x/gov"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 
-	"github.com/hashkey-chain/hashkey-chain/common/mock"
+	"github.com/PlatONnetwork/AppChain-Go/common/mock"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/vm"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/x/restricting"
-	"github.com/hashkey-chain/hashkey-chain/x/xutil"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/vm"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/x/restricting"
+	"github.com/PlatONnetwork/AppChain-Go/x/xutil"
 )
 
 var RestrictingTxHash = common.HexToHash("abc")

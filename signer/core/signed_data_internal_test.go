@@ -21,7 +21,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 )
 
 func TestBytesPadding(t *testing.T) {

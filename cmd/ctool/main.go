@@ -22,11 +22,11 @@ import (
 	"os"
 	"sort"
 
-	"github.com/hashkey-chain/hashkey-chain/cmd/ctool/core"
+	"github.com/PlatONnetwork/AppChain-Go/cmd/ctool/core"
 
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/hashkey-chain/hashkey-chain/cmd/ctool/ppos"
+	"github.com/PlatONnetwork/AppChain-Go/cmd/ctool/ppos"
 )
 
 var (

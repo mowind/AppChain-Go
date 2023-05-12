@@ -27,16 +27,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hashkey-chain/hashkey-chain/x/gov"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 
-	"github.com/hashkey-chain/hashkey-chain/x/restricting"
+	"github.com/PlatONnetwork/AppChain-Go/x/restricting"
 
-	"github.com/hashkey-chain/hashkey-chain/x/slashing"
+	"github.com/PlatONnetwork/AppChain-Go/x/slashing"
 
-	"github.com/hashkey-chain/hashkey-chain/x/staking"
+	"github.com/PlatONnetwork/AppChain-Go/x/staking"
 
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 var (

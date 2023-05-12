@@ -21,8 +21,8 @@ import (
 	"sync"
 
 	ethereum "github.com/hashkey-chain/hashkey-chain"
-	"github.com/hashkey-chain/hashkey-chain/event"
-	"github.com/hashkey-chain/hashkey-chain/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/event"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
 )
 
 // PublicDownloaderAPI provides an API which gives information about the current synchronisation status.

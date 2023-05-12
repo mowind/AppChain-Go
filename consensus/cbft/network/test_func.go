@@ -18,7 +18,7 @@
 package network
 
 import (
-	ctpyes "github.com/hashkey-chain/hashkey-chain/consensus/cbft/types"
+	ctpyes "github.com/PlatONnetwork/AppChain-Go/consensus/cbft/types"
 )
 
 // SetSendQueueHook

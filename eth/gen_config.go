@@ -5,11 +5,11 @@ package eth
 import (
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/types"
-	"github.com/hashkey-chain/hashkey-chain/core"
-	"github.com/hashkey-chain/hashkey-chain/eth/downloader"
-	"github.com/hashkey-chain/hashkey-chain/eth/gasprice"
-	"github.com/hashkey-chain/hashkey-chain/miner"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/types"
+	"github.com/PlatONnetwork/AppChain-Go/core"
+	"github.com/PlatONnetwork/AppChain-Go/eth/downloader"
+	"github.com/PlatONnetwork/AppChain-Go/eth/gasprice"
+	"github.com/PlatONnetwork/AppChain-Go/miner"
 )
 
 // MarshalTOML marshals as TOML.

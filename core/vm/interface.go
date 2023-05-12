@@ -19,8 +19,8 @@ package vm
 import (
 	"math/big"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
 )
 
 // StateDB is an EVM database for full state querying.

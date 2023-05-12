@@ -18,7 +18,7 @@ package trie
 
 import (
 	"bytes"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 	"testing"
 )
 

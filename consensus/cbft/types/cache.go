@@ -18,7 +18,7 @@
 package types
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
 	"sync"
 	"time"
 )

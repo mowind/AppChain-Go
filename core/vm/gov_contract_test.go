@@ -22,22 +22,22 @@ import (
 	"math/big"
 	"testing"
 
-	//"github.com/hashkey-chain/hashkey-chain/log"
+	//"github.com/PlatONnetwork/AppChain-Go/log"
 
-	"github.com/hashkey-chain/hashkey-chain/x/xutil"
+	"github.com/PlatONnetwork/AppChain-Go/x/xutil"
 
-	"github.com/hashkey-chain/hashkey-chain/node"
+	"github.com/PlatONnetwork/AppChain-Go/node"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/hashkey-chain/hashkey-chain/common/mock"
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
-	"github.com/hashkey-chain/hashkey-chain/x/gov"
+	"github.com/PlatONnetwork/AppChain-Go/common/mock"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	commonvm "github.com/hashkey-chain/hashkey-chain/common/vm"
-	"github.com/hashkey-chain/hashkey-chain/x/plugin"
-	"github.com/hashkey-chain/hashkey-chain/x/xcom"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	commonvm "github.com/PlatONnetwork/AppChain-Go/common/vm"
+	"github.com/PlatONnetwork/AppChain-Go/x/plugin"
+	"github.com/PlatONnetwork/AppChain-Go/x/xcom"
 )
 
 var (

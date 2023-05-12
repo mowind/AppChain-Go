@@ -21,12 +21,12 @@ import (
 	"encoding/hex"
 	"math/big"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto/bls"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/bls"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
-	"github.com/hashkey-chain/hashkey-chain/x/restricting"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/x/restricting"
 )
 
 var Bytes2X_CMD = map[string]interface{}{

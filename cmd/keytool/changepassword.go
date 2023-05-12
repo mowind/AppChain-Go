@@ -7,8 +7,8 @@ import (
 
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts/keystore"
-	"github.com/hashkey-chain/hashkey-chain/cmd/utils"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/keystore"
+	"github.com/PlatONnetwork/AppChain-Go/cmd/utils"
 )
 
 var newPassphraseFlag = cli.StringFlag{

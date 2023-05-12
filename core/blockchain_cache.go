@@ -23,15 +23,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/x/gov"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 
-	"github.com/hashkey-chain/hashkey-chain/metrics"
+	"github.com/PlatONnetwork/AppChain-Go/metrics"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/consensus"
-	"github.com/hashkey-chain/hashkey-chain/core/state"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/consensus"
+	"github.com/PlatONnetwork/AppChain-Go/core/state"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
 var (

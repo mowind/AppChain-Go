@@ -25,16 +25,16 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/core/rawdb"
-	"github.com/hashkey-chain/hashkey-chain/ethdb/memorydb"
+	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb/memorydb"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/hashkey-chain/hashkey-chain/trie"
+	"github.com/PlatONnetwork/AppChain-Go/trie"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
 )
 
 var toAddr = common.BytesToAddress

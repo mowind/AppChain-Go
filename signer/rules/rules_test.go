@@ -21,13 +21,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts"
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/internal/ethapi"
-	"github.com/hashkey-chain/hashkey-chain/signer/core"
-	"github.com/hashkey-chain/hashkey-chain/signer/storage"
+	"github.com/PlatONnetwork/AppChain-Go/accounts"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/internal/ethapi"
+	"github.com/PlatONnetwork/AppChain-Go/signer/core"
+	"github.com/PlatONnetwork/AppChain-Go/signer/storage"
 )
 
 const JS = `

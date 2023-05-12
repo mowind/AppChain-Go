@@ -23,12 +23,12 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/ethdb/memorydb"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb/memorydb"
 
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 )
 
 func newEmptySecure() *SecureTrie {

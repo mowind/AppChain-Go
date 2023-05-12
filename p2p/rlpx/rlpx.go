@@ -35,9 +35,9 @@ import (
 
 	"golang.org/x/crypto/sha3"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/crypto/ecies"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/ecies"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 	"github.com/golang/snappy"
 )
 

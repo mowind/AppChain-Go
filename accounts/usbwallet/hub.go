@@ -22,9 +22,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts"
-	"github.com/hashkey-chain/hashkey-chain/event"
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/accounts"
+	"github.com/PlatONnetwork/AppChain-Go/event"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 	"github.com/karalabe/hid"
 )
 

@@ -17,12 +17,12 @@
 package keystore
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 	"math/big"
 
 	ethereum "github.com/hashkey-chain/hashkey-chain"
-	"github.com/hashkey-chain/hashkey-chain/accounts"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/accounts"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
 )
 
 // keystoreWallet implements the accounts.Wallet interface for the original

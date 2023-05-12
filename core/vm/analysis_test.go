@@ -17,7 +17,7 @@
 package vm
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 	"testing"
 )
 

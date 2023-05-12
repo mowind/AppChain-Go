@@ -17,8 +17,8 @@
 package memorydb
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/ethdb"
-	"github.com/hashkey-chain/hashkey-chain/ethdb/dbtest"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb/dbtest"
 	"testing"
 )
 

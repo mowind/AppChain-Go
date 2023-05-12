@@ -24,10 +24,10 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/hashkey-chain/hashkey-chain/cmd/utils"
-	"github.com/hashkey-chain/hashkey-chain/console"
-	"github.com/hashkey-chain/hashkey-chain/node"
-	"github.com/hashkey-chain/hashkey-chain/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/cmd/utils"
+	"github.com/PlatONnetwork/AppChain-Go/console"
+	"github.com/PlatONnetwork/AppChain-Go/node"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
 	"gopkg.in/urfave/cli.v1"
 )
 

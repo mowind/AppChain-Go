@@ -18,16 +18,16 @@ package vm
 
 import (
 	"context"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
-	"github.com/hashkey-chain/hashkey-chain/core/rawdb"
-	"github.com/hashkey-chain/hashkey-chain/core/state"
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/state"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 	"math/big"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 func TestMemoryGasCost(t *testing.T) {

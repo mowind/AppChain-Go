@@ -24,14 +24,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/utils"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/utils"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/protocols"
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/state"
-	ctypes "github.com/hashkey-chain/hashkey-chain/consensus/cbft/types"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/protocols"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/state"
+	ctypes "github.com/PlatONnetwork/AppChain-Go/consensus/cbft/types"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 	"github.com/stretchr/testify/assert"
 )
 

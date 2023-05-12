@@ -28,14 +28,14 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/hashkey-chain/hashkey-chain/console/prompt"
-	"github.com/hashkey-chain/hashkey-chain/internal/jsre/deps"
+	"github.com/PlatONnetwork/AppChain-Go/console/prompt"
+	"github.com/PlatONnetwork/AppChain-Go/internal/jsre/deps"
 
 	"github.com/dop251/goja"
 
-	"github.com/hashkey-chain/hashkey-chain/internal/jsre"
-	"github.com/hashkey-chain/hashkey-chain/internal/web3ext"
-	"github.com/hashkey-chain/hashkey-chain/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/internal/jsre"
+	"github.com/PlatONnetwork/AppChain-Go/internal/web3ext"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
 	"github.com/mattn/go-colorable"
 	"github.com/peterh/liner"
 )

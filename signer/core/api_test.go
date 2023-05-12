@@ -19,10 +19,10 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/accounts"
-	"github.com/hashkey-chain/hashkey-chain/signer/core"
-	"github.com/hashkey-chain/hashkey-chain/signer/fourbyte"
-	"github.com/hashkey-chain/hashkey-chain/signer/storage"
+	"github.com/PlatONnetwork/AppChain-Go/accounts"
+	"github.com/PlatONnetwork/AppChain-Go/signer/core"
+	"github.com/PlatONnetwork/AppChain-Go/signer/fourbyte"
+	"github.com/PlatONnetwork/AppChain-Go/signer/storage"
 	"io/ioutil"
 	"math/big"
 	"os"
@@ -30,12 +30,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts/keystore"
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/internal/ethapi"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/keystore"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/internal/ethapi"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 // Used for testing

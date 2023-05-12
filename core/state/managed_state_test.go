@@ -19,9 +19,9 @@ package state
 import (
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/core/rawdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 var addr = common.BytesToAddress([]byte("test"))

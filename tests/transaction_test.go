@@ -20,7 +20,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 func TestTransaction(t *testing.T) {

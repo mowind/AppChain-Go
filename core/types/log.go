@@ -19,11 +19,11 @@ package types
 import (
 	"io"
 
-	json2 "github.com/hashkey-chain/hashkey-chain/common/json"
+	json2 "github.com/PlatONnetwork/AppChain-Go/common/json"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 //go:generate gencodec -type Log -field-override logMarshaling -out gen_log_json.go

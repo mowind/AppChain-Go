@@ -16,7 +16,7 @@
 
 package vm
 
-import "github.com/hashkey-chain/hashkey-chain/common"
+import "github.com/PlatONnetwork/AppChain-Go/common"
 
 // the inner contract addr  table
 var (

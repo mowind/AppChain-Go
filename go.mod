@@ -1,4 +1,4 @@
-module github.com/hashkey-chain/hashkey-chain
+module github.com/PlatONnetwork/AppChain-Go
 
 go 1.16
 

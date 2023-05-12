@@ -25,16 +25,16 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts/abi"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
 
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts/abi/bind"
-	"github.com/hashkey-chain/hashkey-chain/cmd/utils"
-	"github.com/hashkey-chain/hashkey-chain/common/compiler"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/internal/flags"
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/abi/bind"
+	"github.com/PlatONnetwork/AppChain-Go/cmd/utils"
+	"github.com/PlatONnetwork/AppChain-Go/common/compiler"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/internal/flags"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
 var (

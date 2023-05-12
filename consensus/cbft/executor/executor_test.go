@@ -24,11 +24,11 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/utils"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/utils"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 
-	"github.com/hashkey-chain/hashkey-chain/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
 )
 
 func NewBlock(parent common.Hash, number uint64) *types.Block {

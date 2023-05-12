@@ -22,7 +22,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/crypto/secp256k1"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/secp256k1"
 	"math/big"
 	"testing"
 )

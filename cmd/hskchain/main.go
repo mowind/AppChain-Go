@@ -19,7 +19,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/console/prompt"
+	"github.com/PlatONnetwork/AppChain-Go/console/prompt"
 	"math"
 	"os"
 	"runtime"
@@ -32,17 +32,17 @@ import (
 	"github.com/panjf2000/ants/v2"
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/hashkey-chain/hashkey-chain/accounts"
-	"github.com/hashkey-chain/hashkey-chain/accounts/keystore"
-	"github.com/hashkey-chain/hashkey-chain/cmd/utils"
-	"github.com/hashkey-chain/hashkey-chain/crypto/bls"
-	"github.com/hashkey-chain/hashkey-chain/eth"
-	"github.com/hashkey-chain/hashkey-chain/ethclient"
-	"github.com/hashkey-chain/hashkey-chain/internal/debug"
-	"github.com/hashkey-chain/hashkey-chain/internal/ethapi"
-	"github.com/hashkey-chain/hashkey-chain/log"
-	"github.com/hashkey-chain/hashkey-chain/metrics"
-	"github.com/hashkey-chain/hashkey-chain/node"
+	"github.com/PlatONnetwork/AppChain-Go/accounts"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/keystore"
+	"github.com/PlatONnetwork/AppChain-Go/cmd/utils"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/bls"
+	"github.com/PlatONnetwork/AppChain-Go/eth"
+	"github.com/PlatONnetwork/AppChain-Go/ethclient"
+	"github.com/PlatONnetwork/AppChain-Go/internal/debug"
+	"github.com/PlatONnetwork/AppChain-Go/internal/ethapi"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/metrics"
+	"github.com/PlatONnetwork/AppChain-Go/node"
 
 	gopsutil "github.com/shirou/gopsutil/mem"
 )

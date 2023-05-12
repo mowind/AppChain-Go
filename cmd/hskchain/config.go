@@ -26,16 +26,16 @@ import (
 	"reflect"
 	"unicode"
 
-	"github.com/hashkey-chain/hashkey-chain/internal/ethapi"
+	"github.com/PlatONnetwork/AppChain-Go/internal/ethapi"
 
 	cli "gopkg.in/urfave/cli.v1"
 
-	"github.com/hashkey-chain/hashkey-chain/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
 
-	"github.com/hashkey-chain/hashkey-chain/cmd/utils"
-	"github.com/hashkey-chain/hashkey-chain/eth"
-	"github.com/hashkey-chain/hashkey-chain/node"
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/cmd/utils"
+	"github.com/PlatONnetwork/AppChain-Go/eth"
+	"github.com/PlatONnetwork/AppChain-Go/node"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 	"github.com/naoina/toml"
 )
 

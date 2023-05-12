@@ -28,7 +28,7 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-const pathOfPackageRLP = "github.com/hashkey-chain/hashkey-chain/rlp"
+const pathOfPackageRLP = "github.com/PlatONnetwork/AppChain-Go/rlp"
 
 func main() {
 	var (

@@ -23,7 +23,7 @@ const (
 
 // locationTrims are trimmed for display to avoid unwieldy log lines.
 var locationTrims = []string{
-	"github.com/hashkey-chain/hashkey-chain/",
+	"github.com/PlatONnetwork/AppChain-Go/",
 }
 
 // PrintOrigins sets or unsets log location (file:line) printing for terminal

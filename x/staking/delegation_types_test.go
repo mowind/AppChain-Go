@@ -1,8 +1,8 @@
 package staking
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 	"math/big"
 	"testing"
 )

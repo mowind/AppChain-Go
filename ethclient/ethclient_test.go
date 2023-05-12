@@ -23,7 +23,7 @@ import (
 	"testing"
 
 	platon "github.com/hashkey-chain/hashkey-chain"
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 // Verify that Client implements the ethereum interfaces.

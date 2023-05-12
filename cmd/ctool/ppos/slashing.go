@@ -21,7 +21,7 @@ import (
 
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 )
 
 var (

@@ -18,9 +18,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/hashkey-chain/hashkey-chain/cmd/utils"
-	"github.com/hashkey-chain/hashkey-chain/eth"
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/cmd/utils"
+	"github.com/PlatONnetwork/AppChain-Go/eth"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 	"gopkg.in/urfave/cli.v1"
 	"os"
 	"runtime"

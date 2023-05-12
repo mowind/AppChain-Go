@@ -20,7 +20,7 @@ package snapshotdb
 import (
 	"math/big"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 const WalKeyPrefix = "journal-"

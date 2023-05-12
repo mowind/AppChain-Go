@@ -22,8 +22,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/hashkey-chain/hashkey-chain/common/math"
-	"github.com/hashkey-chain/hashkey-chain/core/vm"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm"
 )
 
 // Compiler contains information about the parsed source

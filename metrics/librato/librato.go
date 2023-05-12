@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/metrics"
+	"github.com/PlatONnetwork/AppChain-Go/metrics"
 )
 
 // a regexp for extracting the unit from time.Duration.String

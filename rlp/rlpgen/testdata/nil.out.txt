@@ -1,6 +1,6 @@
 package test
 
-import "github.com/hashkey-chain/hashkey-chain/rlp"
+import "github.com/PlatONnetwork/AppChain-Go/rlp"
 import "io"
 
 func (obj *Test) EncodeRLP(_w io.Writer) error {

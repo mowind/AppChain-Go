@@ -20,10 +20,10 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common/vm"
+	"github.com/PlatONnetwork/AppChain-Go/common/vm"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
 )
 
 var TestPlatONPrecompiledContracts = map[common.Address]interface{}{

@@ -26,8 +26,8 @@ import (
 
 	"github.com/docker/docker/pkg/reexec"
 
-	"github.com/hashkey-chain/hashkey-chain/internal/cmdtest"
-	"github.com/hashkey-chain/hashkey-chain/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/internal/cmdtest"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
 )
 
 func tmpdir(t *testing.T) string {

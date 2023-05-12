@@ -21,7 +21,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/internal/cmdtest"
+	"github.com/PlatONnetwork/AppChain-Go/internal/cmdtest"
 	"github.com/docker/docker/pkg/reexec"
 )
 

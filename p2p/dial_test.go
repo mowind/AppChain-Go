@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 	"github.com/davecgh/go-spew/spew"
 )
 

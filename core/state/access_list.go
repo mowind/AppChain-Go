@@ -17,7 +17,7 @@
 package state
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 type accessList struct {

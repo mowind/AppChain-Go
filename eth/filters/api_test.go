@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
 )
 
 func TestUnmarshalJSONNewFilterArgs(t *testing.T) {

@@ -23,8 +23,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/hashkey-chain/hashkey-chain/signer/core"
-	"github.com/hashkey-chain/hashkey-chain/signer/fourbyte"
+	"github.com/PlatONnetwork/AppChain-Go/signer/core"
+	"github.com/PlatONnetwork/AppChain-Go/signer/fourbyte"
 )
 
 func init() {

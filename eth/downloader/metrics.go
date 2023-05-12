@@ -19,7 +19,7 @@
 package downloader
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/metrics"
+	"github.com/PlatONnetwork/AppChain-Go/metrics"
 )
 
 var (

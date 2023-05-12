@@ -22,21 +22,21 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto/bls"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/bls"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/utils"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/utils"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/executor"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/executor"
 
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/math"
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/protocols"
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/state"
-	ctypes "github.com/hashkey-chain/hashkey-chain/consensus/cbft/types"
-	"github.com/hashkey-chain/hashkey-chain/core/cbfttypes"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/protocols"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/state"
+	ctypes "github.com/PlatONnetwork/AppChain-Go/consensus/cbft/types"
+	"github.com/PlatONnetwork/AppChain-Go/core/cbfttypes"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
 )
 
 // OnPrepareBlock performs security rule verification，store in blockTree,

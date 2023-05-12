@@ -18,9 +18,9 @@ package p2p
 
 import (
 	"errors"
-	"github.com/hashkey-chain/hashkey-chain/crypto"
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
-	"github.com/hashkey-chain/hashkey-chain/p2p/simulations/pipes"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/simulations/pipes"
 	"reflect"
 	"sync"
 	"testing"

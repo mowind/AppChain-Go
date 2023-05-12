@@ -18,16 +18,16 @@ package vm
 
 import (
 	"bytes"
-	"github.com/hashkey-chain/hashkey-chain/common/mock"
+	"github.com/PlatONnetwork/AppChain-Go/common/mock"
 	"github.com/holiman/uint256"
 	"math/big"
 	"strings"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/log"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 type dummyContractRef struct {

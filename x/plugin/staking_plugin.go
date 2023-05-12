@@ -31,28 +31,28 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/hashkey-chain/hashkey-chain/x/reward"
+	"github.com/PlatONnetwork/AppChain-Go/x/reward"
 
-	"github.com/hashkey-chain/hashkey-chain/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
 
-	"github.com/hashkey-chain/hashkey-chain/x/handler"
+	"github.com/PlatONnetwork/AppChain-Go/x/handler"
 
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 
-	"github.com/hashkey-chain/hashkey-chain/x/gov"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/vm"
-	"github.com/hashkey-chain/hashkey-chain/core/cbfttypes"
-	"github.com/hashkey-chain/hashkey-chain/core/snapshotdb"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
-	"github.com/hashkey-chain/hashkey-chain/crypto/vrf"
-	"github.com/hashkey-chain/hashkey-chain/event"
-	"github.com/hashkey-chain/hashkey-chain/log"
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
-	"github.com/hashkey-chain/hashkey-chain/x/staking"
-	"github.com/hashkey-chain/hashkey-chain/x/xcom"
-	"github.com/hashkey-chain/hashkey-chain/x/xutil"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/vm"
+	"github.com/PlatONnetwork/AppChain-Go/core/cbfttypes"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/vrf"
+	"github.com/PlatONnetwork/AppChain-Go/event"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/x/staking"
+	"github.com/PlatONnetwork/AppChain-Go/x/xcom"
+	"github.com/PlatONnetwork/AppChain-Go/x/xutil"
 )
 
 type StakingPlugin struct {

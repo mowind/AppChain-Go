@@ -18,7 +18,7 @@
 package snapshotdb
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 	"math/big"
 	"sync"
 )

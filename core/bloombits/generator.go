@@ -19,7 +19,7 @@ package bloombits
 import (
 	"errors"
 
-	"github.com/hashkey-chain/hashkey-chain/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
 )
 
 var (

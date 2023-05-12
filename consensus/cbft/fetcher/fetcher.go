@@ -20,7 +20,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/types"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/types"
 )
 
 var (

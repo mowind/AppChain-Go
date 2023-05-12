@@ -19,8 +19,8 @@ package executor
 import (
 	"fmt"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
 )
 
 // Executor defines an execution function.

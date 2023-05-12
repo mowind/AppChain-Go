@@ -22,9 +22,9 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/hashkey-chain/hashkey-chain/p2p"
-	"github.com/hashkey-chain/hashkey-chain/p2p/nat"
-	"github.com/hashkey-chain/hashkey-chain/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/p2p"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/nat"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
 )
 
 const (

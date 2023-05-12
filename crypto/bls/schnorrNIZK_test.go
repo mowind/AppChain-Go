@@ -5,7 +5,7 @@ import (
 
 	"fmt"
 
-	"github.com/hashkey-chain/hashkey-chain/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 func TestSchnorrNIZK(t *testing.T) {

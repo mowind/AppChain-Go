@@ -38,7 +38,7 @@ import (
 	"math/big"
 	"unsafe"
 
-	"github.com/hashkey-chain/hashkey-chain/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
 )
 
 var context *C.secp256k1_context

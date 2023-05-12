@@ -18,10 +18,10 @@ package rpc
 
 import (
 	"encoding/json"
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 	"testing"
 
-	"github.com/hashkey-chain/hashkey-chain/common/math"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
 )
 
 func TestBlockNumberJSONUnmarshal(t *testing.T) {

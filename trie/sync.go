@@ -20,11 +20,11 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/hashkey-chain/hashkey-chain/core/rawdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
-	"github.com/hashkey-chain/hashkey-chain/common/prque"
-	"github.com/hashkey-chain/hashkey-chain/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/prque"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
 )
 
 // ErrNotRequested is returned by the trie sync when it's requested to process a

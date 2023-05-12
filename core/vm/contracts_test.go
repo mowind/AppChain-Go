@@ -24,11 +24,11 @@ import (
 	"testing"
 
 	"encoding/json"
-	"github.com/hashkey-chain/hashkey-chain/common/mock"
-	"github.com/hashkey-chain/hashkey-chain/common/vm"
-	"github.com/hashkey-chain/hashkey-chain/x/plugin"
+	"github.com/PlatONnetwork/AppChain-Go/common/mock"
+	"github.com/PlatONnetwork/AppChain-Go/common/vm"
+	"github.com/PlatONnetwork/AppChain-Go/x/plugin"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 // precompiledTest defines the input/output pairs for precompiled contract tests.

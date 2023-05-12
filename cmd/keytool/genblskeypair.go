@@ -20,7 +20,7 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto/bls"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/bls"
 	"gopkg.in/urfave/cli.v1"
 )
 

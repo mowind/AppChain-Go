@@ -17,7 +17,7 @@
 package keystore
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/accounts/keystore"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/keystore"
 	"os"
 )
 

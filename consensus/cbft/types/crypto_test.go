@@ -22,9 +22,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/utils"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/utils"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 func Test_QuorumCert(t *testing.T) {

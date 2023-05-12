@@ -25,29 +25,29 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashkey-chain/hashkey-chain/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus"
+	"github.com/PlatONnetwork/AppChain-Go/consensus"
 
-	"github.com/hashkey-chain/hashkey-chain/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/executor"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/executor"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/evidence"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/evidence"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/rules"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/rules"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/utils"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/utils"
 
-	"github.com/hashkey-chain/hashkey-chain/crypto/bls"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/bls"
 
-	"github.com/hashkey-chain/hashkey-chain/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 
-	"github.com/hashkey-chain/hashkey-chain/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
 
-	"github.com/hashkey-chain/hashkey-chain/consensus/cbft/protocols"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/protocols"
 
-	ctypes "github.com/hashkey-chain/hashkey-chain/consensus/cbft/types"
+	ctypes "github.com/PlatONnetwork/AppChain-Go/consensus/cbft/types"
 	"github.com/stretchr/testify/assert"
 )
 

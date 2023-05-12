@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/hashkey-chain/hashkey-chain/node"
+	"github.com/PlatONnetwork/AppChain-Go/node"
 )
 
 // SampleLifecycle is a trivial network service that can be attached to a node for

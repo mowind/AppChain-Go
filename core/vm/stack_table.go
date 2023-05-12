@@ -17,7 +17,7 @@
 package vm
 
 import (
-	"github.com/hashkey-chain/hashkey-chain/params"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 func minSwapStack(n int) int {
