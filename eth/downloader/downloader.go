@@ -25,7 +25,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	ethereum "github.com/hashkey-chain/hashkey-chain"
+	ethereum "github.com/PlatONnetwork/AppChain-Go"
 	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
 	"github.com/PlatONnetwork/AppChain-Go/trie"
 

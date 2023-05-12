@@ -30,7 +30,7 @@ import (
 
 	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
 
-	ethereum "github.com/hashkey-chain/hashkey-chain"
+	ethereum "github.com/PlatONnetwork/AppChain-Go"
 	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
 	"github.com/PlatONnetwork/AppChain-Go/log"
 

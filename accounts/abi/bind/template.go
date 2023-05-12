@@ -92,7 +92,7 @@ import (
 	"strings"
     "errors"
 
-	hskchain "github.com/hashkey-chain/hashkey-chain"
+	hskchain "github.com/PlatONnetwork/AppChain-Go"
 	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
 	"github.com/PlatONnetwork/AppChain-Go/accounts/abi/bind"
 	"github.com/PlatONnetwork/AppChain-Go/common"

@@ -22,7 +22,7 @@ import (
 	"reflect"
 	"testing"
 
-	platon "github.com/hashkey-chain/hashkey-chain"
+	platon "github.com/PlatONnetwork/AppChain-Go"
 	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 

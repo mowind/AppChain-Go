@@ -23,7 +23,7 @@ import (
 
 	"golang.org/x/crypto/sha3"
 
-	ethereum "github.com/hashkey-chain/hashkey-chain"
+	ethereum "github.com/PlatONnetwork/AppChain-Go"
 	"github.com/PlatONnetwork/AppChain-Go/common"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
 	"github.com/PlatONnetwork/AppChain-Go/event"

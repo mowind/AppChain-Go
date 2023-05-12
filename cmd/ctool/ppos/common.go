@@ -25,7 +25,7 @@ import (
 
 	"gopkg.in/urfave/cli.v1"
 
-	platon "github.com/hashkey-chain/hashkey-chain"
+	platon "github.com/PlatONnetwork/AppChain-Go"
 	"github.com/PlatONnetwork/AppChain-Go/common"
 	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 	"github.com/PlatONnetwork/AppChain-Go/common/vm"

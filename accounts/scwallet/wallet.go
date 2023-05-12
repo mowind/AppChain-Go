@@ -42,7 +42,7 @@ import (
 	"github.com/PlatONnetwork/AppChain-Go/crypto"
 	"github.com/PlatONnetwork/AppChain-Go/log"
 
-	ethereum "github.com/hashkey-chain/hashkey-chain"
+	ethereum "github.com/PlatONnetwork/AppChain-Go"
 )
 
 // ErrPairingPasswordNeeded is returned if opening the smart card requires pairing with a pairing

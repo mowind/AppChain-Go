@@ -14,7 +14,7 @@ import (
 
 	"github.com/PlatONnetwork/AppChain-Go/accounts/abi/bind"
 
-	ethereum "github.com/hashkey-chain/hashkey-chain"
+	ethereum "github.com/PlatONnetwork/AppChain-Go"
 	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
 	"github.com/PlatONnetwork/AppChain-Go/common"
 	"github.com/PlatONnetwork/AppChain-Go/core"

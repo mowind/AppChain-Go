@@ -4,12 +4,12 @@ Welcome to the hashkey-chain source code repository! This is an Ethereum-basedã€
 
 [![API Reference](
 https://camo.githubusercontent.com/915b7be44ada53c290eb157634330494ebe3e30a/68747470733a2f2f676f646f632e6f72672f6769746875622e636f6d2f676f6c616e672f6764646f3f7374617475732e737667
-)](https://pkg.go.dev/github.com/hashkey-chain/hashkey-chain?tab=doc)
-[![Go Report Card](https://goreportcard.com/badge/github.com/hashkey-chain/hashkey-chain)](https://goreportcard.com/report/github.com/hashkey-chain/hashkey-chain)
-[![Build Status](https://github.com/hashkey-chain/hashkey-chain/workflows/unittest/badge.svg)](https://github.com/hashkey-chain/hashkey-chain/actions)
+)](https://pkg.go.dev/github.com/PlatONnetwork/AppChain-Go?tab=doc)
+[![Go Report Card](https://goreportcard.com/badge/github.com/PlatONnetwork/AppChain-Go)](https://goreportcard.com/report/github.com/PlatONnetwork/AppChain-Go)
+[![Build Status](https://github.com/PlatONnetwork/AppChain-Go/workflows/unittest/badge.svg)](https://github.com/PlatONnetwork/AppChain-Go/actions)
 [![codecov](https://codecov.io/gh/hashkey-chain/hashkey-chain/branch/feature-mainnet-launch/graph/badge.svg)](https://codecov.io/gh/hashkey-chain/hashkey-chain)
-[![version](https://img.shields.io/github/v/tag/hashkey-chain/hashkey-chain)](https://github.com/hashkey-chain/hashkey-chain/releases/latest)
-[![GitHub All Releases](https://img.shields.io/github/downloads/hashkey-chain/hashkey-chain/total.svg)](https://github.com/hashkey-chain/hashkey-chain)
+[![version](https://img.shields.io/github/v/tag/hashkey-chain/hashkey-chain)](https://github.com/PlatONnetwork/AppChain-Go/releases/latest)
+[![GitHub All Releases](https://img.shields.io/github/downloads/hashkey-chain/hashkey-chain/total.svg)](https://github.com/PlatONnetwork/AppChain-Go)
 
 ## Building the source
 The requirements to build HashKey-Chain are:
@@ -28,7 +28,7 @@ sudo apt install libgmp-dev libssl-dev
 Then, clone the repository and download dependency
 
 ```
-git clone https://github.com/hashkey-chain/hashkey-chain.git --recursive
+git clone https://github.com/PlatONnetwork/AppChain-Go.git --recursive
 
 cd hashkey-chain && go mod download
 ```
@@ -139,7 +139,7 @@ For more information, please visit our [Docs](https://devdocs.hashkeychain.io).
 
 ## Contributing to hashkey-chain
 
-All of codes for hashkey-chain are open source and contributing are very welcome! Before beginning, please take a look at our contributing [guidelines](https://github.com/hashkey-chain/hashkey-chain/blob/develop/.github/CONTRIBUTING.md). You can also open an issue by clicking [here](https://github.com/hashkey-chain/hashkey-chain/issues/new/choose).
+All of codes for hashkey-chain are open source and contributing are very welcome! Before beginning, please take a look at our contributing [guidelines](https://github.com/PlatONnetwork/AppChain-Go/blob/develop/.github/CONTRIBUTING.md). You can also open an issue by clicking [here](https://github.com/PlatONnetwork/AppChain-Go/issues/new/choose).
 
 ## Support
 If you have any questions or suggestions please contact us at support@hashkeychain.network.

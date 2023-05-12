@@ -20,7 +20,7 @@ import (
 	"context"
 	"sync"
 
-	ethereum "github.com/hashkey-chain/hashkey-chain"
+	ethereum "github.com/PlatONnetwork/AppChain-Go"
 	"github.com/PlatONnetwork/AppChain-Go/event"
 	"github.com/PlatONnetwork/AppChain-Go/rpc"
 )
