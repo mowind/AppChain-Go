@@ -19,21 +19,21 @@ package gov
 import (
 	"bytes"
 	"fmt"
-	"github.com/PlatONnetwork/PlatON-Go/core/types"
-	"github.com/PlatONnetwork/PlatON-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 	"golang.org/x/crypto/sha3"
 
-	"github.com/PlatONnetwork/PlatON-Go/params"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/PlatONnetwork/PlatON-Go/common/mock"
+	"github.com/PlatONnetwork/AppChain-Go/common/mock"
 	"testing"
 
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/core/snapshotdb"
-	"github.com/PlatONnetwork/PlatON-Go/p2p/discover"
-	"github.com/PlatONnetwork/PlatON-Go/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 var (

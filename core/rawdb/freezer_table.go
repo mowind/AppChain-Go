@@ -28,9 +28,9 @@ import (
 
 	"github.com/golang/snappy"
 
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/log"
-	"github.com/PlatONnetwork/PlatON-Go/metrics"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/metrics"
 )
 
 var (

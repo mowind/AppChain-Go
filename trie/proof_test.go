@@ -24,10 +24,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/PlatONnetwork/PlatON-Go/ethdb/memorydb"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb/memorydb"
 
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 )
 
 func init() {

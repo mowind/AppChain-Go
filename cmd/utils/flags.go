@@ -20,7 +20,7 @@ package utils
 import (
 	"crypto/ecdsa"
 	"fmt"
-	"github.com/PlatONnetwork/PlatON-Go/metrics/exp"
+	"github.com/PlatONnetwork/AppChain-Go/metrics/exp"
 	"io"
 	"io/ioutil"
 	"math/big"
@@ -32,40 +32,40 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/PlatONnetwork/PlatON-Go/graphql"
-	"github.com/PlatONnetwork/PlatON-Go/internal/ethapi"
+	"github.com/PlatONnetwork/AppChain-Go/graphql"
+	"github.com/PlatONnetwork/AppChain-Go/internal/ethapi"
 
-	"github.com/PlatONnetwork/PlatON-Go/miner"
+	"github.com/PlatONnetwork/AppChain-Go/miner"
 
-	"github.com/PlatONnetwork/PlatON-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
 
 	"gopkg.in/urfave/cli.v1"
 
-	"github.com/PlatONnetwork/PlatON-Go/accounts"
-	"github.com/PlatONnetwork/PlatON-Go/accounts/keystore"
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/common/fdlimit"
-	"github.com/PlatONnetwork/PlatON-Go/consensus"
-	"github.com/PlatONnetwork/PlatON-Go/consensus/cbft/types"
-	"github.com/PlatONnetwork/PlatON-Go/core"
-	types2 "github.com/PlatONnetwork/PlatON-Go/core/types"
-	"github.com/PlatONnetwork/PlatON-Go/core/vm"
-	"github.com/PlatONnetwork/PlatON-Go/crypto"
-	"github.com/PlatONnetwork/PlatON-Go/crypto/bls"
-	"github.com/PlatONnetwork/PlatON-Go/eth"
-	"github.com/PlatONnetwork/PlatON-Go/eth/downloader"
-	"github.com/PlatONnetwork/PlatON-Go/eth/gasprice"
-	"github.com/PlatONnetwork/PlatON-Go/ethdb"
-	"github.com/PlatONnetwork/PlatON-Go/ethstats"
-	"github.com/PlatONnetwork/PlatON-Go/log"
-	"github.com/PlatONnetwork/PlatON-Go/metrics"
-	"github.com/PlatONnetwork/PlatON-Go/metrics/influxdb"
-	"github.com/PlatONnetwork/PlatON-Go/node"
-	"github.com/PlatONnetwork/PlatON-Go/p2p"
-	"github.com/PlatONnetwork/PlatON-Go/p2p/discover"
-	"github.com/PlatONnetwork/PlatON-Go/p2p/nat"
-	"github.com/PlatONnetwork/PlatON-Go/p2p/netutil"
-	"github.com/PlatONnetwork/PlatON-Go/params"
+	"github.com/PlatONnetwork/AppChain-Go/accounts"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/keystore"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/fdlimit"
+	"github.com/PlatONnetwork/AppChain-Go/consensus"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/types"
+	"github.com/PlatONnetwork/AppChain-Go/core"
+	types2 "github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/crypto/bls"
+	"github.com/PlatONnetwork/AppChain-Go/eth"
+	"github.com/PlatONnetwork/AppChain-Go/eth/downloader"
+	"github.com/PlatONnetwork/AppChain-Go/eth/gasprice"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/ethstats"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/metrics"
+	"github.com/PlatONnetwork/AppChain-Go/metrics/influxdb"
+	"github.com/PlatONnetwork/AppChain-Go/node"
+	"github.com/PlatONnetwork/AppChain-Go/p2p"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/nat"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/netutil"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 var (
@@ -318,7 +318,7 @@ var (
 	}
 	RPCGlobalGasCapFlag = cli.Uint64Flag{
 		Name:  "rpc.gascap",
-		Usage: "Sets a cap on gas that can be used in platon_call/estimateGas (0=infinite)",
+		Usage: "Sets a cap on gas that can be used in hskchain_call/estimateGas (0=infinite)",
 		Value: eth.DefaultConfig.RPCGasCap,
 	}
 	RPCGlobalTxFeeCapFlag = cli.Float64Flag{
@@ -552,7 +552,7 @@ var (
 	MetricsInfluxDBDatabaseFlag = cli.StringFlag{
 		Name:  "metrics.influxdb.database",
 		Usage: "InfluxDB database name to push reported metrics to",
-		Value: "platon",
+		Value: "hskchain",
 	}
 	MetricsInfluxDBUsernameFlag = cli.StringFlag{
 		Name:  "metrics.influxdb.username",
@@ -932,7 +932,7 @@ func MakeAddress(ks *keystore.KeyStore, account string) (accounts.Account, error
 	log.Warn("-------------------------------------------------------------------")
 	log.Warn("Referring to accounts by order in the keystore folder is dangerous!")
 	log.Warn("This functionality is deprecated and will be removed in the future!")
-	log.Warn("Please use explicit addresses! (can search via `platon account list`)")
+	log.Warn("Please use explicit addresses! (can search via `hskchain account list`)")
 	log.Warn("-------------------------------------------------------------------")
 
 	accs := ks.Accounts()
@@ -1305,7 +1305,7 @@ func SetupMetrics(ctx *cli.Context) {
 			tagsMap := SplitTagsFlag(ctx.GlobalString(MetricsInfluxDBTagsFlag.Name))
 
 			log.Info("Enabling metrics export to InfluxDB")
-			go influxdb.InfluxDBWithTags(metrics.DefaultRegistry, 10*time.Second, endpoint, database, username, password, "platon.", tagsMap)
+			go influxdb.InfluxDBWithTags(metrics.DefaultRegistry, 10*time.Second, endpoint, database, username, password, "hskchain.", tagsMap)
 		}
 
 		if ctx.GlobalIsSet(MetricsHTTPFlag.Name) {
@@ -1431,11 +1431,11 @@ func MakeConsolePreloads(ctx *cli.Context) []string {
 // This is a temporary function used for migrating old command/flags to the
 // new format.
 //
-// e.g. platon account new --keystore /tmp/mykeystore --lightkdf
+// e.g. hsk-chain account new --keystore /tmp/mykeystore --lightkdf
 //
 // is equivalent after calling this method with:
 //
-// platon --keystore /tmp/mykeystore --lightkdf account new
+// hsk-chain --keystore /tmp/mykeystore --lightkdf account new
 //
 // This allows the use of the existing configuration functionality.
 // When all flags are migrated this function can be removed and the existing

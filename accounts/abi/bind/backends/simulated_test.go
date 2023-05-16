@@ -10,16 +10,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/PlatONnetwork/PlatON-Go/params"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 
-	"github.com/PlatONnetwork/PlatON-Go/accounts/abi/bind"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/abi/bind"
 
-	ethereum "github.com/PlatONnetwork/PlatON-Go"
-	"github.com/PlatONnetwork/PlatON-Go/accounts/abi"
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/core"
-	"github.com/PlatONnetwork/PlatON-Go/core/types"
-	"github.com/PlatONnetwork/PlatON-Go/crypto"
+	ethereum "github.com/PlatONnetwork/AppChain-Go"
+	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 )
 
 func TestSimulatedBackend(t *testing.T) {
@@ -398,7 +398,7 @@ func TestSimulatedBackend_EstimateGas(t *testing.T) {
 	addr := crypto.PubkeyToAddress(key.PublicKey)
 	opts, _ := bind.NewKeyedTransactorWithChainID(key, big.NewInt(1337))
 
-	sim := NewSimulatedBackend(core.GenesisAlloc{addr: {Balance: big.NewInt(params.LAT)}}, 10000000)
+	sim := NewSimulatedBackend(core.GenesisAlloc{addr: {Balance: big.NewInt(params.HSK)}}, 10000000)
 	defer sim.Close()
 
 	parsed, _ := abi.JSON(strings.NewReader(contractAbi))
@@ -503,7 +503,7 @@ func TestSimulatedBackend_EstimateGasWithPrice(t *testing.T) {
 	key, _ := crypto.GenerateKey()
 	addr := crypto.PubkeyToAddress(key.PublicKey)
 
-	sim := NewSimulatedBackend(core.GenesisAlloc{addr: {Balance: big.NewInt(params.LAT*2 + 2e17)}}, 10000000)
+	sim := NewSimulatedBackend(core.GenesisAlloc{addr: {Balance: big.NewInt(params.HSK*2 + 2e17)}}, 10000000)
 	defer sim.Close()
 
 	recipient := common.HexToAddress("deadbeef")

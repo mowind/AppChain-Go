@@ -17,7 +17,7 @@
 
 package reward
 
-import "github.com/PlatONnetwork/PlatON-Go/common"
+import "github.com/PlatONnetwork/AppChain-Go/common"
 
 var (
 	ErrDelegationNotFound = common.NewBizError(305001, "Delegation info not found")

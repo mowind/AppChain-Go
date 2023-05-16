@@ -20,7 +20,7 @@ package gov
 import (
 	"bytes"
 
-	"github.com/PlatONnetwork/PlatON-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 var (

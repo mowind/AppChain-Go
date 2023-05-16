@@ -1,4 +1,4 @@
-module github.com/PlatONnetwork/PlatON-Go
+module github.com/PlatONnetwork/AppChain-Go
 
 go 1.16
 

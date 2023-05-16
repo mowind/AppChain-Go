@@ -25,9 +25,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/crypto"
-	"github.com/PlatONnetwork/PlatON-Go/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 // The values in those tests are from the Transaction Tests

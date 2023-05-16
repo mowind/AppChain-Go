@@ -25,11 +25,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/PlatONnetwork/PlatON-Go/core/state"
+	"github.com/PlatONnetwork/AppChain-Go/core/state"
 
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/core/vm"
-	"github.com/PlatONnetwork/PlatON-Go/params"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 type account struct{}

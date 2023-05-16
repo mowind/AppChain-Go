@@ -25,42 +25,42 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/PlatONnetwork/PlatON-Go/consensus/cbft/wal"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/wal"
 
-	"github.com/PlatONnetwork/PlatON-Go/x/gov"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 
-	"github.com/PlatONnetwork/PlatON-Go/x/handler"
+	"github.com/PlatONnetwork/AppChain-Go/x/handler"
 
-	"github.com/PlatONnetwork/PlatON-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
 
-	"github.com/PlatONnetwork/PlatON-Go/consensus/cbft/evidence"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/evidence"
 
-	"github.com/PlatONnetwork/PlatON-Go/accounts"
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/consensus"
-	"github.com/PlatONnetwork/PlatON-Go/consensus/cbft"
-	ctypes "github.com/PlatONnetwork/PlatON-Go/consensus/cbft/types"
-	"github.com/PlatONnetwork/PlatON-Go/consensus/cbft/validator"
-	"github.com/PlatONnetwork/PlatON-Go/core"
-	"github.com/PlatONnetwork/PlatON-Go/core/bloombits"
-	"github.com/PlatONnetwork/PlatON-Go/core/rawdb"
-	"github.com/PlatONnetwork/PlatON-Go/core/types"
-	"github.com/PlatONnetwork/PlatON-Go/core/vm"
-	"github.com/PlatONnetwork/PlatON-Go/eth/downloader"
-	"github.com/PlatONnetwork/PlatON-Go/eth/filters"
-	"github.com/PlatONnetwork/PlatON-Go/eth/gasprice"
-	"github.com/PlatONnetwork/PlatON-Go/ethdb"
-	"github.com/PlatONnetwork/PlatON-Go/event"
-	"github.com/PlatONnetwork/PlatON-Go/internal/ethapi"
-	"github.com/PlatONnetwork/PlatON-Go/log"
-	"github.com/PlatONnetwork/PlatON-Go/miner"
-	"github.com/PlatONnetwork/PlatON-Go/node"
-	"github.com/PlatONnetwork/PlatON-Go/p2p"
-	"github.com/PlatONnetwork/PlatON-Go/p2p/discover"
-	"github.com/PlatONnetwork/PlatON-Go/params"
-	"github.com/PlatONnetwork/PlatON-Go/rpc"
-	xplugin "github.com/PlatONnetwork/PlatON-Go/x/plugin"
-	"github.com/PlatONnetwork/PlatON-Go/x/xcom"
+	"github.com/PlatONnetwork/AppChain-Go/accounts"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/consensus"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft"
+	ctypes "github.com/PlatONnetwork/AppChain-Go/consensus/cbft/types"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/validator"
+	"github.com/PlatONnetwork/AppChain-Go/core"
+	"github.com/PlatONnetwork/AppChain-Go/core/bloombits"
+	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm"
+	"github.com/PlatONnetwork/AppChain-Go/eth/downloader"
+	"github.com/PlatONnetwork/AppChain-Go/eth/filters"
+	"github.com/PlatONnetwork/AppChain-Go/eth/gasprice"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/event"
+	"github.com/PlatONnetwork/AppChain-Go/internal/ethapi"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/miner"
+	"github.com/PlatONnetwork/AppChain-Go/node"
+	"github.com/PlatONnetwork/AppChain-Go/p2p"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
+	"github.com/PlatONnetwork/AppChain-Go/params"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
+	xplugin "github.com/PlatONnetwork/AppChain-Go/x/plugin"
+	"github.com/PlatONnetwork/AppChain-Go/x/xcom"
 )
 
 // Ethereum implements the Ethereum full node service.
@@ -410,7 +410,7 @@ func (s *Ethereum) APIs() []rpc.API {
 	// Append all the local APIs and return
 	return append(apis, []rpc.API{
 		{
-			Namespace: "platon",
+			Namespace: "hskchain",
 			Version:   "1.0",
 			Service:   downloader.NewPublicDownloaderAPI(s.protocolManager.downloader, s.eventMux),
 			Public:    true,
@@ -420,7 +420,7 @@ func (s *Ethereum) APIs() []rpc.API {
 			Service:   NewPrivateMinerAPI(s),
 			Public:    false,
 		}, {
-			Namespace: "platon",
+			Namespace: "hskchain",
 			Version:   "1.0",
 			Service:   filters.NewPublicFilterAPI(s.APIBackend, false),
 			Public:    true,

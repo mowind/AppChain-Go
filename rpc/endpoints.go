@@ -20,7 +20,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/PlatONnetwork/PlatON-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
 // StartIPCEndpoint starts an IPC endpoint.

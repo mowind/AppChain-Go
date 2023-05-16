@@ -26,7 +26,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/PlatONnetwork/PlatON-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
 type storedCredential struct {

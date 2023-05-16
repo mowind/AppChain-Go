@@ -20,7 +20,7 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/PlatONnetwork/PlatON-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 func bigFromHex(hex string) *big.Int {

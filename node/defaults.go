@@ -22,18 +22,18 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/PlatONnetwork/PlatON-Go/p2p"
-	"github.com/PlatONnetwork/PlatON-Go/p2p/nat"
-	"github.com/PlatONnetwork/PlatON-Go/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/p2p"
+	"github.com/PlatONnetwork/AppChain-Go/p2p/nat"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
 )
 
 const (
 	DefaultHTTPHost    = "localhost" // Default host interface for the HTTP RPC server
-	DefaultHTTPPort    = 6789        // Default TCP port for the HTTP RPC server
+	DefaultHTTPPort    = 7789        // Default TCP port for the HTTP RPC server
 	DefaultWSHost      = "localhost" // Default host interface for the websocket RPC server
-	DefaultWSPort      = 6790        // Default TCP port for the websocket RPC server
+	DefaultWSPort      = 7790        // Default TCP port for the websocket RPC server
 	DefaultGraphQLHost = "localhost" // Default host interface for the GraphQL server
-	DefaultGraphQLPort = 6791        // Default TCP port for the GraphQL server
+	DefaultGraphQLPort = 7791        // Default TCP port for the GraphQL server
 )
 
 // DefaultConfig contains reasonable default settings.
@@ -47,7 +47,7 @@ var DefaultConfig = Config{
 	WSModules:           []string{"net", "web3"},
 	GraphQLVirtualHosts: []string{"localhost"},
 	P2P: p2p.Config{
-		ListenAddr:        ":16789",
+		ListenAddr:        ":17789",
 		MaxPeers:          60,
 		NAT:               nat.Any(),
 		MaxConsensusPeers: 40,
@@ -62,19 +62,19 @@ func DefaultDataDir() string {
 	if home != "" {
 		switch runtime.GOOS {
 		case "darwin":
-			return filepath.Join(home, "Library", "PlatON")
+			return filepath.Join(home, "Library", "hskchain")
 		case "windows":
 			// We used to put everything in %HOME%\AppData\Roaming, but this caused
 			// problems with non-typical setups. If this fallback location exists and
 			// is non-empty, use it, otherwise DTRT and check %LOCALAPPDATA%.
-			fallback := filepath.Join(home, "AppData", "Roaming", "PlatON")
+			fallback := filepath.Join(home, "AppData", "Roaming", "hskchain")
 			appdata := windowsAppData()
 			if appdata == "" || isNonEmptyDir(fallback) {
 				return fallback
 			}
-			return filepath.Join(appdata, "PlatON")
+			return filepath.Join(appdata, "hskchain")
 		default:
-			return filepath.Join(home, ".platon")
+			return filepath.Join(home, ".hskchain")
 		}
 	}
 	// As we cannot guess a stable location, return empty and handle later

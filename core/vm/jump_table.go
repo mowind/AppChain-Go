@@ -18,7 +18,7 @@ package vm
 
 import (
 	"errors"
-	"github.com/PlatONnetwork/PlatON-Go/params"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 type (

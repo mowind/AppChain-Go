@@ -26,24 +26,24 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/PlatONnetwork/PlatON-Go/core/snapshotdb"
-	"github.com/PlatONnetwork/PlatON-Go/trie"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/trie"
 
-	"github.com/PlatONnetwork/PlatON-Go/rlp"
-	"github.com/PlatONnetwork/PlatON-Go/x/gov"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 
-	"github.com/PlatONnetwork/PlatON-Go/common/hexutil"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/consensus"
-	"github.com/PlatONnetwork/PlatON-Go/core"
-	"github.com/PlatONnetwork/PlatON-Go/core/cbfttypes"
-	"github.com/PlatONnetwork/PlatON-Go/core/state"
-	"github.com/PlatONnetwork/PlatON-Go/core/types"
-	"github.com/PlatONnetwork/PlatON-Go/core/vm"
-	"github.com/PlatONnetwork/PlatON-Go/event"
-	"github.com/PlatONnetwork/PlatON-Go/log"
-	"github.com/PlatONnetwork/PlatON-Go/params"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/consensus"
+	"github.com/PlatONnetwork/AppChain-Go/core"
+	"github.com/PlatONnetwork/AppChain-Go/core/cbfttypes"
+	"github.com/PlatONnetwork/AppChain-Go/core/state"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm"
+	"github.com/PlatONnetwork/AppChain-Go/event"
+	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/params"
 )
 
 // environment is the worker's current environment and holds all of the current state information.
@@ -1158,7 +1158,7 @@ func (w *worker) commit(interval func(), update bool, start time.Time) error {
 			for i, tx := range block.Transactions() {
 				feesWei.Add(feesWei, new(big.Int).Mul(new(big.Int).SetUint64(receipts[i].GasUsed), tx.GasPrice()))
 			}
-			feesEth := new(big.Float).Quo(new(big.Float).SetInt(feesWei), new(big.Float).SetInt(big.NewInt(params.LAT)))
+			feesEth := new(big.Float).Quo(new(big.Float).SetInt(feesWei), new(big.Float).SetInt(big.NewInt(params.HSK)))
 
 			log.Info("Commit new mining work", "number", block.Number(), "sealhash", w.engine.SealHash(block.Header()), "receiptHash", block.ReceiptHash(),
 				"txs", w.current.tcount, "gas", block.GasUsed(), "fees", feesEth, "elapsed", common.PrettyDuration(time.Since(start)))
@@ -1248,7 +1248,7 @@ func (w *worker) makeExtraData() []byte {
 	extra, _ := rlp.EncodeToBytes([]interface{}{
 		//uint(params.VersionMajor<<16 | params.VersionMinor<<8 | params.VersionPatch),
 		gov.GetCurrentActiveVersion(w.current.state),
-		"platon",
+		"hskchain",
 		runtime.Version(),
 		runtime.GOOS,
 	})

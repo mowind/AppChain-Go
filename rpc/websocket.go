@@ -27,7 +27,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/PlatONnetwork/PlatON-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 	mapset "github.com/deckarep/golang-set"
 	"github.com/gorilla/websocket"
 )

@@ -4,7 +4,7 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/PlatONnetwork/PlatON-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 func TestPairingExpected(t *testing.T) {

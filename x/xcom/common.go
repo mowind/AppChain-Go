@@ -18,9 +18,9 @@
 package xcom
 
 import (
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/core/snapshotdb"
-	"github.com/PlatONnetwork/PlatON-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
 // saves block average pack time (millisecond) to snapshot db.

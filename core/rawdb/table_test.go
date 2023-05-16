@@ -18,7 +18,7 @@ package rawdb
 
 import (
 	"bytes"
-	"github.com/PlatONnetwork/PlatON-Go/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb"
 	"testing"
 )
 

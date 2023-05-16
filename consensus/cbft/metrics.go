@@ -18,7 +18,7 @@
 package cbft
 
 import (
-	"github.com/PlatONnetwork/PlatON-Go/metrics"
+	"github.com/PlatONnetwork/AppChain-Go/metrics"
 )
 
 var (

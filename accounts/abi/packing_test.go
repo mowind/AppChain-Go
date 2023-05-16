@@ -19,7 +19,7 @@ package abi
 import (
 	"math/big"
 
-	"github.com/PlatONnetwork/PlatON-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 )
 
 type packUnpackTest struct {

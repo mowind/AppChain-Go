@@ -21,7 +21,7 @@ package metrics
 import (
 	"syscall"
 
-	"github.com/PlatONnetwork/PlatON-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
 // getProcessCPUTime retrieves the process' CPU time since program startup.

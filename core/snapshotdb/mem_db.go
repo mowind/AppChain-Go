@@ -18,7 +18,7 @@
 package snapshotdb
 
 import (
-	"github.com/PlatONnetwork/PlatON-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common"
 	"math/big"
 	"sync"
 )

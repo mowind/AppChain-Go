@@ -21,9 +21,9 @@ import (
 
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/core/snapshotdb"
-	"github.com/PlatONnetwork/PlatON-Go/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
 )
 
 type StakingDB struct {

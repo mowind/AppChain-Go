@@ -24,14 +24,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/PlatONnetwork/PlatON-Go/core"
+	"github.com/PlatONnetwork/AppChain-Go/core"
 
-	"github.com/PlatONnetwork/PlatON-Go/miner"
+	"github.com/PlatONnetwork/AppChain-Go/miner"
 
 	"gotest.tools/assert"
 
-	"github.com/PlatONnetwork/PlatON-Go/eth"
-	"github.com/PlatONnetwork/PlatON-Go/node"
+	"github.com/PlatONnetwork/AppChain-Go/eth"
+	"github.com/PlatONnetwork/AppChain-Go/node"
 )
 
 func TestBuildSchema(t *testing.T) {
