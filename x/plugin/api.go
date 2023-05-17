@@ -18,9 +18,9 @@ package plugin
 
 import (
 	"context"
-	"github.com/PlatONnetwork/PlatON-Go/common"
-	"github.com/PlatONnetwork/PlatON-Go/common/json"
-	"github.com/PlatONnetwork/PlatON-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/json"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
 )
 
 // Provides an API interface to obtain data related to the economic model

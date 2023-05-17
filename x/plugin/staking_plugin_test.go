@@ -22,7 +22,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
-	"github.com/PlatONnetwork/PlatON-Go/ethdb/memorydb"
+	"github.com/PlatONnetwork/AppChain-Go/ethdb/memorydb"
 	"math/big"
 	mrand "math/rand"
 	"testing"
