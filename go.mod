@@ -1,6 +1,6 @@
 module github.com/PlatONnetwork/AppChain-Go
 
-go 1.16
+go 1.18
 
 require (
 	github.com/AlayaNetwork/graphql-go v1.2.1-0.20211227063951-8d66eefcb4e3
