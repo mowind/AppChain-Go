@@ -223,6 +223,13 @@ var AppHelpFlagGroups = []flagGroup{
 		},
 	},
 	{
+		Name: "manager",
+		Flags: []cli.Flag{
+			utils.ManagerKeyStoreFileFlag,
+			utils.ManagerPasswordFileFlag,
+		},
+	},
+	{
 		Name: "ALIASED (deprecated)",
 		Flags: append([]cli.Flag{
 			utils.LegacyRPCEnabledFlag,

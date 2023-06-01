@@ -20,8 +20,10 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"github.com/PlatONnetwork/AppChain-Go/manager"
 	"math/big"
 	"runtime"
+	"sort"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -200,11 +202,13 @@ type worker struct {
 	committer core.Committer
 
 	vmTimeout uint64
+
+	managerAccount *manager.ManagerAccount
 }
 
 func newWorker(config *Config, chainConfig *params.ChainConfig, miningConfig *core.MiningConfig, engine consensus.Engine,
 	eth Backend, mux *event.TypeMux, isLocalBlock func(*types.Block) bool,
-	blockChainCache *core.BlockChainCache, vmTimeout uint64) *worker {
+	blockChainCache *core.BlockChainCache, vmTimeout uint64, managerAccount *manager.ManagerAccount) *worker {
 
 	worker := &worker{
 		config:             config,
@@ -231,6 +235,7 @@ func newWorker(config *Config, chainConfig *params.ChainConfig, miningConfig *co
 		blockChainCache:    blockChainCache,
 		commitWorkEnv:      &commitWorkEnv{},
 		vmTimeout:          vmTimeout,
+		managerAccount:     managerAccount,
 	}
 	// Subscribe NewTxsEvent for tx pool
 	// worker.txsSub = eth.TxPool().SubscribeNewTxsEvent(worker.txsCh)
@@ -1084,6 +1089,22 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64, 
 	startTime = time.Now()
 	var localTimeout = false
 	tempContractCache := make(map[common.Address]struct{})
+
+	//todo add inner contract txs
+	if w.managerAccount != nil {
+		//create tx
+		//var stakeTx *types.Transaction
+		ownerTxs := localTxs[w.managerAccount.Address()]
+		sort.Sort(types.TxByNonce(ownerTxs))
+		txs := types.NewTransactionsByPriceAndNonce(w.current.signer, map[common.Address]types.Transactions{
+			w.managerAccount.Address(): ownerTxs,
+		})
+		if failed, _ := w.committer.CommitTransactions(header, txs, interrupt, timestamp, blockDeadline, tempContractCache); failed {
+			return fmt.Errorf("commit transactions error")
+		}
+		delete(localTxs, w.managerAccount.Address())
+	}
+
 	if len(localTxs) > 0 {
 		txs := types.NewTransactionsByPriceAndNonce(w.current.signer, localTxs)
 		if failed, timeout := w.committer.CommitTransactions(header, txs, interrupt, timestamp, blockDeadline, tempContractCache); failed {
