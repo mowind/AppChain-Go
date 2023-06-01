@@ -19,6 +19,7 @@ package vm
 import (
 	"crypto/ecdsa"
 	"fmt"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 	"math/big"
 	"math/rand"
 	"testing"
@@ -36,7 +37,6 @@ import (
 	"github.com/PlatONnetwork/AppChain-Go/log"
 	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 	"github.com/PlatONnetwork/AppChain-Go/rlp"
-	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 	"github.com/PlatONnetwork/AppChain-Go/x/plugin"
 	"github.com/PlatONnetwork/AppChain-Go/x/restricting"
 	"github.com/PlatONnetwork/AppChain-Go/x/staking"
@@ -254,6 +254,10 @@ var (
 	specialCharList = []string{
 		"☄", "★", "☎", "☻", "♨", "✠", "❝", "♚", "♘", "✎", "♞", "✩", "✪", "❦", "❥", "❣", "웃", "❂", "Ⓞ", "▶", "◙", "⊕", "◌", "⅓", "∭",
 		"∮", "╳", "㏒", "㏕", "‱", "㎏", "❶", "Ň", "🅱", "🅾", "𝖋", "𝕻", "𝕼", "𝕽", "お", "な", "ぬ", "㊎", "㊞", "㊮", "✘"}
+
+	blsKey1 bls.SecretKey
+	blsKey2 bls.SecretKey
+	blsKey3 bls.SecretKey
 )
 
 func newPlugins() {
@@ -346,7 +350,6 @@ func build_staking_data(sndb snapshotdb.DB, genesisHash common.Hash) {
 
 	//canArr := make(staking.CandidateQueue, 0)
 
-	var blsKey1 bls.SecretKey
 	blsKey1.SetByCSPRNG()
 	var blsKeyHex1 bls.PublicKeyHex
 	b1, _ := blsKey1.GetPublicKey().MarshalText()
@@ -383,7 +386,6 @@ func build_staking_data(sndb snapshotdb.DB, genesisHash common.Hash) {
 		},
 	}
 
-	var blsKey2 bls.SecretKey
 	blsKey2.SetByCSPRNG()
 	var blsKeyHex2 bls.PublicKeyHex
 	b2, _ := blsKey2.GetPublicKey().MarshalText()
@@ -420,7 +422,6 @@ func build_staking_data(sndb snapshotdb.DB, genesisHash common.Hash) {
 		},
 	}
 
-	var blsKey3 bls.SecretKey
 	blsKey3.SetByCSPRNG()
 	var blsKeyHex3 bls.PublicKeyHex
 	b3, _ := blsKey3.GetPublicKey().MarshalText()

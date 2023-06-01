@@ -114,7 +114,12 @@ func run(evm *EVM, contract *Contract, input []byte, readOnly bool) ([]byte, err
 					Evm:       evm,
 				}
 				return RunPlatONPrecompiledContract(delegateRewardContract, input, contract)
-
+			case *CheckpointSigAggregatorContract:
+				checkpointContract := &CheckpointSigAggregatorContract{
+					Contract: contract,
+					Evm: evm,
+				}
+				return RunPlatONPrecompiledContract(checkpointContract, input, contract)
 			}
 		}
 	}
