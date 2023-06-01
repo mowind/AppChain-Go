@@ -184,6 +184,10 @@ var (
 		utils.VMWasmType,
 		utils.VmTimeoutDuration,
 	}
+	managerFlags = []cli.Flag{
+		utils.ManagerKeyStoreFileFlag,
+		utils.ManagerPasswordFileFlag,
+	}
 )
 
 func init() {
@@ -230,7 +234,7 @@ func init() {
 	app.Flags = append(app.Flags, cbftFlags...)
 	app.Flags = append(app.Flags, dbFlags...)
 	app.Flags = append(app.Flags, vmFlags...)
-
+	app.Flags = append(app.Flags, managerFlags...)
 	app.Before = func(ctx *cli.Context) error {
 		runtime.GOMAXPROCS(runtime.NumCPU())
 		err := bls.Init(int(bls.BLS12_381))
