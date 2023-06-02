@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/PlatONnetwork/AppChain-Go/manager"
+	"github.com/PlatONnetwork/AppChain-Go/rootchain"
 	"math/big"
 	"os"
 	"sync"
@@ -309,9 +310,14 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 		log.Error("The gasFloor must be less than gasCeil", "gasFloor", config.Miner.GasFloor, "gasCeil", gasCeil)
 		return nil, fmt.Errorf("The gasFloor must be less than gasCeil, got: %d, expect range (0, %d]", config.Miner.GasFloor, gasCeil)
 	}
-
+	//todo init root chain
+	rootchain, err := rootchain.NewRootChain(blockChainCache)
+	if err != nil {
+		log.Error("create root chain failed", "error", err)
+		return nil, errors.New("Failed to create root chain")
+	}
 	eth.miner = miner.New(eth, &config.Miner, eth.blockchain.Config(), minningConfig, eth.EventMux(), eth.engine,
-		eth.isLocalBlock, blockChainCache, config.VmTimeoutDuration, eth.managerAccount)
+		eth.isLocalBlock, blockChainCache, config.VmTimeoutDuration, eth.managerAccount, rootchain)
 
 	reactor := core.NewBlockChainReactor(eth.EventMux(), eth.blockchain.Config().ChainID)
 	node.GetCryptoHandler().SetPrivateKey(stack.Config().NodeKey())
@@ -350,7 +356,7 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 			return nil, errors.New("Failed to recover SnapshotDB")
 		}
 
-		if err := engine.Start(eth.blockchain, blockChainCache, eth.txPool, agency); err != nil {
+		if err := engine.Start(eth.blockchain, blockChainCache, eth.txPool, agency, rootchain); err != nil {
 			log.Error("Init cbft consensus engine fail", "error", err)
 			return nil, errors.New("Failed to init cbft consensus engine")
 		}
