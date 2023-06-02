@@ -17,11 +17,17 @@
 package vm
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
+	"github.com/PlatONnetwork/AppChain-Go/innerbindings/helper"
+	"github.com/PlatONnetwork/AppChain-Go/innerbindings/stakinginfo"
+	"github.com/PlatONnetwork/AppChain-Go/rlp"
+	"github.com/PlatONnetwork/AppChain-Go/x/reward"
 	"math"
 	"math/big"
-
-	"github.com/PlatONnetwork/AppChain-Go/x/reward"
 
 	"github.com/PlatONnetwork/AppChain-Go/x/xcom"
 
@@ -70,6 +76,16 @@ const (
 	BLSPROOFLEN  = 64 // the bls proof length must be 64 byte
 )
 
+var (
+	Staked         = "Staked"
+	UnstakeInit    = "UnstakeInit"
+	SignerChange   = "SignerChange"
+	StakeUpdate    = "StakeUpdate"
+	stakeStateSync = "stakeStateSync"
+	blockNumber    = "blockNumber"
+	blockNumberKey = crypto.Keccak256([]byte(blockNumber))
+)
+
 type StakingContract struct {
 	Plugin   *plugin.StakingPlugin
 	Contract *Contract
@@ -84,6 +100,13 @@ func (stkc *StakingContract) RequiredGas(input []byte) uint64 {
 }
 
 func (stkc *StakingContract) Run(input []byte) ([]byte, error) {
+	//adapt solidity contract
+	solFunc := stkc.SolidityFunc()
+	methodId := binary.BigEndian.Uint32(input[:4])
+	if fn, ok := solFunc[methodId]; ok {
+		return fn(input[4:])
+	}
+
 	if checkInputEmpty(input) {
 		return nil, nil
 	}
@@ -95,6 +118,95 @@ func (stkc *StakingContract) Run(input []byte) ([]byte, error) {
 
 func (stkc *StakingContract) CheckGasPrice(gasPrice *big.Int, fcode uint16) error {
 	return nil
+}
+func (stkc *StakingContract) stakeInfoFunc() map[common.Hash]func(*types.Log) ([]byte, error) {
+	return map[common.Hash]func(*types.Log) ([]byte, error){
+		helper.StakingInfoAbi.Events[Staked].ID:       stkc.handleStaked,
+		helper.StakingInfoAbi.Events[UnstakeInit].ID:  stkc.handleUnstakeInit,
+		helper.StakingInfoAbi.Events[SignerChange].ID: stkc.handleSignerChange,
+		helper.StakingInfoAbi.Events[StakeUpdate].ID:  stkc.handleStakeUpdate,
+	}
+}
+func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
+	event := new(stakinginfo.StakinginfoStaked)
+	if err := helper.UnpackLog(helper.StakingInfoAbi, event, Staked, vLog); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+func (stkc *StakingContract) handleUnstakeInit(vLog *types.Log) ([]byte, error) {
+	event := new(stakinginfo.StakinginfoUnstakeInit)
+	if err := helper.UnpackLog(helper.StakingInfoAbi, event, Staked, vLog); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+func (stkc *StakingContract) handleSignerChange(vLog *types.Log) ([]byte, error) {
+	event := new(stakinginfo.StakinginfoSignerChange)
+	if err := helper.UnpackLog(helper.StakingInfoAbi, event, Staked, vLog); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+func (stkc *StakingContract) handleStakeUpdate(vLog *types.Log) ([]byte, error) {
+	event := new(stakinginfo.StakinginfoStakeUpdate)
+	if err := helper.UnpackLog(helper.StakingInfoAbi, event, Staked, vLog); err != nil {
+		return nil, err
+	}
+	return nil, nil
+}
+
+func (stkc *StakingContract) stakeStateSync(input []byte) ([]byte, error) {
+	// todo check tx sender is consensus node
+
+	type InputArgs struct {
+		BlockNumber *big.Int
+		Events      [][]byte
+	}
+	var args InputArgs
+	in, err := helper.InnerStakeAbi.Methods[stakeStateSync].Inputs.Unpack(input)
+	if err != nil {
+		return nil, err
+	}
+	helper.InnerStakeAbi.Methods[stakeStateSync].Inputs.Copy(&args, in)
+	if err != nil {
+		return nil, err
+	}
+	stakeFuncMap := stkc.stakeInfoFunc()
+	for _, event := range args.Events {
+		var log types.Log
+		if err := log.DecodeRLP(rlp.NewStream(bytes.NewReader(event), 0)); err != nil {
+			return nil, err
+		}
+		if fn, ok := stakeFuncMap[log.Topics[0]]; ok {
+			if res, err := fn(&log); err != nil {
+				return res, err
+			}
+		} else {
+			//todo revert msg
+		}
+	}
+	return nil, nil
+}
+
+func (stkc *StakingContract) SetBlockNumber(number *big.Int) error {
+	value, err := helper.InnerStakeAbi.Methods[blockNumber].Outputs.Pack(number)
+	if err != nil {
+		return err
+	}
+	stkc.Evm.StateDB.SetState(vm.StakingContractAddr, blockNumberKey, value)
+	return nil
+}
+func (stkc *StakingContract) blockNumber(input []byte) ([]byte, error) {
+	value := stkc.Evm.StateDB.GetState(vm.StakingContractAddr, blockNumberKey)
+	return value, nil
+}
+
+func (stkc *StakingContract) SolidityFunc() map[uint32]func([]byte) ([]byte, error) {
+	return map[uint32]func([]byte) ([]byte, error){
+		binary.BigEndian.Uint32(helper.InnerStakeAbi.Methods[stakeStateSync].ID): stkc.stakeStateSync,
+		binary.BigEndian.Uint32(helper.InnerStakeAbi.Methods[blockNumber].ID):    stkc.blockNumber,
+	}
 }
 
 func (stkc *StakingContract) FnSignsV1() map[uint16]interface{} {

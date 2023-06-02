@@ -18,6 +18,7 @@ package vm
 
 import (
 	"context"
+	"github.com/PlatONnetwork/AppChain-Go/common/vm"
 	"math/big"
 	"sync/atomic"
 	"time"
@@ -294,6 +295,11 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 		return nil, gas, nil
 	}
 
+	// staking contract evm depth must zero
+	if addr == vm.StakingContractAddr && evm.depth > 0 {
+		return nil, gas, ErrDepth
+	}
+
 	// Fail if we're trying to execute above the call depth limit
 	if evm.depth > int(params.CallCreateDepth) {
 		return nil, gas, ErrDepth
@@ -324,7 +330,7 @@ func (evm *EVM) Call(caller ContractRef, addr common.Address, input []byte, gas 
 		evm.StateDB.CreateAccount(addr)
 	}
 
-	evm.Context.Transfer(evm.StateDB, caller.Address(), to.Address(), value)
+	//evm.Context.Transfer(evm.StateDB, caller.Address(), to.Address(), value)
 
 	// Initialise a new contract and set the code that is to be used by the EVM.
 	// The contract is a scoped environment for this execution context only.

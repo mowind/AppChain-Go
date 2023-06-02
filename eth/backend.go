@@ -20,6 +20,7 @@ package eth
 import (
 	"errors"
 	"fmt"
+	"github.com/PlatONnetwork/AppChain-Go/manager"
 	"math/big"
 	"os"
 	"sync"
@@ -92,7 +93,8 @@ type Ethereum struct {
 
 	p2pServer *p2p.Server
 
-	lock sync.RWMutex // Protects the variadic fields (e.g. gas price and etherbase)
+	lock           sync.RWMutex // Protects the variadic fields (e.g. gas price and etherbase)
+	managerAccount *manager.ManagerAccount
 }
 
 // New creates a new Ethereum object (including the
@@ -284,6 +286,17 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 
 	core.SenderCacher.SetTxPool(eth.txPool)
 
+	//add manager account
+	if config.ManagerKeyStore != "" {
+		eth.managerAccount, err = manager.NewManagerAccount(config.ManagerKeyStore, config.ManagerPassword, func(addr common.Address) uint64 {
+			return eth.txPool.Nonce(addr)
+		}, eth.blockchain.Config().ChainID)
+		if nil != err {
+			log.Error("Failed to create manager account", "err", err)
+			return nil, err
+		}
+	}
+
 	currentBlock := eth.blockchain.CurrentBlock()
 	currentNumber := currentBlock.NumberU64()
 	currentHash := currentBlock.Hash()
@@ -298,7 +311,7 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	}
 
 	eth.miner = miner.New(eth, &config.Miner, eth.blockchain.Config(), minningConfig, eth.EventMux(), eth.engine,
-		eth.isLocalBlock, blockChainCache, config.VmTimeoutDuration)
+		eth.isLocalBlock, blockChainCache, config.VmTimeoutDuration, eth.managerAccount)
 
 	reactor := core.NewBlockChainReactor(eth.EventMux(), eth.blockchain.Config().ChainID)
 	node.GetCryptoHandler().SetPrivateKey(stack.Config().NodeKey())
