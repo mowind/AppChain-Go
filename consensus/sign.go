@@ -28,6 +28,7 @@ import (
 )
 
 var (
+	ExtraRootChain = 64
 	// ExtraSeal fixed number of extra-data suffix bytes reserved for signer seal
 	ExtraSeal = 65
 	// ErrMissingSignature is returned if a block's extra-data section doesn't seem

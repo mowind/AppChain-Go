@@ -30,8 +30,8 @@ var (
 
 // InnerstakeMetaData contains all meta data concerning the Innerstake contract.
 var InnerstakeMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"blockNumber\",\"type\":\"uint256\"},{\"internalType\":\"bytes[]\",\"name\":\"events\",\"type\":\"bytes[]\"}],\"name\":\"stakeStateSync\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"blockNumber\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
-	Bin: "0x608060405234801561001057600080fd5b506101e4806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c806357e871e71461003b578063bb02fc8914610059575b600080fd5b610043610075565b6040516100509190610159565b60405180910390f35b610073600480360381019061006e91906100ea565b61007a565b005b600090565b505050565b60008083601f84011261009557610094610183565b5b8235905067ffffffffffffffff8111156100b2576100b161017e565b5b6020830191508360208202830111156100ce576100cd610188565b5b9250929050565b6000813590506100e481610197565b92915050565b60008060006040848603121561010357610102610192565b5b6000610111868287016100d5565b935050602084013567ffffffffffffffff8111156101325761013161018d565b5b61013e8682870161007f565b92509250509250925092565b61015381610174565b82525050565b600060208201905061016e600083018461014a565b92915050565b6000819050919050565b600080fd5b600080fd5b600080fd5b600080fd5b600080fd5b6101a081610174565b81146101ab57600080fd5b5056fea26469706673582212209d7469915ae95e1b61ae55b787478f4eb1857f0cc2f2d2e56f5f2702f48d746064736f6c63430008070033",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"}],\"name\":\"StakeStateSync\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"blockNumber\",\"type\":\"uint256\"},{\"internalType\":\"bytes[]\",\"name\":\"events\",\"type\":\"bytes[]\"}],\"name\":\"stakeStateSync\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"blockNumber\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	Bin: "0x608060405234801561001057600080fd5b506101e4806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c806357e871e71461003b578063bb02fc8914610059575b600080fd5b610043610075565b6040516100509190610159565b60405180910390f35b610073600480360381019061006e91906100ea565b61007a565b005b600090565b505050565b60008083601f84011261009557610094610183565b5b8235905067ffffffffffffffff8111156100b2576100b161017e565b5b6020830191508360208202830111156100ce576100cd610188565b5b9250929050565b6000813590506100e481610197565b92915050565b60008060006040848603121561010357610102610192565b5b6000610111868287016100d5565b935050602084013567ffffffffffffffff8111156101325761013161018d565b5b61013e8682870161007f565b92509250509250925092565b61015381610174565b82525050565b600060208201905061016e600083018461014a565b92915050565b6000819050919050565b600080fd5b600080fd5b600080fd5b600080fd5b600080fd5b6101a081610174565b81146101ab57600080fd5b5056fea26469706673582212200871f561d136d8f36794a3f85785e3a534b89181ffd88d9151b146e13e3f22a364736f6c63430008070033",
 }
 
 // InnerstakeABI is the input ABI used to generate the binding from.
@@ -241,5 +241,140 @@ func (_Innerstake *InnerstakeSession) StakeStateSync(blockNumber *big.Int, event
 // Solidity: function stakeStateSync(uint256 blockNumber, bytes[] events) returns()
 func (_Innerstake *InnerstakeTransactorSession) StakeStateSync(blockNumber *big.Int, events [][]byte) (*types.Transaction, error) {
 	return _Innerstake.Contract.StakeStateSync(&_Innerstake.TransactOpts, blockNumber, events)
+}
+
+// InnerstakeStakeStateSyncIterator is returned from FilterStakeStateSync and is used to iterate over the raw logs and unpacked data for StakeStateSync events raised by the Innerstake contract.
+type InnerstakeStakeStateSyncIterator struct {
+	Event *InnerstakeStakeStateSync // Event containing the contract specifics and raw log
+
+	contract *bind.BoundContract // Generic contract to use for unpacking event data
+	event    string              // Event name to use for unpacking event data
+
+	logs chan types.Log        // Log channel receiving the found contract events
+	sub  hskchain.Subscription // Subscription for errors, completion and termination
+	done bool                  // Whether the subscription completed delivering logs
+	fail error                 // Occurred error to stop iteration
+}
+
+// Next advances the iterator to the subsequent event, returning whether there
+// are any more events found. In case of a retrieval or parsing error, false is
+// returned and Error() can be queried for the exact failure.
+func (it *InnerstakeStakeStateSyncIterator) Next() bool {
+	// If the iterator failed, stop iterating
+	if it.fail != nil {
+		return false
+	}
+	// If the iterator completed, deliver directly whatever's available
+	if it.done {
+		select {
+		case log := <-it.logs:
+			it.Event = new(InnerstakeStakeStateSync)
+			if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+				it.fail = err
+				return false
+			}
+			it.Event.Raw = log
+			return true
+
+		default:
+			return false
+		}
+	}
+	// Iterator still in progress, wait for either a data or an error event
+	select {
+	case log := <-it.logs:
+		it.Event = new(InnerstakeStakeStateSync)
+		if err := it.contract.UnpackLog(it.Event, it.event, log); err != nil {
+			it.fail = err
+			return false
+		}
+		it.Event.Raw = log
+		return true
+
+	case err := <-it.sub.Err():
+		it.done = true
+		it.fail = err
+		return it.Next()
+	}
+}
+
+// Error returns any retrieval or parsing error occurred during filtering.
+func (it *InnerstakeStakeStateSyncIterator) Error() error {
+	return it.fail
+}
+
+// Close terminates the iteration process, releasing any pending underlying
+// resources.
+func (it *InnerstakeStakeStateSyncIterator) Close() error {
+	it.sub.Unsubscribe()
+	return nil
+}
+
+// InnerstakeStakeStateSync represents a StakeStateSync event raised by the Innerstake contract.
+type InnerstakeStakeStateSync struct {
+	Start *big.Int
+	End   *big.Int
+	Raw   types.Log // Blockchain specific contextual infos
+}
+
+// FilterStakeStateSync is a free log retrieval operation binding the contract event 0xe3a67652e61a483ab89390b9621d7359a9cbe27a29d64d0636424886803fdaba.
+//
+// Solidity: event StakeStateSync(uint256 start, uint256 end)
+func (_Innerstake *InnerstakeFilterer) FilterStakeStateSync(opts *bind.FilterOpts) (*InnerstakeStakeStateSyncIterator, error) {
+
+	logs, sub, err := _Innerstake.contract.FilterLogs(opts, "StakeStateSync")
+	if err != nil {
+		return nil, err
+	}
+	return &InnerstakeStakeStateSyncIterator{contract: _Innerstake.contract, event: "StakeStateSync", logs: logs, sub: sub}, nil
+}
+
+// WatchStakeStateSync is a free log subscription operation binding the contract event 0xe3a67652e61a483ab89390b9621d7359a9cbe27a29d64d0636424886803fdaba.
+//
+// Solidity: event StakeStateSync(uint256 start, uint256 end)
+func (_Innerstake *InnerstakeFilterer) WatchStakeStateSync(opts *bind.WatchOpts, sink chan<- *InnerstakeStakeStateSync) (event.Subscription, error) {
+
+	logs, sub, err := _Innerstake.contract.WatchLogs(opts, "StakeStateSync")
+	if err != nil {
+		return nil, err
+	}
+	return event.NewSubscription(func(quit <-chan struct{}) error {
+		defer sub.Unsubscribe()
+		for {
+			select {
+			case log := <-logs:
+				// New log arrived, parse the event and forward to the user
+				event := new(InnerstakeStakeStateSync)
+				if err := _Innerstake.contract.UnpackLog(event, "StakeStateSync", log); err != nil {
+					return err
+				}
+				event.Raw = log
+
+				select {
+				case sink <- event:
+				case err := <-sub.Err():
+					return err
+				case <-quit:
+					return nil
+				}
+			case err := <-sub.Err():
+				return err
+			case <-quit:
+				return nil
+			}
+		}
+	}), nil
+}
+
+// ParseStakeStateSync is a log parse operation binding the contract event 0xe3a67652e61a483ab89390b9621d7359a9cbe27a29d64d0636424886803fdaba.
+//
+// Solidity: event StakeStateSync(uint256 start, uint256 end)
+func (_Innerstake *InnerstakeFilterer) ParseStakeStateSync(log types.Log) (*InnerstakeStakeStateSync, error) {
+	event := new(InnerstakeStakeStateSync)
+	if err := _Innerstake.contract.UnpackLog(event, "StakeStateSync", log); err != nil {
+		return nil, err
+	}
+	event.Raw = log
+	return event, nil
 }
 

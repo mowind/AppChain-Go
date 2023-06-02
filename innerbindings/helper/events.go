@@ -19,6 +19,7 @@ var (
 	StakeUpdate    = "StakeUpdate"
 	NewHeaderBlock = "NewHeaderBlock"
 	StakeStateSync = "stakeStateSync"
+	BlockNumber    = "blockNumber"
 
 	StakedID         = StakingInfoAbi.Events[Staked].ID
 	UnstakeInitID    = StakingInfoAbi.Events[UnstakeInit].ID
