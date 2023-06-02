@@ -77,13 +77,13 @@ const (
 )
 
 var (
-	Staked         = "Staked"
-	UnstakeInit    = "UnstakeInit"
-	SignerChange   = "SignerChange"
-	StakeUpdate    = "StakeUpdate"
-	stakeStateSync = "stakeStateSync"
-	blockNumber    = "blockNumber"
-	blockNumberKey = crypto.Keccak256([]byte(blockNumber))
+	Staked                 = "Staked"
+	UnstakeInit            = "UnstakeInit"
+	SignerChange           = "SignerChange"
+	StakeUpdate            = "StakeUpdate"
+	stakeStateSyncFuncName = "stakeStateSync"
+	blockNumberFuncName    = "blockNumber"
+	blockNumberKey         = crypto.Keccak256([]byte(blockNumberFuncName))
 )
 
 type StakingContract struct {
@@ -164,11 +164,11 @@ func (stkc *StakingContract) stakeStateSync(input []byte) ([]byte, error) {
 		Events      [][]byte
 	}
 	var args InputArgs
-	in, err := helper.InnerStakeAbi.Methods[stakeStateSync].Inputs.Unpack(input)
+	in, err := helper.InnerStakeAbi.Methods[stakeStateSyncFuncName].Inputs.Unpack(input)
 	if err != nil {
 		return nil, err
 	}
-	helper.InnerStakeAbi.Methods[stakeStateSync].Inputs.Copy(&args, in)
+	helper.InnerStakeAbi.Methods[stakeStateSyncFuncName].Inputs.Copy(&args, in)
 	if err != nil {
 		return nil, err
 	}
@@ -186,26 +186,54 @@ func (stkc *StakingContract) stakeStateSync(input []byte) ([]byte, error) {
 			//todo revert msg
 		}
 	}
+	if err := stkc.addStakeStateSyncLog(args.BlockNumber); err != nil {
+		return nil, err
+	}
 	return nil, nil
+}
+func (stkc *StakingContract) addStakeStateSyncLog(end *big.Int) error {
+	type StakeStateSync struct {
+		Start *big.Int
+		End   *big.Int
+	}
+	data, err := helper.InnerStakeAbi.Events["StakeStateSync"].Inputs.Pack(&StakeStateSync{
+		Start: new(big.Int).SetBytes(stkc.blockNumber()),
+		End:   end,
+	})
+	if err != nil {
+		return err
+	}
+	stkc.Evm.StateDB.AddLog(&types.Log{
+		Address: stkc.Contract.Address(),
+		Topics:  []common.Hash{helper.InnerStakeAbi.Events["StakeStateSync"].ID},
+		Data:    data,
+		// This is a non-consensus field, but assigned here because
+		// core/state doesn't know the current block number.
+		BlockNumber: stkc.Evm.Context.BlockNumber.Uint64(),
+	})
+	return nil
 }
 
 func (stkc *StakingContract) SetBlockNumber(number *big.Int) error {
-	value, err := helper.InnerStakeAbi.Methods[blockNumber].Outputs.Pack(number)
+	value, err := helper.InnerStakeAbi.Methods[blockNumberFuncName].Outputs.Pack(number)
 	if err != nil {
 		return err
 	}
 	stkc.Evm.StateDB.SetState(vm.StakingContractAddr, blockNumberKey, value)
 	return nil
 }
-func (stkc *StakingContract) blockNumber(input []byte) ([]byte, error) {
+func (stkc *StakingContract) blockNumber() []byte {
 	value := stkc.Evm.StateDB.GetState(vm.StakingContractAddr, blockNumberKey)
-	return value, nil
+	return value
 }
 
 func (stkc *StakingContract) SolidityFunc() map[uint32]func([]byte) ([]byte, error) {
 	return map[uint32]func([]byte) ([]byte, error){
-		binary.BigEndian.Uint32(helper.InnerStakeAbi.Methods[stakeStateSync].ID): stkc.stakeStateSync,
-		binary.BigEndian.Uint32(helper.InnerStakeAbi.Methods[blockNumber].ID):    stkc.blockNumber,
+		binary.BigEndian.Uint32(helper.InnerStakeAbi.Methods[stakeStateSyncFuncName].ID): stkc.stakeStateSync,
+		binary.BigEndian.Uint32(helper.InnerStakeAbi.Methods[blockNumberFuncName].ID): func(i []byte) ([]byte, error) {
+			value := stkc.blockNumber()
+			return value, nil
+		},
 	}
 }
 
