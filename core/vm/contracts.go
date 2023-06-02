@@ -21,8 +21,9 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/PlatONnetwork/AppChain-Go/crypto/bls12381"
 	"math/big"
+
+	"github.com/PlatONnetwork/AppChain-Go/crypto/bls12381"
 
 	"github.com/PlatONnetwork/AppChain-Go/log"
 	"github.com/PlatONnetwork/AppChain-Go/x/handler"
@@ -142,6 +143,7 @@ var PlatONPrecompiledContracts120 = map[common.Address]PrecompiledContract{
 	vm.RewardManagerPoolAddr:   &rewardEmpty{},
 	vm.DelegateRewardPoolAddr:  &DelegateRewardContract{},
 	vm.VrfInnerContractAddr:    &vrf{},
+	vm.CheckpointSigAggAddr: &CheckpointSigAggregatorContract{},
 }
 
 // RunPrecompiledContract runs and evaluates the output of a precompiled contract.

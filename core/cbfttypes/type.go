@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the PlatON-Go library. If not, see <http://www.gnu.org/licenses/>.
 
-
 package cbfttypes
 
 import (
@@ -23,10 +22,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 	"math"
 	"math/big"
 	"sort"
+
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 
 	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/protocols"
 
@@ -98,11 +98,13 @@ type RemoveValidatorEvent struct {
 type UpdateValidatorEvent struct{}
 
 type ValidateNode struct {
+	ID        uint32             `json:"id"`
 	Index     uint32             `json:"index"`
 	Address   common.NodeAddress `json:"address"`
 	PubKey    *ecdsa.PublicKey   `json:"-"`
 	NodeID    discover.NodeID    `json:"nodeID"`
 	BlsPubKey *bls.PublicKey     `json:"blsPubKey"`
+	Sender    common.Address     `json:"sender"`
 }
 
 type ValidateNodeMap map[discover.NodeID]*ValidateNode
@@ -216,6 +218,15 @@ func (vs *Validators) FindNodeByAddress(addr common.NodeAddress) (*ValidateNode,
 		}
 	}
 	return nil, errors.New("invalid address")
+}
+
+func (vs *Validators) FindNodeByValidatorId(id uint32) (*ValidateNode, error) {
+	for _, v := range vs.Nodes {
+		if v.ID == id {
+			return v, nil
+		}
+	}
+	return nil, errors.New("not found the specified validator")
 }
 
 func (vs *Validators) NodeID(idx int) discover.NodeID {
