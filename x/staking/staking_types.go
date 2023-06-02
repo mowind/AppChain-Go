@@ -168,8 +168,13 @@ func (can *Candidate) IsEmpty() bool {
 	return nil == can
 }
 
+func (can *Candidate) OwnerAddress() common.Address {
+	return can.StakingAddress
+}
+
 type CandidateBase struct {
-	NodeId discover.NodeID
+	ValidatorId uint32
+	NodeId      discover.NodeID
 	// bls public key
 	BlsPubKey bls.PublicKeyHex
 	// The account used to initiate the staking
@@ -571,6 +576,7 @@ func (queue CandidateBaseQueue) IsEmpty() bool {
 	ValidatorTerm uint32
 }*/
 type Validator struct {
+	ValidatorId     uint32
 	ProgramVersion  uint32
 	StakingTxIndex  uint32
 	ValidatorTerm   uint32 // Validator's term in the consensus round

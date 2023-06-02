@@ -5,8 +5,11 @@ import (
 	appchain "github.com/PlatONnetwork/AppChain-Go"
 	"github.com/PlatONnetwork/AppChain-Go/common"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/crypto"
 	"github.com/PlatONnetwork/AppChain-Go/ethclient"
 	"github.com/PlatONnetwork/AppChain-Go/ethdb"
+	"github.com/PlatONnetwork/AppChain-Go/event"
+	"github.com/PlatONnetwork/AppChain-Go/innerbindings/helper"
 	"github.com/PlatONnetwork/AppChain-Go/log"
 	"math/big"
 	"sort"
@@ -28,12 +31,14 @@ type EventManager struct {
 	// Event Storage
 	blockLogs map[uint64][]*types.Log
 
-	mu sync.RWMutex
+	checkpointEventFeed event.Feed
+	mu                  sync.RWMutex
 }
 
 type RootChainContractConfig struct {
 	RootChainID        string
 	StakingInfoAddress common.Address
+	RootChainAddress   common.Address
 }
 
 func NewEventManager(platonAddr string, db ethdb.Database) *EventManager {
@@ -46,6 +51,11 @@ func NewEventManager(platonAddr string, db ethdb.Database) *EventManager {
 		blockLogs:       make(map[uint64][]*types.Log, 0),
 	}
 	return eventManager
+}
+
+// SubscribeEvents Subscribe to Checkpoint events that occur on RootChain.
+func (em *EventManager) SubscribeEvents(ch chan *types.Log) event.Subscription {
+	return em.checkpointEventFeed.Subscribe(ch)
 }
 
 func (em *EventManager) Listen() error {
@@ -91,8 +101,12 @@ func (em *EventManager) Listen() error {
 				ToBlock:   newHead.Number,
 				Addresses: []common.Address{
 					em.RCConfig.StakingInfoAddress,
+					em.RCConfig.RootChainAddress,
 				},
+				Topics: [][]common.Hash{{helper.StakedID, helper.UnstakeInitID,
+					helper.SignerChangeID, helper.StakeUpdateID, helper.NewHeaderBlockID}},
 			}
+
 			logs, err := client.FilterLogs(context.Background(), filterParams)
 			if err != nil {
 				log.Error("failed to get filtered logs", "fromBlock", filterParams.FromBlock, "toBlock", filterParams.ToBlock, "error", err)
@@ -102,6 +116,13 @@ func (em *EventManager) Listen() error {
 			log.Debug("get event success", "fromBlock", filterParams.FromBlock, "toBlock", filterParams.ToBlock, "logLength", len(logs))
 			blockLogsTemp := make(map[uint64][]*types.Log)
 			for _, log := range logs {
+				// checkpoint events are not stored and are notified directly to the special handling logic.
+				// feed.Send()
+				if log.Topics[0] == helper.NewHeaderBlockID {
+					em.checkpointEventFeed.Send(log)
+					continue
+				}
+
 				logs, ok := blockLogsTemp[log.BlockNumber]
 				if !ok {
 					logs = make([]*types.Log, 0)
@@ -139,15 +160,15 @@ func (bnl BlockNumberListSort) Swap(i, j int) {
 	bnl[i], bnl[j] = bnl[j], bnl[i]
 }
 
-// PackEventList Out block node call to select the event to be packed.
-func (em *EventManager) PackEventList(startBlockNumber uint64) (*big.Int, []*types.Log, error) {
-	endBlockNumber := em.fromBlockNumber - em.backNumbers - 1
-	return em.BuildEventList(startBlockNumber, endBlockNumber)
-}
-
+// BuildEventList Get all the specified events in the range based on the start and end block heights.
 func (em *EventManager) BuildEventList(startBlockNumber uint64, endBlockNumber uint64) (*big.Int, []*types.Log, error) {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
+	if endBlockNumber == 0 {
+		// If it is the node that is out of the block, that logic is taken.
+		// Calculate the cut-off block height for packing events based on the estimated inter-node synchronization block delay.
+		endBlockNumber = em.fromBlockNumber - em.backNumbers - 1
+	}
 	if startBlockNumber > em.fromBlockNumber {
 		log.Warn("starting block height is greater than the latest height listened to", "startBlockNumber", startBlockNumber, "latestHeight", em.fromBlockNumber-1)
 		return nil, nil, nil
@@ -170,6 +191,27 @@ func (em *EventManager) BuildEventList(startBlockNumber uint64, endBlockNumber u
 		logList = append(logList, logs...)
 	}
 	return new(big.Int).SetUint64(endBlockNumber), logList, nil
+}
+
+// PackStakeEvents Encodes a batch of events and constructs a transaction input, and computes a hash on the input.
+// Range of events: [startBlockNumber,endBlockNumber]
+// Return:
+// 1. Get the event's cut-off block height
+// 2. Input of transaction.
+// 3. Hash of Input.
+// 4. Error
+func (em *EventManager) PackStakeEvents(startBlockNumber uint64, endBlockNumber uint64) (*big.Int, []byte, common.Hash, error) {
+	stopBlockNumber, logs, _ := em.BuildEventList(startBlockNumber, endBlockNumber)
+	if stopBlockNumber != nil {
+		encodeInput, err := helper.EncodeStakeStateSync(stopBlockNumber, logs)
+		if err != nil {
+			log.Error("packed events fail", "startBlockNumber", startBlockNumber, "endBlockNumber", endBlockNumber,
+				"stopBlockNumber", stopBlockNumber, "error", err)
+			return nil, nil, common.ZeroHash, nil
+		}
+		return stopBlockNumber, encodeInput, crypto.Keccak256Hash(encodeInput), nil
+	}
+	return nil, nil, common.ZeroHash, nil
 }
 
 func (em *EventManager) Stop() {
