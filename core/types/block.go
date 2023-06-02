@@ -21,6 +21,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/binary"
 	"fmt"
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
 	"io"
 	"math/big"
 	"sync"
@@ -555,4 +556,19 @@ func (b Blocks) String() string {
 	}
 	s += "]"
 	return s
+}
+
+const (
+	ExtraSignPos  = 32
+	ExtraStakePos = 97
+	ExtraLength   = 161
+)
+
+func EncodeStakeExtra(end *big.Int, hash common.Hash) []byte {
+	return append(math.U256Bytes(end), hash.Bytes()...)
+}
+func DecodeStakeExtra(extra []byte) (*big.Int, common.Hash) {
+	end := new(big.Int).SetBytes(extra[ExtraStakePos : ExtraStakePos+32])
+	hash := common.BytesToHash(extra[ExtraStakePos+32:])
+	return end, hash
 }

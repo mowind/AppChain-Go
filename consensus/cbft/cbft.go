@@ -22,6 +22,7 @@ import (
 	"crypto/elliptic"
 	"encoding/json"
 	"fmt"
+	"github.com/PlatONnetwork/AppChain-Go/rootchain"
 	"strings"
 	"sync/atomic"
 
@@ -185,6 +186,9 @@ type Cbft struct {
 	insertBlockQCHook  func(block *types.Block, qc *ctypes.QuorumCert)
 	executeFinishHook  func(index uint32)
 	consensusNodesMock func() ([]discover.NodeID, error)
+
+	//root chain log
+	rootChainCheck rootchain.RootChainCheck
 }
 
 // New returns a new CBFT.
@@ -221,11 +225,12 @@ func New(sysConfig *params.CbftConfig, optConfig *ctypes.OptionsConfig, eventMux
 }
 
 // Start starts consensus engine.
-func (cbft *Cbft) Start(chain consensus.ChainReader, blockCacheWriter consensus.BlockCacheWriter, txPool consensus.TxPoolReset, agency consensus.Agency) error {
+func (cbft *Cbft) Start(chain consensus.ChainReader, blockCacheWriter consensus.BlockCacheWriter, txPool consensus.TxPoolReset, agency consensus.Agency, rootChainCheck rootchain.RootChainCheck) error {
 	cbft.log.Info("~ Start cbft consensus")
 	cbft.blockChain = chain
 	cbft.txPool = txPool
 	cbft.blockCacheWriter = blockCacheWriter
+	cbft.rootChainCheck = rootChainCheck
 	cbft.asyncExecutor = executor.NewAsyncExecutor(blockCacheWriter.Execute)
 
 	//Initialize block tree
@@ -428,7 +433,8 @@ func (cbft *Cbft) statMessage(msg *ctypes.MsgInfo) error {
 // ReceiveSyncMsg is used to receive messages that are synchronized from other nodes.
 //
 // Possible message types are:
-//  PrepareBlockVotesMsg/GetLatestStatusMsg/LatestStatusMsg/
+//
+//	PrepareBlockVotesMsg/GetLatestStatusMsg/LatestStatusMsg/
 func (cbft *Cbft) ReceiveSyncMsg(msg *ctypes.MsgInfo) error {
 	// If the node is synchronizing the block, discard sync msg directly and do not count the msg
 	// When the syncMsgCh channel is congested, it is easy to cause a message backlog
@@ -652,6 +658,11 @@ func (cbft *Cbft) VerifyHeader(chain consensus.ChainReader, header *types.Header
 		return fmt.Errorf("verify header fail, missing signature, number:%d, hash:%s", header.Number.Uint64(), header.Hash().String())
 	}
 
+	if err := cbft.rootChainCheck.CheckStakeStateSyncExtra(header); err != nil {
+		cbft.log.Error("Verify header stake state extra failed", "number", header.Number, "hash", header.Hash, "err", err)
+		return fmt.Errorf("verify header stake state extra failed, number:%d, hash:%s", header.Number.Uint64(), header.Hash().String())
+	}
+
 	if header.IsInvalid() {
 		cbft.log.Error("Verify header fail, Extra field is too long", "number", header.Number, "hash", header.CacheHash())
 		return fmt.Errorf("verify header fail, Extra field is too long, number:%d, hash:%s", header.Number.Uint64(), header.CacheHash().String())
@@ -707,6 +718,7 @@ func (cbft *Cbft) Prepare(chain consensus.ChainReader, header *types.Header) err
 
 	//init header.Extra[32: 32+65]
 	header.Extra = append(header.Extra, make([]byte, consensus.ExtraSeal)...)
+	header.Extra = append(header.Extra, make([]byte, consensus.ExtraRootChain)...)
 	cbft.log.Debug("Prepare, add header-extra ExtraSeal bytes(0x00)", "extraLength", len(header.Extra))
 	return nil
 }

@@ -83,7 +83,7 @@ var (
 	StakeUpdate            = "StakeUpdate"
 	stakeStateSyncFuncName = "stakeStateSync"
 	blockNumberFuncName    = "blockNumber"
-	blockNumberKey         = crypto.Keccak256([]byte(blockNumberFuncName))
+	BlockNumberKey         = crypto.Keccak256([]byte(blockNumberFuncName))
 )
 
 type StakingContract struct {
@@ -219,11 +219,11 @@ func (stkc *StakingContract) SetBlockNumber(number *big.Int) error {
 	if err != nil {
 		return err
 	}
-	stkc.Evm.StateDB.SetState(vm.StakingContractAddr, blockNumberKey, value)
+	stkc.Evm.StateDB.SetState(vm.StakingContractAddr, BlockNumberKey, value)
 	return nil
 }
 func (stkc *StakingContract) blockNumber() []byte {
-	value := stkc.Evm.StateDB.GetState(vm.StakingContractAddr, blockNumberKey)
+	value := stkc.Evm.StateDB.GetState(vm.StakingContractAddr, BlockNumberKey)
 	return value
 }
 
