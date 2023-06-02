@@ -643,6 +643,16 @@ var (
 		EnvVar: "",
 		Value:  eth.DefaultConfig.VmTimeoutDuration,
 	}
+
+	ManagerKeyStoreFileFlag = cli.StringFlag{
+		Name:  "manager.keystore",
+		Usage: "File for the manager keystore",
+	}
+	ManagerPasswordFileFlag = cli.StringFlag{
+		Name:  "manager.password",
+		Usage: "manager password file to use for non-interactive password input",
+		Value: "",
+	}
 )
 
 // MakeDataDir retrieves the currently requested data directory, terminating
@@ -942,6 +952,18 @@ func MakeAddress(ks *keystore.KeyStore, account string) (accounts.Account, error
 	return accs[index], nil
 }
 
+func MakeManagerPassword(ctx *cli.Context) string {
+	path := ctx.GlobalString(ManagerPasswordFileFlag.Name)
+	if path == "" {
+		return ""
+	}
+	text, err := ioutil.ReadFile(path)
+	if err != nil {
+		Fatalf("Failed to read password file: %v", err)
+	}
+	return string(text)
+}
+
 // MakePasswordList reads password lines from the file specified by the global --password flag.
 func MakePasswordList(ctx *cli.Context) []string {
 	path := ctx.GlobalString(PasswordFileFlag.Name)
@@ -1102,6 +1124,15 @@ func setTxPool(ctx *cli.Context, cfg *core.TxPoolConfig) {
 	}
 }
 
+func setManagerAccount(ctx *cli.Context, cfg *eth.Config) {
+	if ctx.GlobalIsSet(ManagerKeyStoreFileFlag.Name) {
+		cfg.ManagerKeyStore = ctx.GlobalString(ManagerKeyStoreFileFlag.Name)
+	}
+	if ctx.GlobalIsSet(ManagerPasswordFileFlag.Name) {
+		cfg.ManagerPassword = MakeManagerPassword(ctx)
+	}
+}
+
 func setMiner(ctx *cli.Context, cfg *miner.Config) {
 	if ctx.GlobalIsSet(MinerGasPriceFlag.Name) {
 		cfg.GasPrice = GlobalBig(ctx, MinerGasPriceFlag.Name)
@@ -1112,7 +1143,7 @@ func setMiner(ctx *cli.Context, cfg *miner.Config) {
 func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 	// Avoid conflicting network flags
 	CheckExclusive(ctx, TestnetFlag)
-
+	setManagerAccount(ctx, cfg)
 	setGPO(ctx, &cfg.GPO)
 	setTxPool(ctx, &cfg.TxPool)
 
