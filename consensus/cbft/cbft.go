@@ -658,9 +658,11 @@ func (cbft *Cbft) VerifyHeader(chain consensus.ChainReader, header *types.Header
 		return fmt.Errorf("verify header fail, missing signature, number:%d, hash:%s", header.Number.Uint64(), header.Hash().String())
 	}
 
-	if err := cbft.rootChainCheck.CheckStakeStateSyncExtra(header); err != nil {
-		cbft.log.Error("Verify header stake state extra failed", "number", header.Number, "hash", header.Hash, "err", err)
-		return fmt.Errorf("verify header stake state extra failed, number:%d, hash:%s", header.Number.Uint64(), header.Hash().String())
+	if node, err := cbft.isCurrentValidator(); err == nil && node != nil {
+		if err := cbft.rootChainCheck.CheckStakeStateSyncExtra(header); err != nil {
+			cbft.log.Error("Verify header stake state extra failed", "number", header.Number, "hash", header.Hash, "err", err)
+			return fmt.Errorf("verify header stake state extra failed, number:%d, hash:%s", header.Number.Uint64(), header.Hash().String())
+		}
 	}
 
 	if header.IsInvalid() {
