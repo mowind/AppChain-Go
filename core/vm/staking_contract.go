@@ -77,11 +77,6 @@ const (
 )
 
 var (
-	Staked         = "Staked"
-	UnstakeInit    = "UnstakeInit"
-	SignerChange   = "SignerChange"
-	StakeUpdate    = "StakeUpdate"
-	stakeStateSync = "stakeStateSync"
 	blockNumber    = "blockNumber"
 	blockNumberKey = crypto.Keccak256([]byte(blockNumber))
 )
@@ -100,6 +95,9 @@ func (stkc *StakingContract) RequiredGas(input []byte) uint64 {
 }
 
 func (stkc *StakingContract) Run(input []byte) ([]byte, error) {
+	if checkInputEmpty(input) {
+		return nil, nil
+	}
 	//adapt solidity contract
 	solFunc := stkc.SolidityFunc()
 	methodId := binary.BigEndian.Uint32(input[:4])
@@ -107,13 +105,7 @@ func (stkc *StakingContract) Run(input []byte) ([]byte, error) {
 		return fn(input[4:])
 	}
 
-	if checkInputEmpty(input) {
-		return nil, nil
-	}
-	if gov.Gte130VersionState(stkc.Evm.StateDB) {
-		return execPlatonContract(input, stkc.FnSigns())
-	}
-	return execPlatonContract(input, stkc.FnSignsV1())
+	return execPlatonContract(input, stkc.FnSigns())
 }
 
 func (stkc *StakingContract) CheckGasPrice(gasPrice *big.Int, fcode uint16) error {
@@ -121,36 +113,36 @@ func (stkc *StakingContract) CheckGasPrice(gasPrice *big.Int, fcode uint16) erro
 }
 func (stkc *StakingContract) stakeInfoFunc() map[common.Hash]func(*types.Log) ([]byte, error) {
 	return map[common.Hash]func(*types.Log) ([]byte, error){
-		helper.StakingInfoAbi.Events[Staked].ID:       stkc.handleStaked,
-		helper.StakingInfoAbi.Events[UnstakeInit].ID:  stkc.handleUnstakeInit,
-		helper.StakingInfoAbi.Events[SignerChange].ID: stkc.handleSignerChange,
-		helper.StakingInfoAbi.Events[StakeUpdate].ID:  stkc.handleStakeUpdate,
+		helper.StakingInfoAbi.Events[helper.Staked].ID:       stkc.handleStaked,
+		helper.StakingInfoAbi.Events[helper.UnstakeInit].ID:  stkc.handleUnstakeInit,
+		helper.StakingInfoAbi.Events[helper.SignerChange].ID: stkc.handleSignerChange,
+		helper.StakingInfoAbi.Events[helper.StakeUpdate].ID:  stkc.handleStakeUpdate,
 	}
 }
 func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 	event := new(stakinginfo.StakinginfoStaked)
-	if err := helper.UnpackLog(helper.StakingInfoAbi, event, Staked, vLog); err != nil {
+	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.Staked, vLog); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 func (stkc *StakingContract) handleUnstakeInit(vLog *types.Log) ([]byte, error) {
 	event := new(stakinginfo.StakinginfoUnstakeInit)
-	if err := helper.UnpackLog(helper.StakingInfoAbi, event, Staked, vLog); err != nil {
+	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.Staked, vLog); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 func (stkc *StakingContract) handleSignerChange(vLog *types.Log) ([]byte, error) {
 	event := new(stakinginfo.StakinginfoSignerChange)
-	if err := helper.UnpackLog(helper.StakingInfoAbi, event, Staked, vLog); err != nil {
+	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.Staked, vLog); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 func (stkc *StakingContract) handleStakeUpdate(vLog *types.Log) ([]byte, error) {
 	event := new(stakinginfo.StakinginfoStakeUpdate)
-	if err := helper.UnpackLog(helper.StakingInfoAbi, event, Staked, vLog); err != nil {
+	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.Staked, vLog); err != nil {
 		return nil, err
 	}
 	return nil, nil
@@ -164,11 +156,11 @@ func (stkc *StakingContract) stakeStateSync(input []byte) ([]byte, error) {
 		Events      [][]byte
 	}
 	var args InputArgs
-	in, err := helper.InnerStakeAbi.Methods[stakeStateSync].Inputs.Unpack(input)
+	in, err := helper.InnerStakeAbi.Methods[helper.StakeStateSync].Inputs.Unpack(input)
 	if err != nil {
 		return nil, err
 	}
-	helper.InnerStakeAbi.Methods[stakeStateSync].Inputs.Copy(&args, in)
+	helper.InnerStakeAbi.Methods[helper.StakeStateSync].Inputs.Copy(&args, in)
 	if err != nil {
 		return nil, err
 	}
@@ -204,40 +196,23 @@ func (stkc *StakingContract) blockNumber(input []byte) ([]byte, error) {
 
 func (stkc *StakingContract) SolidityFunc() map[uint32]func([]byte) ([]byte, error) {
 	return map[uint32]func([]byte) ([]byte, error){
-		binary.BigEndian.Uint32(helper.InnerStakeAbi.Methods[stakeStateSync].ID): stkc.stakeStateSync,
-		binary.BigEndian.Uint32(helper.InnerStakeAbi.Methods[blockNumber].ID):    stkc.blockNumber,
+		binary.BigEndian.Uint32(helper.InnerStakeAbi.Methods[helper.StakeStateSync].ID): stkc.stakeStateSync,
+		binary.BigEndian.Uint32(helper.InnerStakeAbi.Methods[blockNumber].ID):           stkc.blockNumber,
 	}
 }
 
-func (stkc *StakingContract) FnSignsV1() map[uint16]interface{} {
+func (stkc *StakingContract) FnSigns() map[uint16]interface{} {
 	return map[uint16]interface{}{
-		// Set
-		TxCreateStaking:      stkc.createStaking,
-		TxEditorCandidate:    stkc.editCandidate,
-		TxIncreaseStaking:    stkc.increaseStaking,
-		TxWithdrewCandidate:  stkc.withdrewStaking,
-		TxDelegate:           stkc.delegate,
-		TxWithdrewDelegation: stkc.withdrewDelegation,
-
 		// Get
 		QueryVerifierList:  stkc.getVerifierList,
 		QueryValidatorList: stkc.getValidatorList,
 		QueryCandidateList: stkc.getCandidateList,
 		QueryRelateList:    stkc.getRelatedListByDelAddr,
-		QueryDelegateInfo:  stkc.getDelegateInfo,
 		QueryCandidateInfo: stkc.getCandidateInfo,
 
 		GetPackageReward: stkc.getPackageReward,
-		GetStakingReward: stkc.getStakingReward,
 		GetAvgPackTime:   stkc.getAvgPackTime,
 	}
-}
-
-func (stkc *StakingContract) FnSigns() map[uint16]interface{} {
-	fnSigns := stkc.FnSignsV1()
-	fnSigns[TxRedeemDelegation] = stkc.redeemDelegation
-	fnSigns[QueryDelegationLock] = stkc.getDelegateLock
-	return fnSigns
 }
 
 func (stkc *StakingContract) createStaking(typ uint16, benefitAddress common.Address, nodeId discover.NodeID,
