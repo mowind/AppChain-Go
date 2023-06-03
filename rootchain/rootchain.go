@@ -1,6 +1,7 @@
 package rootchain
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"github.com/PlatONnetwork/AppChain-Go/common"
@@ -8,7 +9,6 @@ import (
 	"github.com/PlatONnetwork/AppChain-Go/core/state"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
 	"github.com/PlatONnetwork/AppChain-Go/core/vm"
-	"github.com/PlatONnetwork/AppChain-Go/crypto"
 	"github.com/PlatONnetwork/AppChain-Go/innerbindings/helper"
 	"math/big"
 )
@@ -21,7 +21,7 @@ type RootChainReader interface {
 }
 
 type RootChainCheck interface {
-	CheckStakeStateSyncExtra(header *types.Header) error
+	CheckStakeStateSyncExtra(header *types.Header, tx *types.Transaction) error
 }
 type StateReader interface {
 	StateAt(root common.Hash) (*state.StateDB, error)
@@ -36,9 +36,13 @@ func NewRootChain(blockChainCache StateReader) (*RootChain, error) {
 	}, nil
 }
 
-func (r RootChain) CheckStakeStateSyncExtra(header *types.Header) error {
-	end, hash := types.DecodeStakeExtra(header.Extra)
-	if end.Uint64() == 0 && hash == common.ZeroHash {
+func (r RootChain) CheckStakeStateSyncExtra(header *types.Header, tx *types.Transaction) error {
+	end := types.DecodeStakeExtra(header.Extra)
+	//if there is no stake tx in block, both tx and end is must empty
+	if tx == nil {
+		if end.Uint64() != 0 {
+			return fmt.Errorf("stake tx is nil, but extra is not empty")
+		}
 		return nil
 	}
 
@@ -55,9 +59,8 @@ func (r RootChain) CheckStakeStateSyncExtra(header *types.Header) error {
 	if err != nil {
 		return err
 	}
-	expect := crypto.Keccak256Hash(data)
-	if expect != hash {
-		return errors.New(fmt.Sprintf("header extra logs hash mistake, expect:%s, actual:%s", expect.Hex(), hash.Hex()))
+	if bytes.Equal(tx.Data(), data) {
+		return errors.New(fmt.Sprintf("header extra check failed: expect tx data doesn't match actual tx data"))
 	}
 	return nil
 }
