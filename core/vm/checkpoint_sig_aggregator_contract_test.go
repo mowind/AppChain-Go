@@ -199,7 +199,7 @@ func TestPropose(t *testing.T) {
 
 	c := &CheckpointSigAggregatorContract{
 		Contract: contract,
-		Evm: evm,
+		Evm:      evm,
 	}
 
 	_, err = c.Run(data)
@@ -219,10 +219,9 @@ func TestConfirm(t *testing.T) {
 	evm := newEvm(big1, blockHash, chain)
 	contract := newContract(big.NewInt(10000), sender)
 
-
 	c := &CheckpointSigAggregatorContract{
 		Contract: contract,
-		Evm: evm,
+		Evm:      evm,
 	}
 
 	scp := &StorageCheckpoint{
@@ -330,7 +329,7 @@ func TestPendingCheckpoint(t *testing.T) {
 		BlockNum: 10,
 	}
 
-	WriteLatestCheckpoint(chain.StateDB, scp)
+	WritePendingCheckpoint(chain.StateDB, scp)
 
 	out, err = c.Run(input)
 	assert.Nil(t, err)
@@ -338,9 +337,9 @@ func TestPendingCheckpoint(t *testing.T) {
 	var pending checkpoint.ICheckpointSigAggregatorPendingCheckpoint
 	out0, err := CheckpointABI().Unpack("pendingCheckpoint", out)
 	assert.Nil(t, err)
-	abi.ConvertType(out0, &pending)
+	abi.ConvertType(out0[0], &pending)
 	assert.Equal(t, scp.Proposer, pending.Checkpoint.Proposer)
 	assert.Equal(t, scp.Start, pending.Checkpoint.Start)
 	assert.Equal(t, scp.End, pending.Checkpoint.End)
-	assert.Equal(t, scp.BlockNum, pending.BlockNum)
+	assert.Equal(t, scp.BlockNum, pending.BlockNum.Uint64())
 }
