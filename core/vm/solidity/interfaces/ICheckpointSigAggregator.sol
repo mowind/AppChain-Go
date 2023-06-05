@@ -24,6 +24,11 @@ interface ICheckpointSigAggregator {
         uint32[] slashing;
     }
 
+    struct PendingCheckpoint {
+        Checkpoint checkpoint;
+        uint256 blockNum;
+    }
+
     function propose(
         Checkpoint calldata cp,
         uint32 validatorId,
@@ -33,4 +38,9 @@ interface ICheckpointSigAggregator {
     function confirm(address proposer, bytes32 root) external;
 
     function latestCheckpoint() external view returns (Checkpoint memory cp);
+
+    function pendingCheckpoint()
+        external
+        view
+        returns (PendingCheckpoint memory pcp);
 }

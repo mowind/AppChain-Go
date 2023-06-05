@@ -41,9 +41,15 @@ type ICheckpointSigAggregatorCheckpoint struct {
 	Slashing    []uint32
 }
 
+// ICheckpointSigAggregatorPendingCheckpoint is an auto generated low-level Go binding around an user-defined struct.
+type ICheckpointSigAggregatorPendingCheckpoint struct {
+	Checkpoint ICheckpointSigAggregatorCheckpoint
+	BlockNum   *big.Int
+}
+
 // CheckpointMetaData contains all meta data concerning the Checkpoint contract.
 var CheckpointMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"root\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint32[]\",\"name\":\"signedValidators\",\"type\":\"uint32[]\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"CheckpointSigAggregated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"root\",\"type\":\"bytes32\"}],\"name\":\"confirm\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"latestCheckpoint\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"rootHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"accountHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"uint32[]\",\"name\":\"current\",\"type\":\"uint32[]\"},{\"internalType\":\"uint32[]\",\"name\":\"rewards\",\"type\":\"uint32[]\"},{\"internalType\":\"uint32[]\",\"name\":\"slashing\",\"type\":\"uint32[]\"}],\"internalType\":\"structICheckpointSigAggregator.Checkpoint\",\"name\":\"cp\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"rootHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"accountHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"uint32[]\",\"name\":\"current\",\"type\":\"uint32[]\"},{\"internalType\":\"uint32[]\",\"name\":\"rewards\",\"type\":\"uint32[]\"},{\"internalType\":\"uint32[]\",\"name\":\"slashing\",\"type\":\"uint32[]\"}],\"internalType\":\"structICheckpointSigAggregator.Checkpoint\",\"name\":\"cp\",\"type\":\"tuple\"},{\"internalType\":\"uint32\",\"name\":\"validatorId\",\"type\":\"uint32\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"propose\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"root\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint32[]\",\"name\":\"signedValidators\",\"type\":\"uint32[]\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"CheckpointSigAggregated\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"root\",\"type\":\"bytes32\"}],\"name\":\"confirm\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"latestCheckpoint\",\"outputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"rootHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"accountHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"uint32[]\",\"name\":\"current\",\"type\":\"uint32[]\"},{\"internalType\":\"uint32[]\",\"name\":\"rewards\",\"type\":\"uint32[]\"},{\"internalType\":\"uint32[]\",\"name\":\"slashing\",\"type\":\"uint32[]\"}],\"internalType\":\"structICheckpointSigAggregator.Checkpoint\",\"name\":\"cp\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pendingCheckpoint\",\"outputs\":[{\"components\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"rootHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"accountHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"uint32[]\",\"name\":\"current\",\"type\":\"uint32[]\"},{\"internalType\":\"uint32[]\",\"name\":\"rewards\",\"type\":\"uint32[]\"},{\"internalType\":\"uint32[]\",\"name\":\"slashing\",\"type\":\"uint32[]\"}],\"internalType\":\"structICheckpointSigAggregator.Checkpoint\",\"name\":\"checkpoint\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"blockNum\",\"type\":\"uint256\"}],\"internalType\":\"structICheckpointSigAggregator.PendingCheckpoint\",\"name\":\"pcp\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"rootHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"accountHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"uint32[]\",\"name\":\"current\",\"type\":\"uint32[]\"},{\"internalType\":\"uint32[]\",\"name\":\"rewards\",\"type\":\"uint32[]\"},{\"internalType\":\"uint32[]\",\"name\":\"slashing\",\"type\":\"uint32[]\"}],\"internalType\":\"structICheckpointSigAggregator.Checkpoint\",\"name\":\"cp\",\"type\":\"tuple\"},{\"internalType\":\"uint32\",\"name\":\"validatorId\",\"type\":\"uint32\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"propose\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // CheckpointABI is the input ABI used to generate the binding from.
@@ -221,6 +227,37 @@ func (_Checkpoint *CheckpointSession) LatestCheckpoint() (ICheckpointSigAggregat
 // Solidity: function latestCheckpoint() view returns((address,uint256,uint256,bytes32,bytes32,uint256,uint32[],uint32[],uint32[]) cp)
 func (_Checkpoint *CheckpointCallerSession) LatestCheckpoint() (ICheckpointSigAggregatorCheckpoint, error) {
 	return _Checkpoint.Contract.LatestCheckpoint(&_Checkpoint.CallOpts)
+}
+
+// PendingCheckpoint is a free data retrieval call binding the contract method 0x959799cc.
+//
+// Solidity: function pendingCheckpoint() view returns(((address,uint256,uint256,bytes32,bytes32,uint256,uint32[],uint32[],uint32[]),uint256) pcp)
+func (_Checkpoint *CheckpointCaller) PendingCheckpoint(opts *bind.CallOpts) (ICheckpointSigAggregatorPendingCheckpoint, error) {
+	var out []interface{}
+	err := _Checkpoint.contract.Call(opts, &out, "pendingCheckpoint")
+
+	if err != nil {
+		return *new(ICheckpointSigAggregatorPendingCheckpoint), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new(ICheckpointSigAggregatorPendingCheckpoint)).(*ICheckpointSigAggregatorPendingCheckpoint)
+
+	return out0, err
+
+}
+
+// PendingCheckpoint is a free data retrieval call binding the contract method 0x959799cc.
+//
+// Solidity: function pendingCheckpoint() view returns(((address,uint256,uint256,bytes32,bytes32,uint256,uint32[],uint32[],uint32[]),uint256) pcp)
+func (_Checkpoint *CheckpointSession) PendingCheckpoint() (ICheckpointSigAggregatorPendingCheckpoint, error) {
+	return _Checkpoint.Contract.PendingCheckpoint(&_Checkpoint.CallOpts)
+}
+
+// PendingCheckpoint is a free data retrieval call binding the contract method 0x959799cc.
+//
+// Solidity: function pendingCheckpoint() view returns(((address,uint256,uint256,bytes32,bytes32,uint256,uint32[],uint32[],uint32[]),uint256) pcp)
+func (_Checkpoint *CheckpointCallerSession) PendingCheckpoint() (ICheckpointSigAggregatorPendingCheckpoint, error) {
+	return _Checkpoint.Contract.PendingCheckpoint(&_Checkpoint.CallOpts)
 }
 
 // Confirm is a paid mutator transaction binding the contract method 0xce157608.

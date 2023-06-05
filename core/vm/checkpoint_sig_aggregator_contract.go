@@ -397,6 +397,34 @@ func (c *CheckpointSigAggregatorContract) LatestCheckpoint() ([]byte, error) {
 	return scp.Pack(), nil
 }
 
+// solidity:
+//   function pendingCheckpoint() external view returns (PendingCheckpoint memory pcp)
+func (c *CheckpointSigAggregatorContract) PendingCheckpoint() ([]byte, error) {
+	pending, err := ReadPendingCheckpoint(c.Evm.StateDB)
+	if err != nil {
+		if err == ErrCheckpointNotFound {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	out := CheckpointABI().Methods["pendingCheckpoint"].Outputs
+	pcp := &checkpoint.ICheckpointSigAggregatorPendingCheckpoint{
+		Checkpoint: checkpoint.ICheckpointSigAggregatorCheckpoint{
+			Proposer: pending.Proposer,
+			Start: pending.Start,
+			End: pending.End,
+			RootHash: pending.RootHash,
+			AccountHash: pending.AccountHash,
+			ChainId: pending.ChainId,
+			Current: pending.Current,
+			Rewards: pending.Rewards,
+		},
+		BlockNum: big.NewInt(0).SetUint64(pending.BlockNum),
+	}
+	return out.Pack(pcp)
+}
+
 func (c *CheckpointSigAggregatorContract) threshold(num int) int {
 	return num - (num-1)/3
 }

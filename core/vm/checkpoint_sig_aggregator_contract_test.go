@@ -299,3 +299,48 @@ func TestLatestCheckpoint(t *testing.T) {
 	assert.Equal(t, scp.Start, cp.Start)
 	assert.Equal(t, scp.End, cp.End)
 }
+
+func TestPendingCheckpoint(t *testing.T) {
+	chain := mock.NewChain()
+	defer chain.SnapDB.Clear()
+
+	c := &CheckpointSigAggregatorContract{
+		Evm: newEvm(big.NewInt(1), common.HexToHash("0x13412412343"), chain),
+	}
+
+	input, err := CheckpointABI().Pack("pendingCheckpoint")
+	assert.Nil(t, err)
+
+	out, err := c.Run(input)
+	assert.Nil(t, err)
+	assert.True(t, len(out) == 0)
+
+	scp := &StorageCheckpoint{
+		Checkpoint: types.Checkpoint{
+			Proposer:    common.HexToAddress("0x1234"),
+			Start:       big.NewInt(1),
+			End:         big.NewInt(2),
+			ChainId:     big.NewInt(5),
+			RootHash:    common.HexToHash("0x12342314"),
+			AccountHash: common.HexToHash("0x1342134"),
+			Current:     []uint32{1, 2, 3},
+			Rewards:     []uint32{1, 2, 3, 8, 9},
+			Slashing:    []uint32{4, 5, 6},
+		},
+		BlockNum: 10,
+	}
+
+	WriteLatestCheckpoint(chain.StateDB, scp)
+
+	out, err = c.Run(input)
+	assert.Nil(t, err)
+
+	var pending checkpoint.ICheckpointSigAggregatorPendingCheckpoint
+	out0, err := CheckpointABI().Unpack("pendingCheckpoint", out)
+	assert.Nil(t, err)
+	abi.ConvertType(out0, &pending)
+	assert.Equal(t, scp.Proposer, pending.Checkpoint.Proposer)
+	assert.Equal(t, scp.Start, pending.Checkpoint.Start)
+	assert.Equal(t, scp.End, pending.Checkpoint.End)
+	assert.Equal(t, scp.BlockNum, pending.BlockNum)
+}
