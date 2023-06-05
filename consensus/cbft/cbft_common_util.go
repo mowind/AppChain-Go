@@ -18,6 +18,7 @@ package cbft
 
 import (
 	"crypto/ecdsa"
+	"github.com/PlatONnetwork/AppChain-Go/rootchain"
 	"math/big"
 	"time"
 
@@ -65,7 +66,7 @@ func NewBlock(parent common.Hash, number uint64) *types.Block {
 		Number:      big.NewInt(int64(number)),
 		ParentHash:  parent,
 		Time:        uint64(time.Now().UnixNano() / 1e6),
-		Extra:       make([]byte, 97),
+		Extra:       make([]byte, types.ExtraLength),
 		ReceiptHash: common.BytesToHash(hexutil.MustDecode("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421")),
 		Root:        common.BytesToHash(hexutil.MustDecode("0x3a3fed92c98ca419be7d4a125c30a4e8b3424e46c607b9cc2b6dfa5a81cbef0d")),
 		Coinbase:    common.Address{},
@@ -82,7 +83,7 @@ func NewBlockWithSign(parent common.Hash, number uint64, node *TestCBFT) *types.
 		Number:      big.NewInt(int64(number)),
 		ParentHash:  parent,
 		Time:        uint64(time.Now().UnixNano() / 1e6),
-		Extra:       make([]byte, 97),
+		Extra:       make([]byte, types.ExtraLength),
 		ReceiptHash: common.BytesToHash(hexutil.MustDecode("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421")),
 		Root:        common.BytesToHash(hexutil.MustDecode("0x3a3fed92c98ca419be7d4a125c30a4e8b3424e46c607b9cc2b6dfa5a81cbef0d")),
 		Coinbase:    common.Address{},
@@ -90,7 +91,7 @@ func NewBlockWithSign(parent common.Hash, number uint64, node *TestCBFT) *types.
 	}
 
 	sign, _ := node.engine.signFn(header.SealHash().Bytes())
-	copy(header.Extra[len(header.Extra)-consensus.ExtraSeal:], sign[:])
+	copy(header.Extra[types.ExtraSignPos:], sign[:])
 
 	block := types.NewBlockWithHeader(header)
 	return block
@@ -204,16 +205,17 @@ func CreateValidatorBackend(engine *Cbft, nodes []params.CbftNode) (*core.BlockC
 
 // TestCBFT for testing.
 type TestCBFT struct {
-	engine *Cbft
-	chain  *core.BlockChain
-	cache  *core.BlockChainCache
-	txpool *core.TxPool
-	agency consensus.Agency
+	engine         *Cbft
+	chain          *core.BlockChain
+	cache          *core.BlockChainCache
+	txpool         *core.TxPool
+	agency         consensus.Agency
+	rootChainCheck rootchain.RootChainCheck
 }
 
 // Start turns on the cbft for testing.
 func (t *TestCBFT) Start() error {
-	return t.engine.Start(t.chain, t.cache, t.txpool, t.agency)
+	return t.engine.Start(t.chain, t.cache, t.txpool, t.agency, t.rootChainCheck)
 }
 
 // MockNode returns a new TestCBFT for testing.

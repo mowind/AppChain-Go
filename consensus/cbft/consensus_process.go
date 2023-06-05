@@ -47,6 +47,10 @@ func (cbft *Cbft) OnPrepareBlock(id string, msg *protocols.PrepareBlock) error {
 		cbft.log.Error("Verify header fail", "number", msg.Block.Number(), "hash", msg.Block.Hash(), "err", err)
 		return err
 	}
+	if err := cbft.VerifyRootChainTx(msg.Block); err != nil {
+		cbft.log.Error("Verify root chain tx", "number", msg.Block.Number(), "hash", msg.Block.Hash(), "err", err)
+		return err
+	}
 	if err := cbft.safetyRules.PrepareBlockRules(msg); err != nil {
 		blockCheckFailureMeter.Mark(1)
 
