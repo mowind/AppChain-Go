@@ -173,7 +173,7 @@ func (can *Candidate) OwnerAddress() common.Address {
 }
 
 type CandidateBase struct {
-	ValidatorId uint32
+	ValidatorId *big.Int
 	NodeId      discover.NodeID
 	// bls public key
 	BlsPubKey bls.PublicKeyHex
@@ -408,6 +408,7 @@ func (can *CandidateMutable) IsInvalidWithdrew() bool {
 
 // Display amount field using 0x hex
 type CandidateHex struct {
+	ValidatorId          uint32
 	NodeId               discover.NodeID
 	BlsPubKey            bls.PublicKeyHex
 	StakingAddress       common.Address
@@ -576,7 +577,7 @@ func (queue CandidateBaseQueue) IsEmpty() bool {
 	ValidatorTerm uint32
 }*/
 type Validator struct {
-	ValidatorId     uint32
+	ValidatorId     *big.Int
 	ProgramVersion  uint32
 	StakingTxIndex  uint32
 	ValidatorTerm   uint32 // Validator's term in the consensus round
@@ -906,6 +907,7 @@ func (v ValidatorArray) String() string {
 }
 
 type ValidatorEx struct {
+	ValidatorId *big.Int
 	//NodeAddress common.Address
 	NodeId discover.NodeID
 	// bls public key

@@ -271,13 +271,7 @@ func (rmp *RewardMgrPlugin) HandleDelegatePerReward(blockHash common.Hash, block
 			currentEpochDelegateReward := new(big.Int).Set(verifier.CurrentEpochDelegateReward)
 
 			verifier.PrepareNextEpoch()
-			canAddr, err := xutil.NodeId2Addr(verifier.NodeId)
-			if nil != err {
-				log.Error("Failed to handleDelegatePerReward on rewardMgrPlugin: nodeId parse addr failed",
-					"blockNumber", blockNumber, "blockHash", blockHash, "nodeID", verifier.NodeId.String(), "err", err)
-				return err
-			}
-			if err := rmp.stakingPlugin.db.SetCanMutableStore(blockHash, canAddr, verifier.CandidateMutable); err != nil {
+			if err := rmp.stakingPlugin.db.SetCanMutableStore(blockHash, verifier.ValidatorId, verifier.CandidateMutable); err != nil {
 				log.Error("Failed to handleDelegatePerReward on rewardMgrPlugin: setCanMutableStore  failed",
 					"blockNumber", blockNumber, "blockHash", blockHash, "err", err, "mutable", verifier.CandidateMutable)
 				return err
@@ -442,38 +436,38 @@ func (rmp *RewardMgrPlugin) getBlockMinderAddress(blockHash common.Hash, head *t
 
 // AllocatePackageBlock used for reward new block. it returns coinbase and error
 func (rmp *RewardMgrPlugin) AllocatePackageBlock(blockHash common.Hash, head *types.Header, reward *big.Int, state xcom.StateDB) error {
-	nodeID, add, err := rmp.getBlockMinderAddress(blockHash, head)
-	if err != nil {
-		log.Error("AllocatePackageBlock getBlockMinderAddress fail", "err", err, "blockNumber", head.Number, "blockHash", blockHash)
-		return err
-	}
-
-	currVerifier, err := rmp.stakingPlugin.IsCurrVerifier(blockHash, head.Number.Uint64(), nodeID, false)
-	if err != nil {
-		log.Error("AllocatePackageBlock IsCurrVerifier fail", "err", err, "blockNumber", head.Number, "blockHash", blockHash)
-		return err
-	}
-	if currVerifier {
-		cm, err := rmp.stakingPlugin.GetCanMutable(blockHash, add)
-		if err != nil {
-			log.Error("AllocatePackageBlock GetCanMutable fail", "err", err, "blockNumber", head.Number, "blockHash", blockHash, "add", add)
-			return err
-		}
-		if cm.ShouldGiveDelegateReward() {
-			delegateReward := new(big.Int).SetUint64(0)
-			delegateReward, reward = rmp.CalDelegateRewardAndNodeReward(reward, cm.RewardPer)
-
-			state.SubBalance(vm.RewardManagerPoolAddr, delegateReward)
-			state.AddBalance(vm.DelegateRewardPoolAddr, delegateReward)
-			cm.CurrentEpochDelegateReward.Add(cm.CurrentEpochDelegateReward, delegateReward)
-			log.Debug("allocate package reward, delegate reward", "blockNumber", head.Number, "blockHash", blockHash, "delegateReward", delegateReward, "epochDelegateReward", cm.CurrentEpochDelegateReward)
-
-			if err := rmp.stakingPlugin.db.SetCanMutableStore(blockHash, add, cm); err != nil {
-				log.Error("AllocatePackageBlock SetCanMutableStore fail", "err", err, "blockNumber", head.Number, "blockHash", blockHash)
-				return err
-			}
-		}
-	}
+	//nodeID, add, err := rmp.getBlockMinderAddress(blockHash, head)
+	//if err != nil {
+	//	log.Error("AllocatePackageBlock getBlockMinderAddress fail", "err", err, "blockNumber", head.Number, "blockHash", blockHash)
+	//	return err
+	//}
+	//
+	//currVerifier, err := rmp.stakingPlugin.IsCurrVerifier(blockHash, head.Number.Uint64(), nodeID, false)
+	//if err != nil {
+	//	log.Error("AllocatePackageBlock IsCurrVerifier fail", "err", err, "blockNumber", head.Number, "blockHash", blockHash)
+	//	return err
+	//}
+	//if currVerifier {
+	//	cm, err := rmp.stakingPlugin.GetCanMutable(blockHash, add)
+	//	if err != nil {
+	//		log.Error("AllocatePackageBlock GetCanMutable fail", "err", err, "blockNumber", head.Number, "blockHash", blockHash, "add", add)
+	//		return err
+	//	}
+	//	if cm.ShouldGiveDelegateReward() {
+	//		delegateReward := new(big.Int).SetUint64(0)
+	//		delegateReward, reward = rmp.CalDelegateRewardAndNodeReward(reward, cm.RewardPer)
+	//
+	//		state.SubBalance(vm.RewardManagerPoolAddr, delegateReward)
+	//		state.AddBalance(vm.DelegateRewardPoolAddr, delegateReward)
+	//		cm.CurrentEpochDelegateReward.Add(cm.CurrentEpochDelegateReward, delegateReward)
+	//		log.Debug("allocate package reward, delegate reward", "blockNumber", head.Number, "blockHash", blockHash, "delegateReward", delegateReward, "epochDelegateReward", cm.CurrentEpochDelegateReward)
+	//
+	//		if err := rmp.stakingPlugin.db.SetCanMutableStore(blockHash, add, cm); err != nil {
+	//			log.Error("AllocatePackageBlock SetCanMutableStore fail", "err", err, "blockNumber", head.Number, "blockHash", blockHash)
+	//			return err
+	//		}
+	//	}
+	//}
 
 	if head.Coinbase != vm.RewardManagerPoolAddr {
 

@@ -28,7 +28,7 @@ const (
 	VersionMeta  = "unstable" // Version metadata to append to the version string
 
 	//CAUTION: DO NOT MODIFY THIS ONCE THE CHAIN HAS BEEN INITIALIZED!!!
-	GenesisVersion = uint32(1<<16 | 0<<8 | 0)
+	GenesisVersion = uint32(1<<16 | 4<<8 | 0)
 )
 
 func CodeVersion() uint32 {
