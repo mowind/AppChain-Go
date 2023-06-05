@@ -22,6 +22,7 @@ import (
 	"crypto/elliptic"
 	"encoding/json"
 	"fmt"
+	"github.com/PlatONnetwork/AppChain-Go/innerbindings/helper"
 	"github.com/PlatONnetwork/AppChain-Go/rootchain"
 	"strings"
 	"sync/atomic"
@@ -658,13 +659,6 @@ func (cbft *Cbft) VerifyHeader(chain consensus.ChainReader, header *types.Header
 		return fmt.Errorf("verify header fail, missing signature, number:%d, hash:%s", header.Number.Uint64(), header.Hash().String())
 	}
 
-	if node, err := cbft.isCurrentValidator(); err == nil && node != nil {
-		if err := cbft.rootChainCheck.CheckStakeStateSyncExtra(header); err != nil {
-			cbft.log.Error("Verify header stake state extra failed", "number", header.Number, "hash", header.Hash, "err", err)
-			return fmt.Errorf("verify header stake state extra failed, number:%d, hash:%s", header.Number.Uint64(), header.Hash().String())
-		}
-	}
-
 	if header.IsInvalid() {
 		cbft.log.Error("Verify header fail, Extra field is too long", "number", header.Number, "hash", header.CacheHash())
 		return fmt.Errorf("verify header fail, Extra field is too long, number:%d, hash:%s", header.Number.Uint64(), header.CacheHash().String())
@@ -673,6 +667,25 @@ func (cbft *Cbft) VerifyHeader(chain consensus.ChainReader, header *types.Header
 	if err := cbft.validatorPool.VerifyHeader(header); err != nil {
 		cbft.log.Error("Verify header fail", "number", header.Number, "hash", header.Hash(), "err", err)
 		return fmt.Errorf("verify header fail, number:%d, hash:%s, err:%s", header.Number.Uint64(), header.Hash().String(), err.Error())
+	}
+	return nil
+}
+
+func (cbft *Cbft) VerifyRootChainTx(block *types.Block) error {
+	if node, err := cbft.isCurrentValidator(); err == nil && node != nil {
+		var stakeTx *types.Transaction
+		txs := helper.FindStakeStateSyncTxs(block.Transactions())
+		if len(txs) > 1 {
+			return fmt.Errorf(fmt.Sprintf("A block only have one stakeStateSync transaction"))
+		}
+		if len(txs) == 1 {
+			stakeTx = txs[0]
+		}
+		header := block.Header()
+		if err := cbft.rootChainCheck.CheckStakeStateSyncExtra(header, stakeTx); err != nil {
+			cbft.log.Error("Verify header stake state extra failed", "number", header.Number, "hash", header.Hash, "err", err)
+			return fmt.Errorf("verify header stake state extra failed, number:%d, hash:%s", header.Number.Uint64(), header.Hash().String())
+		}
 	}
 	return nil
 }

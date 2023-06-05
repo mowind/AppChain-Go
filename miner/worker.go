@@ -21,7 +21,6 @@ import (
 	"errors"
 	"fmt"
 	vm2 "github.com/PlatONnetwork/AppChain-Go/common/vm"
-	"github.com/PlatONnetwork/AppChain-Go/crypto"
 	"github.com/PlatONnetwork/AppChain-Go/innerbindings/helper"
 	"github.com/PlatONnetwork/AppChain-Go/manager"
 	"github.com/PlatONnetwork/AppChain-Go/rootchain"
@@ -797,7 +796,7 @@ func (w *worker) createStakeStateSyncTx(state *state.StateDB) (*types.Transactio
 		return nil, nil, err
 	}
 	if len(logs) == 0 {
-		return nil, types.EncodeStakeExtra(big.NewInt(0), common.ZeroHash), nil
+		return nil, types.EncodeStakeExtra(big.NewInt(0)), nil
 	}
 
 	data, err := helper.EncodeStakeStateSync(end, logs)
@@ -810,7 +809,7 @@ func (w *worker) createStakeStateSyncTx(state *state.StateDB) (*types.Transactio
 	if err != nil {
 		return nil, nil, err
 	}
-	stakeSyncExtra := types.EncodeStakeExtra(end, crypto.Keccak256Hash(data))
+	stakeSyncExtra := types.EncodeStakeExtra(end)
 
 	return tx, stakeSyncExtra, nil
 }
