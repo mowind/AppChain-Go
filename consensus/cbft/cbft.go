@@ -1853,6 +1853,16 @@ func (cbft *Cbft) NodeID() discover.NodeID {
 	return cbft.config.Option.NodeID
 }
 
+func (cbft *Cbft) BlsSign(msg []byte) ([]byte, error) {
+	return cbft.signFnByBls(msg)
+}
+
+func (cbft *Cbft) CurrentProposer() discover.NodeID {
+	numValidators := cbft.validatorPool.Len(cbft.state.Epoch())
+	currentProposer := cbft.state.ViewNumber() % uint64(numValidators)
+	return cbft.validatorPool.GetNodeIDByIndex(cbft.state.Epoch(), int(currentProposer))
+}
+
 func (cbft *Cbft) avgRTT() time.Duration {
 	produceInterval := time.Duration(cbft.config.Sys.Period/uint64(cbft.config.Sys.Amount)) * time.Millisecond
 	rtt := cbft.AvgLatency() * 2

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
 	"math/big"
 
 	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
@@ -234,6 +233,16 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 				pending = nil
 			}
 		} else {
+			for _, signed := range pending.SignedValidators {
+				if signed == validatorId {
+					log.Error("The validator already signed", "proposer", pending.Proposer,
+						"start", pending.Start,
+						"end", pending.End,
+						"validatorId", validatorId)
+					return nil, ErrInvalidProposal
+				}
+			}
+
 			if (c.Evm.Context.BlockNumber.Uint64() - pending.BlockNum) >= NextProposeDelay {
 				log.Warn("Pending proposal timeout, discard this propose", "proposer", pending.Proposer, "blockNum", pending.BlockNum)
 				return nil, ErrProposalTimeout
@@ -394,11 +403,23 @@ func (c *CheckpointSigAggregatorContract) LatestCheckpoint() ([]byte, error) {
 		}
 		return nil, err
 	}
-	return scp.Pack(), nil
+	out := CheckpointABI().Methods["latestCheckpoint"].Outputs
+	cp := &checkpoint.ICheckpointSigAggregatorCheckpoint{
+		Proposer: scp.Proposer,
+		Start: scp.Start,
+		End: scp.End,
+		RootHash: scp.RootHash,
+		AccountHash: scp.AccountHash,
+		ChainId: scp.ChainId,
+		Current: scp.Current,
+		Rewards: scp.Rewards,
+	}
+	return out.Pack(cp)
 }
 
 // solidity:
-//   function pendingCheckpoint() external view returns (PendingCheckpoint memory pcp)
+//
+//	function pendingCheckpoint() external view returns (PendingCheckpoint memory pcp)
 func (c *CheckpointSigAggregatorContract) PendingCheckpoint() ([]byte, error) {
 	pending, err := ReadPendingCheckpoint(c.Evm.StateDB)
 	if err != nil {
@@ -411,14 +432,14 @@ func (c *CheckpointSigAggregatorContract) PendingCheckpoint() ([]byte, error) {
 	out := CheckpointABI().Methods["pendingCheckpoint"].Outputs
 	pcp := &checkpoint.ICheckpointSigAggregatorPendingCheckpoint{
 		Checkpoint: checkpoint.ICheckpointSigAggregatorCheckpoint{
-			Proposer: pending.Proposer,
-			Start: pending.Start,
-			End: pending.End,
-			RootHash: pending.RootHash,
+			Proposer:    pending.Proposer,
+			Start:       pending.Start,
+			End:         pending.End,
+			RootHash:    pending.RootHash,
 			AccountHash: pending.AccountHash,
-			ChainId: pending.ChainId,
-			Current: pending.Current,
-			Rewards: pending.Rewards,
+			ChainId:     pending.ChainId,
+			Current:     pending.Current,
+			Rewards:     pending.Rewards,
 		},
 		BlockNum: big.NewInt(0).SetUint64(pending.BlockNum),
 	}

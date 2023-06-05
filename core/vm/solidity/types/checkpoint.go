@@ -1,11 +1,13 @@
 package types
 
 import (
+	"fmt"
 	"math/big"
 	"reflect"
 
 	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
 	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 )
 
 var (
@@ -71,7 +73,10 @@ func (cp *Checkpoint) Pack() []byte {
 		cp.Slashing,
 	})
 
-	return packed
+	enc := hexutil.Encode(packed)
+	enc = "0x" + enc[66:]
+	return (hexutil.MustDecode(enc))
+
 }
 
 func (cp *Checkpoint) Equal(other *Checkpoint) bool {

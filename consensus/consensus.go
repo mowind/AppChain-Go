@@ -201,4 +201,8 @@ type Bft interface {
 
 	// NodeID is temporary.
 	NodeID() discover.NodeID
+
+	BlsSign(msg []byte) ([]byte, error)
+
+	CurrentProposer() discover.NodeID
 }
