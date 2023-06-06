@@ -156,6 +156,7 @@ func genesisStakingData(prevHash common.Hash, snapdb snapshotdb.BaseDB, g *Genes
 			StakingBlockNum: base.StakingBlockNum,
 			StakingTxIndex:  base.StakingTxIndex,
 			ValidatorTerm:   0,
+			StakingAddress:  base.StakingAddress,
 		}
 		validatorQueue[index] = validator
 
