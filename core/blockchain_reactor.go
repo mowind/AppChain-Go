@@ -210,7 +210,7 @@ func (bcr *BlockChainReactor) SetWorkerCoinBase(header *types.Header, nodeId dis
 		panic(fmt.Sprintf("parse current nodeId is failed: %s", err.Error()))
 	}
 
-	if plu, ok := bcr.basePluginMap[xcom.StakingRule]; ok {
+	/*if plu, ok := bcr.basePluginMap[xcom.StakingRule]; ok {
 		stake := plu.(*plugin.StakingPlugin)
 		can, err := stake.GetCandidateInfo(common.ZeroHash, nodeIdAddr)
 		if nil != err {
@@ -221,8 +221,8 @@ func (bcr *BlockChainReactor) SetWorkerCoinBase(header *types.Header, nodeId dis
 		header.Coinbase = can.BenefitAddress
 		log.Info("SetWorkerCoinBase Successfully", "blockNumber", header.Number,
 			"nodeId", nodeId.String(), "nodeIdAddr", nodeIdAddr.Hex(), "coinbase", header.Coinbase.String())
-	}
-
+	}*/
+	header.Coinbase = common.BytesToAddress(nodeIdAddr.Bytes())
 }
 
 // Called before every block has not executed all txs

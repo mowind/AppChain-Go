@@ -75,6 +75,7 @@ func genesisStakingData(prevHash common.Hash, snapdb snapshotdb.BaseDB, g *Genes
 		}
 
 		base := &staking.CandidateBase{
+			ValidatorId:     new(big.Int).SetBytes(node.Node.ID.Bytes()),
 			NodeId:          node.Node.ID,
 			BlsPubKey:       keyHex,
 			StakingAddress:  xcom.CDFAccount(),
@@ -107,7 +108,7 @@ func genesisStakingData(prevHash common.Hash, snapdb snapshotdb.BaseDB, g *Genes
 		}
 
 		// about CanBase ...
-		baseKey := staking.CanBaseKeyByAddr(nodeAddr)
+		baseKey := staking.CanBaseKeyByAddr(base.ValidatorId)
 		if val, err := rlp.EncodeToBytes(base); nil != err {
 			return lastHash, fmt.Errorf("Failed to Store CanBase Info: rlp encodeing failed. nodeId:%s, error:%s",
 				base.NodeId.String(), err.Error())
@@ -122,7 +123,7 @@ func genesisStakingData(prevHash common.Hash, snapdb snapshotdb.BaseDB, g *Genes
 		}
 
 		// about CanMutable ...
-		mutableKey := staking.CanMutableKeyByAddr(nodeAddr)
+		mutableKey := staking.CanMutableKeyByAddr(base.ValidatorId)
 		if val, err := rlp.EncodeToBytes(mutable); nil != err {
 			return lastHash, fmt.Errorf("Failed to Store CanMutable Info: rlp encodeing failed. nodeId:%s, error:%s",
 				base.NodeId.String(), err.Error())
@@ -146,6 +147,7 @@ func genesisStakingData(prevHash common.Hash, snapdb snapshotdb.BaseDB, g *Genes
 
 		// build validator queue for the first consensus epoch
 		validator := &staking.Validator{
+			ValidatorId:     base.ValidatorId,
 			NodeAddress:     nodeAddr,
 			NodeId:          base.NodeId,
 			BlsPubKey:       base.BlsPubKey,
@@ -157,8 +159,6 @@ func genesisStakingData(prevHash common.Hash, snapdb snapshotdb.BaseDB, g *Genes
 		}
 		validatorQueue[index] = validator
 
-		stateDB.SubBalance(xcom.CDFAccount(), new(big.Int).Set(xcom.GeneStakingAmount))
-		stateDB.AddBalance(vm.StakingContractAddr, new(big.Int).Set(xcom.GeneStakingAmount))
 	}
 
 	// store the account staking Reference Count

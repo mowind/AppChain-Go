@@ -310,12 +310,18 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 		log.Error("The gasFloor must be less than gasCeil", "gasFloor", config.Miner.GasFloor, "gasCeil", gasCeil)
 		return nil, fmt.Errorf("The gasFloor must be less than gasCeil, got: %d, expect range (0, %d]", config.Miner.GasFloor, gasCeil)
 	}
+
+	// Initialisation of the event management object handling the root chain
+	rootEventManager := rootchain.NewEventManager(chainDb, config.RCConfig)
+
 	//todo init root chain
-	rootchain, err := rootchain.NewRootChain(blockChainCache)
+	rootchain, err := rootchain.NewRootChain(blockChainCache, rootEventManager)
 	if err != nil {
 		log.Error("create root chain failed", "error", err)
 		return nil, errors.New("Failed to create root chain")
 	}
+	rootchain.Start()
+
 	eth.miner = miner.New(eth, &config.Miner, eth.blockchain.Config(), minningConfig, eth.EventMux(), eth.engine,
 		eth.isLocalBlock, blockChainCache, config.VmTimeoutDuration, eth.managerAccount, rootchain)
 

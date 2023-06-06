@@ -61,10 +61,10 @@ func (sc *SlashingContract) Run(input []byte) ([]byte, error) {
 
 func (sc *SlashingContract) FnSigns() map[uint16]interface{} {
 	return map[uint16]interface{}{
-		// Set
+		/*// Set
 		TxReportDuplicateSign: sc.reportDuplicateSign,
 		// Get
-		CheckDuplicateSign: sc.checkDuplicateSign,
+		CheckDuplicateSign: sc.checkDuplicateSign,*/
 	}
 }
 
