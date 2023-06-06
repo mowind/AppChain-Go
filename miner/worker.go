@@ -810,7 +810,8 @@ func (w *worker) createStakeStateSyncTx(state *state.StateDB) (*types.Transactio
 		return nil, nil, err
 	}
 	stakeSyncExtra := types.EncodeStakeExtra(end)
-
+	log.Debug("event packing for rootChain successful", "eventStartBlockNumber", start, "eventEndBlockNumber", end,
+		"logsSize", len(logs), "txHash", tx.Hash().Hex())
 	return tx, stakeSyncExtra, nil
 }
 
@@ -1039,7 +1040,7 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64, 
 	extraData := w.makeExtraData()
 	copy(header.Extra[:len(extraData)], extraData)
 
-	copy(header.Extra[len(extraData)-len(w.current.stateSyncExtra):], w.current.stateSyncExtra)
+	copy(header.Extra[types.ExtraStakePos:], w.current.stateSyncExtra)
 	// BeginBlocker()
 	if err := core.GetReactorInstance().BeginBlocker(header, w.current.state); nil != err {
 		log.Error("Failed to GetReactorInstance BeginBlocker on worker", "blockNumber", header.Number, "err", err)

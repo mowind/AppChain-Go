@@ -260,6 +260,8 @@ func (stkc *StakingContract) stakeStateSync(input []byte) ([]byte, error) {
 			//todo revert msg
 		}
 	}
+	// Record the latest block height processed.
+	stkc.SetBlockNumber(args.BlockNumber)
 	if err := stkc.addStakeStateSyncLog(args.BlockNumber); err != nil {
 		return nil, err
 	}

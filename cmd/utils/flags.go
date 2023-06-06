@@ -19,7 +19,9 @@ package utils
 
 import (
 	"crypto/ecdsa"
+	"encoding/json"
 	"fmt"
+	"github.com/PlatONnetwork/AppChain-Go/innerbindings/config"
 	"github.com/PlatONnetwork/AppChain-Go/metrics/exp"
 	"io"
 	"io/ioutil"
@@ -653,6 +655,13 @@ var (
 		Usage: "manager password file to use for non-interactive password input",
 		Value: "",
 	}
+
+	RootChainConfig = cli.StringFlag{
+		Name:   "rootChainConfig",
+		Usage:  "rootchain related configuration, PRC address, contract address, etc.",
+		EnvVar: "",
+		Value:  "",
+	}
 )
 
 // MakeDataDir retrieves the currently requested data directory, terminating
@@ -1246,6 +1255,32 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 		cfg.VmTimeoutDuration = ctx.GlobalUint64(VmTimeoutDuration.Name)
 	}
 
+	// Read rootchain-related configuration
+	if ctx.GlobalIsSet(RootChainConfig.Name) {
+		configAddr := ctx.GlobalString(RootChainConfig.Name)
+		rcConfig := config.RootChainContractConfig{}
+		parseConfigJson := func(configPath string) error {
+			if configPath == "" {
+				return nil
+			}
+
+			if !filepath.IsAbs(configPath) {
+				configPath, _ = filepath.Abs(configPath)
+			}
+
+			bytes, err := ioutil.ReadFile(configPath)
+			if err != nil {
+				panic(fmt.Errorf("parse config file error,%s", err.Error()))
+			}
+
+			if err := json.Unmarshal(bytes, &rcConfig); err != nil {
+				panic(fmt.Errorf("parse config to json error,%s", err.Error()))
+			}
+			return nil
+		}
+		parseConfigJson(configAddr)
+		cfg.RCConfig = &rcConfig
+	}
 }
 
 func SetCbft(ctx *cli.Context, cfg *types.OptionsConfig, nodeCfg *node.Config) {

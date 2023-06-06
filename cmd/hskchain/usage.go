@@ -79,6 +79,7 @@ var AppHelpFlagGroups = []flagGroup{
 			utils.IdentityFlag,
 			utils.TxLookupLimitFlag,
 			utils.LightKDFFlag,
+			utils.RootChainConfig,
 		},
 	},
 	{

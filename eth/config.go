@@ -17,6 +17,7 @@
 package eth
 
 import (
+	"github.com/PlatONnetwork/AppChain-Go/innerbindings/config"
 	"github.com/PlatONnetwork/AppChain-Go/miner"
 	"math/big"
 	"time"
@@ -183,4 +184,6 @@ type Config struct {
 
 	ManagerKeyStore string
 	ManagerPassword string
+
+	RCConfig *config.RootChainContractConfig
 }

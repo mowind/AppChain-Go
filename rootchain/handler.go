@@ -1,14 +1,14 @@
-package eventmanager
+package rootchain
 
 import (
 	"context"
 	appchain "github.com/PlatONnetwork/AppChain-Go"
 	"github.com/PlatONnetwork/AppChain-Go/common"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
-	"github.com/PlatONnetwork/AppChain-Go/crypto"
 	"github.com/PlatONnetwork/AppChain-Go/ethclient"
 	"github.com/PlatONnetwork/AppChain-Go/ethdb"
 	"github.com/PlatONnetwork/AppChain-Go/event"
+	"github.com/PlatONnetwork/AppChain-Go/innerbindings/config"
 	"github.com/PlatONnetwork/AppChain-Go/innerbindings/helper"
 	"github.com/PlatONnetwork/AppChain-Go/log"
 	"math/big"
@@ -19,10 +19,9 @@ import (
 // EventManager Managing events issued on the master chain.
 // Includes listening for events, storing events and assembling a batch of packaged events.
 type EventManager struct {
-	platonAddr string
-	exit       chan struct{}
-	db         ethdb.Database
-	RCConfig   *RootChainContractConfig
+	exit     chan struct{}
+	db       ethdb.Database
+	RCConfig *config.RootChainContractConfig
 	// When packing events, the height of the latest listened event - x = the block height of the packing cut-off.
 	backNumbers uint64
 
@@ -35,17 +34,11 @@ type EventManager struct {
 	mu                  sync.RWMutex
 }
 
-type RootChainContractConfig struct {
-	RootChainID        string
-	StakingInfoAddress common.Address
-	RootChainAddress   common.Address
-}
-
-func NewEventManager(platonAddr string, db ethdb.Database) *EventManager {
+func NewEventManager(db ethdb.Database, rcConfig *config.RootChainContractConfig) *EventManager {
 	eventManager := &EventManager{
-		platonAddr:      platonAddr,
 		exit:            make(chan struct{}),
 		db:              db,
+		RCConfig:        rcConfig,
 		backNumbers:     10,
 		fromBlockNumber: 1,
 		blockLogs:       make(map[uint64][]*types.Log, 0),
@@ -61,13 +54,13 @@ func (em *EventManager) SubscribeEvents(ch chan *types.Log) event.Subscription {
 func (em *EventManager) Listen() error {
 	// If it is an authenticator node, this rpc address needs to be configured.
 	// Not required if it is a normal node.
-	if em.platonAddr == "" {
+	if em.RCConfig.PlatonRPCAddr == "" {
 		log.Warn("the rpc address for platon is empty, please check if it is required")
 		return nil
 	}
-	client, err := ethclient.Dial(em.platonAddr)
+	client, err := ethclient.Dial(em.RCConfig.PlatonRPCAddr)
 	if err != nil {
-		log.Error("Failed to connect to Platon's RPC address", "addr", em.platonAddr, "error", err)
+		log.Error("Failed to connect to Platon's RPC address", "addr", em.RCConfig.PlatonRPCAddr, "error", err)
 		return err
 	}
 	newHeadChan := make(chan *types.Header)
@@ -82,6 +75,8 @@ func (em *EventManager) Listen() error {
 		client.Close()
 	}()
 
+	log.Info("Start listening for new blocks on RootChain", "platonRPCAddr", em.RCConfig.PlatonRPCAddr, "startBlockNumber", em.fromBlockNumber,
+		"rootChainId", em.RCConfig.RootChainID, "stakingInfoAddress", em.RCConfig.StakingInfoAddress, "rootChainAddress", em.RCConfig.RootChainAddress)
 	for {
 		select {
 		case <-em.exit:
@@ -161,13 +156,15 @@ func (bnl BlockNumberListSort) Swap(i, j int) {
 }
 
 // BuildEventList Get all the specified events in the range based on the start and end block heights.
-func (em *EventManager) BuildEventList(startBlockNumber uint64, endBlockNumber uint64) (*big.Int, []*types.Log, error) {
+func (em *EventManager) BuildEventList(startBlockNumber uint64, endBlockNumber uint64, limit uint64) (*big.Int, []*types.Log, error) {
 	em.mu.RLock()
 	defer em.mu.RUnlock()
 	if endBlockNumber == 0 {
 		// If it is the node that is out of the block, that logic is taken.
 		// Calculate the cut-off block height for packing events based on the estimated inter-node synchronization block delay.
-		endBlockNumber = em.fromBlockNumber - em.backNumbers - 1
+		if em.fromBlockNumber > em.backNumbers {
+			endBlockNumber = em.fromBlockNumber - em.backNumbers - 1
+		}
 	}
 	if startBlockNumber > em.fromBlockNumber {
 		log.Warn("starting block height is greater than the latest height listened to", "startBlockNumber", startBlockNumber, "latestHeight", em.fromBlockNumber-1)
@@ -189,29 +186,10 @@ func (em *EventManager) BuildEventList(startBlockNumber uint64, endBlockNumber u
 	for _, blockNumber := range blockNumberList {
 		logs := em.blockLogs[blockNumber]
 		logList = append(logList, logs...)
+		log.Debug("pack event", "blockNumber", blockNumber, "logsSize", len(logs), "totalSize", len(logList))
 	}
+	log.Debug("packing event complete", "startBlockNumber", startBlockNumber, "endBlockNumber", endBlockNumber, "totalSize", len(logList))
 	return new(big.Int).SetUint64(endBlockNumber), logList, nil
-}
-
-// PackStakeEvents Encodes a batch of events and constructs a transaction input, and computes a hash on the input.
-// Range of events: [startBlockNumber,endBlockNumber]
-// Return:
-// 1. Get the event's cut-off block height
-// 2. Input of transaction.
-// 3. Hash of Input.
-// 4. Error
-func (em *EventManager) PackStakeEvents(startBlockNumber uint64, endBlockNumber uint64) (*big.Int, []byte, common.Hash, error) {
-	stopBlockNumber, logs, _ := em.BuildEventList(startBlockNumber, endBlockNumber)
-	if stopBlockNumber != nil {
-		encodeInput, err := helper.EncodeStakeStateSync(stopBlockNumber, logs)
-		if err != nil {
-			log.Error("packed events fail", "startBlockNumber", startBlockNumber, "endBlockNumber", endBlockNumber,
-				"stopBlockNumber", stopBlockNumber, "error", err)
-			return nil, nil, common.ZeroHash, nil
-		}
-		return stopBlockNumber, encodeInput, crypto.Keccak256Hash(encodeInput), nil
-	}
-	return nil, nil, common.ZeroHash, nil
 }
 
 func (em *EventManager) Stop() {

@@ -114,6 +114,7 @@ var (
 		utils.LegacyGpoPercentileFlag,
 		utils.GpoMaxGasPriceFlag,
 		configFileFlag,
+		utils.RootChainConfig,
 	}
 
 	rpcFlags = []cli.Flag{
