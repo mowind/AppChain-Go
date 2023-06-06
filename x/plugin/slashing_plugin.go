@@ -14,11 +14,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the PlatON-Go library. If not, see <http://www.gnu.org/licenses/>.
 
-
 package plugin
 
 import (
-	"bytes"
 	"crypto/ecdsa"
 	"encoding/hex"
 	"encoding/json"
@@ -30,8 +28,6 @@ import (
 
 	"github.com/PlatONnetwork/AppChain-Go/x/gov"
 
-	"github.com/PlatONnetwork/AppChain-Go/x/slashing"
-
 	"github.com/pkg/errors"
 
 	"github.com/PlatONnetwork/AppChain-Go/common"
@@ -39,7 +35,6 @@ import (
 	"github.com/PlatONnetwork/AppChain-Go/common/vm"
 	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
-	"github.com/PlatONnetwork/AppChain-Go/crypto"
 	"github.com/PlatONnetwork/AppChain-Go/log"
 	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 	"github.com/PlatONnetwork/AppChain-Go/x/staking"
@@ -339,7 +334,7 @@ func (sp *SlashingPlugin) zeroProduceProcess(blockHash common.Hash, header *type
 }
 
 func (sp *SlashingPlugin) checkSlashing(blockNumber uint64, blockHash common.Hash, waitSlashingNode *WaitSlashingNode, preRound uint64, zeroProduceCumulativeTime uint16, zeroProduceNumberThreshold uint16) (*staking.SlashNodeItem, error) {
-	nodeId := waitSlashingNode.NodeId
+	/*nodeId := waitSlashingNode.NodeId
 	// If the range of the time window is satisfied, and the number of zero blocks is satisfied, a penalty is imposed.
 	if diff := uint16(preRound - waitSlashingNode.Round + 1); diff == zeroProduceCumulativeTime {
 
@@ -404,7 +399,7 @@ func (sp *SlashingPlugin) checkSlashing(blockNumber uint64, blockHash common.Has
 				"zeroProduceCount", zeroProduceCount, "slashType", slashItem.SlashType, "totalBalance", totalBalance, "slashAmount", slashAmount, "SlashBlocksReward", blocksReward)
 			return slashItem, nil
 		}
-	}
+	}*/
 	return nil, nil
 }
 
@@ -519,145 +514,145 @@ func (sp *SlashingPlugin) DecodeEvidence(dupType consensus.EvidenceType, data st
 }
 
 func (sp *SlashingPlugin) Slash(evidence consensus.Evidence, blockHash common.Hash, blockNumber uint64, stateDB xcom.StateDB, caller common.Address) error {
-	if err := evidence.Validate(); nil != err {
-		log.Error("Failed to Slash, evidence validate is failed",
-			"blockNumber", blockNumber, "blockHash", blockHash.TerminalString(), "err", err)
-		return slashing.ErrDuplicateSignVerify
-	}
-	if evidence.BlockNumber() > blockNumber {
-		log.Error("Failed to Slash, Evidence is higher than the current block height",
-			"blockNumber", blockNumber, "blockHash", blockHash.TerminalString(), "evidenceBlockNumber", evidence.BlockNumber())
-		return slashing.ErrBlockNumberTooHigh
-	}
-	evidenceEpoch := xutil.CalculateEpoch(evidence.BlockNumber())
-	blocksOfEpoch := xutil.CalcBlocksEachEpoch()
-	invalidNum := evidenceEpoch * blocksOfEpoch
-	if invalidNum < blockNumber {
-
-		evidenceAge, err := gov.GovernMaxEvidenceAge(blockNumber, blockHash)
-		if nil != err {
-			log.Error("Failed to Slash, query Gov SlashFractionDuplicateSign is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-				"err", err)
-			return err
-		}
-
-		if validSize := blocksOfEpoch * uint64(evidenceAge); blockNumber-invalidNum > validSize {
-			log.Warn("Failed to Slash, Evidence time expired", "blockNumber", blockNumber,
-				"blockHash", blockHash.TerminalString(), "evidenceBlockNum", evidence.BlockNumber(),
-				"blocksOfEpoch", blocksOfEpoch, "the end blockNum of evidenceEpoch", invalidNum)
-			return slashing.ErrIntervalTooLong
-		}
-	}
-	if slashTxHash := sp.getSlashTxHash(evidence.NodeID(), evidence.BlockNumber(), evidence.Type(), stateDB); len(slashTxHash) > 0 {
-		log.Error("Failed to Slash, the evidence had slashed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"evidenceBlockNumber", evidence.BlockNumber(), "evidenceHash", hex.EncodeToString(evidence.Hash()),
-			"evidenceNodeId", evidence.NodeID().TerminalString(), "evidenceType", evidence.Type(), "err", slashing.ErrSlashingExist)
-		return slashing.ErrSlashingExist
-	}
-
-	evidencePubKey, err := evidence.NodeID().Pubkey()
-	if nil != err {
-		log.Error("Failed to Slash, parse pubKey failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"evidenceBlockNumber", evidence.BlockNumber(), "evidenceNodeId", evidence.NodeID().TerminalString(), "err", err)
-		return slashing.ErrDuplicateSignVerify
-	}
-	canAddr := crypto.PubkeyToNodeAddress(*evidencePubKey)
-	canBase, err := stk.GetCanBase(blockHash, canAddr)
-	if nil != err {
-		log.Error("Failed to Slash, query CandidateBase info is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"evidenceBlockNumber", evidence.BlockNumber(), "evidenceNodeId", evidence.NodeID().TerminalString(), "err", err)
-		return slashing.ErrGetCandidate
-	}
-
-	if canBase.IsEmpty() {
-		log.Error("Failed to Slash, the candidate info is nil", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"evidenceNodeId", evidence.NodeID().TerminalString(), "evidenceType", evidence.Type())
-		return slashing.ErrGetCandidate
-	}
-
-	if caller == canBase.StakingAddress {
-		log.Error("Failed to Slash, can't report self", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"nodeId", canBase.NodeId.TerminalString(), "stakingAddress", caller.String(), "evidenceType", evidence.Type())
-		return slashing.ErrSameAddr
-	}
-
-	if canBase.NodeId != evidence.NodeID() {
-		log.Error("Failed to Slash, Mismatch nodeId", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"can nodeId", canBase.NodeId.TerminalString(), "evidence nodeId", evidence.NodeID().TerminalString(), "evidenceType", evidence.Type())
-		return slashing.ErrNodeIdMismatch
-	}
-
-	blsKey, _ := canBase.BlsPubKey.ParseBlsPubKey()
-	if !bytes.Equal(blsKey.Serialize(), evidence.BlsPubKey().Serialize()) {
-		log.Error("Failed to Slash, Mismatch blsPubKey", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"nodeId", canBase.NodeId.TerminalString(), "can blsKey", hex.EncodeToString(blsKey.Serialize()),
-			"evidence blsKey", hex.EncodeToString(evidence.BlsPubKey().Serialize()), "evidenceType", evidence.Type())
-		return slashing.ErrBlsPubKeyMismatch
-	}
-
-	if has, err := stk.checkRoundValidatorAddr(blockHash, evidence.BlockNumber(), canAddr); nil != err {
-		log.Error("Failed to Slash, checkRoundValidatorAddr is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"evidenceBlockNum", evidence.BlockNumber(), "canAddr", canAddr.Hex(), "err", err)
-		return slashing.ErrDuplicateSignVerify
-	} else if !has {
-		log.Error("Failed to Slash, this node is not a validator, maybe!", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"evidenceBlockNum", evidence.BlockNumber(), "canAddr", canAddr.Hex())
-		return slashing.ErrNotValidator
-	}
-
-	canMutable, err := stk.GetCanMutable(blockHash, canAddr)
-	if nil != err {
-		log.Error("Failed to Slash, query CandidateMutable info is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"evidenceBlockNumber", evidence.BlockNumber(), "canAddr", canAddr.Hex(), "err", err)
-		return slashing.ErrGetCandidate
-	}
-
-	fraction, err := gov.GovernSlashFractionDuplicateSign(blockNumber, blockHash)
-	if nil != err {
-		log.Error("Failed to Slash, query Gov SlashFractionDuplicateSign is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"err", err)
-		return err
-	}
-
-	rewardFraction, err := gov.GovernDuplicateSignReportReward(blockNumber, blockHash)
-	if nil != err {
-		log.Error("Failed to Slash, query Gov DuplicateSignReportReward is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"err", err)
-		return err
-	}
-
-	totalBalance := calcCanTotalBalance(blockNumber, canMutable)
-	slashAmount := calcAmountByRate(totalBalance, uint64(fraction), TenThousandDenominator)
-
-	log.Info("Call SlashCandidates on executeSlash", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-		"nodeId", canBase.NodeId.TerminalString(), "totalBalance", totalBalance, "fraction", fraction, "rewardFraction", rewardFraction,
-		"slashAmount", slashAmount, "reporter", caller)
-
-	toCallerAmount := calcAmountByRate(slashAmount, uint64(rewardFraction), HundredDenominator)
-	toCallerItem := &staking.SlashNodeItem{
-		NodeId:      canBase.NodeId,
-		Amount:      toCallerAmount,
-		SlashType:   staking.DuplicateSign,
-		BenefitAddr: caller,
-	}
-
-	toRewardPoolAmount := new(big.Int).Sub(slashAmount, toCallerAmount)
-	toRewardPoolItem := &staking.SlashNodeItem{
-		NodeId:      canBase.NodeId,
-		Amount:      toRewardPoolAmount,
-		SlashType:   staking.DuplicateSign,
-		BenefitAddr: vm.RewardManagerPoolAddr,
-	}
-
-	if err := stk.SlashCandidates(stateDB, blockHash, blockNumber, toCallerItem, toRewardPoolItem); nil != err {
-		log.Error("Failed to Slash, call SlashCandidates is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-			"nodeId", canBase.NodeId.TerminalString(), "err", err)
-		return slashing.ErrSlashingFail
-	}
-	sp.putSlashTxHash(evidence.NodeID(), evidence.BlockNumber(), evidence.Type(), stateDB)
-	log.Info("Call Slash finished", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
-		"evidenceBlockNum", evidence.BlockNumber(), "nodeId", canBase.NodeId.TerminalString(), "evidenceType", evidence.Type(),
-		"the txHash", stateDB.TxHash().TerminalString())
+	//if err := evidence.Validate(); nil != err {
+	//	log.Error("Failed to Slash, evidence validate is failed",
+	//		"blockNumber", blockNumber, "blockHash", blockHash.TerminalString(), "err", err)
+	//	return slashing.ErrDuplicateSignVerify
+	//}
+	//if evidence.BlockNumber() > blockNumber {
+	//	log.Error("Failed to Slash, Evidence is higher than the current block height",
+	//		"blockNumber", blockNumber, "blockHash", blockHash.TerminalString(), "evidenceBlockNumber", evidence.BlockNumber())
+	//	return slashing.ErrBlockNumberTooHigh
+	//}
+	//evidenceEpoch := xutil.CalculateEpoch(evidence.BlockNumber())
+	//blocksOfEpoch := xutil.CalcBlocksEachEpoch()
+	//invalidNum := evidenceEpoch * blocksOfEpoch
+	//if invalidNum < blockNumber {
+	//
+	//	evidenceAge, err := gov.GovernMaxEvidenceAge(blockNumber, blockHash)
+	//	if nil != err {
+	//		log.Error("Failed to Slash, query Gov SlashFractionDuplicateSign is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//			"err", err)
+	//		return err
+	//	}
+	//
+	//	if validSize := blocksOfEpoch * uint64(evidenceAge); blockNumber-invalidNum > validSize {
+	//		log.Warn("Failed to Slash, Evidence time expired", "blockNumber", blockNumber,
+	//			"blockHash", blockHash.TerminalString(), "evidenceBlockNum", evidence.BlockNumber(),
+	//			"blocksOfEpoch", blocksOfEpoch, "the end blockNum of evidenceEpoch", invalidNum)
+	//		return slashing.ErrIntervalTooLong
+	//	}
+	//}
+	//if slashTxHash := sp.getSlashTxHash(evidence.NodeID(), evidence.BlockNumber(), evidence.Type(), stateDB); len(slashTxHash) > 0 {
+	//	log.Error("Failed to Slash, the evidence had slashed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"evidenceBlockNumber", evidence.BlockNumber(), "evidenceHash", hex.EncodeToString(evidence.Hash()),
+	//		"evidenceNodeId", evidence.NodeID().TerminalString(), "evidenceType", evidence.Type(), "err", slashing.ErrSlashingExist)
+	//	return slashing.ErrSlashingExist
+	//}
+	//
+	//evidencePubKey, err := evidence.NodeID().Pubkey()
+	//if nil != err {
+	//	log.Error("Failed to Slash, parse pubKey failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"evidenceBlockNumber", evidence.BlockNumber(), "evidenceNodeId", evidence.NodeID().TerminalString(), "err", err)
+	//	return slashing.ErrDuplicateSignVerify
+	//}
+	//canAddr := crypto.PubkeyToNodeAddress(*evidencePubKey)
+	//canBase, err := stk.GetCanBase(blockHash, canAddr)
+	//if nil != err {
+	//	log.Error("Failed to Slash, query CandidateBase info is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"evidenceBlockNumber", evidence.BlockNumber(), "evidenceNodeId", evidence.NodeID().TerminalString(), "err", err)
+	//	return slashing.ErrGetCandidate
+	//}
+	//
+	//if canBase.IsEmpty() {
+	//	log.Error("Failed to Slash, the candidate info is nil", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"evidenceNodeId", evidence.NodeID().TerminalString(), "evidenceType", evidence.Type())
+	//	return slashing.ErrGetCandidate
+	//}
+	//
+	//if caller == canBase.StakingAddress {
+	//	log.Error("Failed to Slash, can't report self", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"nodeId", canBase.NodeId.TerminalString(), "stakingAddress", caller.String(), "evidenceType", evidence.Type())
+	//	return slashing.ErrSameAddr
+	//}
+	//
+	//if canBase.NodeId != evidence.NodeID() {
+	//	log.Error("Failed to Slash, Mismatch nodeId", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"can nodeId", canBase.NodeId.TerminalString(), "evidence nodeId", evidence.NodeID().TerminalString(), "evidenceType", evidence.Type())
+	//	return slashing.ErrNodeIdMismatch
+	//}
+	//
+	//blsKey, _ := canBase.BlsPubKey.ParseBlsPubKey()
+	//if !bytes.Equal(blsKey.Serialize(), evidence.BlsPubKey().Serialize()) {
+	//	log.Error("Failed to Slash, Mismatch blsPubKey", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"nodeId", canBase.NodeId.TerminalString(), "can blsKey", hex.EncodeToString(blsKey.Serialize()),
+	//		"evidence blsKey", hex.EncodeToString(evidence.BlsPubKey().Serialize()), "evidenceType", evidence.Type())
+	//	return slashing.ErrBlsPubKeyMismatch
+	//}
+	//
+	//if has, err := stk.checkRoundValidatorAddr(blockHash, evidence.BlockNumber(), canAddr); nil != err {
+	//	log.Error("Failed to Slash, checkRoundValidatorAddr is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"evidenceBlockNum", evidence.BlockNumber(), "canAddr", canAddr.Hex(), "err", err)
+	//	return slashing.ErrDuplicateSignVerify
+	//} else if !has {
+	//	log.Error("Failed to Slash, this node is not a validator, maybe!", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"evidenceBlockNum", evidence.BlockNumber(), "canAddr", canAddr.Hex())
+	//	return slashing.ErrNotValidator
+	//}
+	//
+	//canMutable, err := stk.GetCanMutable(blockHash, canAddr)
+	//if nil != err {
+	//	log.Error("Failed to Slash, query CandidateMutable info is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"evidenceBlockNumber", evidence.BlockNumber(), "canAddr", canAddr.Hex(), "err", err)
+	//	return slashing.ErrGetCandidate
+	//}
+	//
+	//fraction, err := gov.GovernSlashFractionDuplicateSign(blockNumber, blockHash)
+	//if nil != err {
+	//	log.Error("Failed to Slash, query Gov SlashFractionDuplicateSign is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"err", err)
+	//	return err
+	//}
+	//
+	//rewardFraction, err := gov.GovernDuplicateSignReportReward(blockNumber, blockHash)
+	//if nil != err {
+	//	log.Error("Failed to Slash, query Gov DuplicateSignReportReward is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"err", err)
+	//	return err
+	//}
+	//
+	//totalBalance := calcCanTotalBalance(blockNumber, canMutable)
+	//slashAmount := calcAmountByRate(totalBalance, uint64(fraction), TenThousandDenominator)
+	//
+	//log.Info("Call SlashCandidates on executeSlash", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//	"nodeId", canBase.NodeId.TerminalString(), "totalBalance", totalBalance, "fraction", fraction, "rewardFraction", rewardFraction,
+	//	"slashAmount", slashAmount, "reporter", caller)
+	//
+	//toCallerAmount := calcAmountByRate(slashAmount, uint64(rewardFraction), HundredDenominator)
+	//toCallerItem := &staking.SlashNodeItem{
+	//	NodeId:      canBase.NodeId,
+	//	Amount:      toCallerAmount,
+	//	SlashType:   staking.DuplicateSign,
+	//	BenefitAddr: caller,
+	//}
+	//
+	//toRewardPoolAmount := new(big.Int).Sub(slashAmount, toCallerAmount)
+	//toRewardPoolItem := &staking.SlashNodeItem{
+	//	NodeId:      canBase.NodeId,
+	//	Amount:      toRewardPoolAmount,
+	//	SlashType:   staking.DuplicateSign,
+	//	BenefitAddr: vm.RewardManagerPoolAddr,
+	//}
+	//
+	//if err := stk.SlashCandidates(stateDB, blockHash, blockNumber, toCallerItem, toRewardPoolItem); nil != err {
+	//	log.Error("Failed to Slash, call SlashCandidates is failed", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//		"nodeId", canBase.NodeId.TerminalString(), "err", err)
+	//	return slashing.ErrSlashingFail
+	//}
+	//sp.putSlashTxHash(evidence.NodeID(), evidence.BlockNumber(), evidence.Type(), stateDB)
+	//log.Info("Call Slash finished", "blockNumber", blockNumber, "blockHash", blockHash.TerminalString(),
+	//	"evidenceBlockNum", evidence.BlockNumber(), "nodeId", canBase.NodeId.TerminalString(), "evidenceType", evidence.Type(),
+	//	"the txHash", stateDB.TxHash().TerminalString())
 
 	return nil
 }

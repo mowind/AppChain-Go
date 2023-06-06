@@ -71,10 +71,10 @@ func (rc *DelegateRewardContract) Run(input []byte) ([]byte, error) {
 func (rc *DelegateRewardContract) FnSigns() map[uint16]interface{} {
 	return map[uint16]interface{}{
 		// Set
-		TxWithdrawDelegateReward: rc.withdrawDelegateReward,
-
-		// Get
-		QueryDelegateReward: rc.getDelegateReward,
+		//TxWithdrawDelegateReward: rc.withdrawDelegateReward,
+		//
+		//// Get
+		//QueryDelegateReward: rc.getDelegateReward,
 	}
 }
 

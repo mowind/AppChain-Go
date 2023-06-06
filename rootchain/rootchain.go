@@ -10,6 +10,7 @@ import (
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
 	"github.com/PlatONnetwork/AppChain-Go/core/vm"
 	"github.com/PlatONnetwork/AppChain-Go/innerbindings/helper"
+	"github.com/PlatONnetwork/AppChain-Go/log"
 	"math/big"
 )
 
@@ -27,13 +28,22 @@ type StateReader interface {
 	StateAt(root common.Hash) (*state.StateDB, error)
 }
 type RootChain struct {
-	stateReader StateReader
+	stateReader  StateReader
+	eventManager *EventManager
 }
 
-func NewRootChain(blockChainCache StateReader) (*RootChain, error) {
+func NewRootChain(blockChainCache StateReader, eventManager *EventManager) (*RootChain, error) {
 	return &RootChain{
-		stateReader: blockChainCache,
+		stateReader:  blockChainCache,
+		eventManager: eventManager,
 	}, nil
+}
+
+func (r RootChain) Start() error {
+	go func() {
+		r.eventManager.Listen()
+	}()
+	return nil
 }
 
 func (r RootChain) CheckStakeStateSyncExtra(header *types.Header, tx *types.Transaction) error {
@@ -62,15 +72,23 @@ func (r RootChain) CheckStakeStateSyncExtra(header *types.Header, tx *types.Tran
 	if bytes.Equal(tx.Data(), data) {
 		return errors.New(fmt.Sprintf("header extra check failed: expect tx data doesn't match actual tx data"))
 	}
+	log.Debug("verify that the rootChain's events pass", "blockNumber", header.Number, "eventStartBlockNumber", start, "eventEndBlockNumber", end,
+		"logsSize", len(logs))
 	return nil
 }
 
 func (r RootChain) GetStakeLogs(start *big.Int, limit uint64) ([]*types.Log, *big.Int, error) {
-	//TODO implement me
-	panic("implement me")
+	endBlockNumber, logs, err := r.eventManager.BuildEventList(start.Uint64(), 0, limit)
+	if err != nil {
+		return nil, nil, err
+	}
+	return logs, endBlockNumber, nil
 }
 
 func (r RootChain) GetStakeLogsRange(start, end *big.Int) ([]*types.Log, error) {
-	//TODO implement me
-	panic("implement me")
+	_, logs, err := r.eventManager.BuildEventList(start.Uint64(), end.Uint64(), 0)
+	if err != nil {
+		return nil, err
+	}
+	return logs, nil
 }

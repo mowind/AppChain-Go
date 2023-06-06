@@ -733,7 +733,7 @@ func (cbft *Cbft) Prepare(chain consensus.ChainReader, header *types.Header) err
 
 	//init header.Extra[32: 32+65]
 	header.Extra = append(header.Extra, make([]byte, consensus.ExtraSeal)...)
-	header.Extra = append(header.Extra, make([]byte, consensus.ExtraRootChain)...)
+	header.Extra = append(header.Extra, make([]byte, types.ExtraSignPos)...)
 	cbft.log.Debug("Prepare, add header-extra ExtraSeal bytes(0x00)", "extraLength", len(header.Extra))
 	return nil
 }
@@ -761,7 +761,7 @@ func (cbft *Cbft) Seal(chain consensus.ChainReader, block *types.Block, results 
 		return err
 	}
 
-	copy(header.Extra[len(header.Extra)-consensus.ExtraSeal:], sign[:])
+	copy(header.Extra[types.ExtraSignPos:consensus.ExtraSeal+types.ExtraSignPos], sign[:])
 
 	sealBlock := block.WithSeal(header)
 
