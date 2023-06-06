@@ -1,11 +1,11 @@
 package processor
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"math"
 	"math/big"
+	"sort"
 	"strconv"
 	"sync"
 
@@ -17,90 +17,84 @@ import (
 	"github.com/PlatONnetwork/AppChain-Go/core/cbfttypes"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
 	"github.com/PlatONnetwork/AppChain-Go/core/vm"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm/solidity"
 	"github.com/PlatONnetwork/AppChain-Go/core/vm/solidity/checkpoint"
-	stypes "github.com/PlatONnetwork/AppChain-Go/core/vm/solidity/types"
 	"github.com/PlatONnetwork/AppChain-Go/crypto"
-	"github.com/PlatONnetwork/AppChain-Go/ethclient"
+	"github.com/PlatONnetwork/AppChain-Go/eth/filters"
 	"github.com/PlatONnetwork/AppChain-Go/event"
+	"github.com/PlatONnetwork/AppChain-Go/innerbindings/helper"
+	"github.com/PlatONnetwork/AppChain-Go/innerbindings/rootchain"
 	"github.com/PlatONnetwork/AppChain-Go/internal/ethapi"
 	"github.com/PlatONnetwork/AppChain-Go/log"
 	"github.com/PlatONnetwork/AppChain-Go/processor/api"
 	"github.com/PlatONnetwork/AppChain-Go/rpc"
 	"github.com/PlatONnetwork/AppChain-Go/x/plugin"
+	"github.com/PlatONnetwork/AppChain-Go/x/staking"
 	"github.com/PlatONnetwork/AppChain-Go/x/xutil"
 	lru "github.com/hashicorp/golang-lru"
 	"github.com/xsleonard/go-merkle"
+	"golang.org/x/crypto/sha3"
 )
 
-type PendingCheckpoint checkpoint.ICheckpointSigAggregatorPendingCheckpoint
-type Checkpoint checkpoint.ICheckpointSigAggregatorCheckpoint
-
-type ChainReader interface {
-	CurrentHeader() *types.Header
-	GetHeaderByNumber(number uint64) *types.Header
-}
-
-type TxSigner interface {
-	Nonce() uint64
-	Sign(tx *types.Transaction, chainId *big.Int) (*types.Transaction, error)
-}
-
-type CheckpointProposal struct {
-	Checkpoint *stypes.Checkpoint
-	BlockNum   uint64
-}
+const defaultBlockInterval = 10000
 
 type CheckpointProcessor struct {
 	chain ChainReader
 
-	chainId        *big.Int
-	platonClient   *ethclient.Client
-	bft            consensus.Bft
-	txPoolAPI      api.TxPoolAPI
-	caller         api.Caller
-	managerAccount TxSigner
-	checkpointABI  *abi.ABI
+	chainId            *big.Int
+	bft                consensus.Bft
+	txPoolAPI          api.TxPoolAPI
+	filterAPI          api.FilterAPI
+	caller             api.Caller
+	rootchainConnector *RootchainConnector
+	managerAccount     TxSigner
 
-	newHeadBlockCh chan *types.Log
-	bftResultSub   *event.TypeMuxSubscription
+	checkpointABI *abi.ABI
+	rootchainABI  *abi.ABI
+
+	newHeaderBlockSubscription event.Subscription
+	newHeaderBlockCh           chan *types.Log
+	bftResultSub               *event.TypeMuxSubscription
+
+	fromBlockNumber uint64
 
 	exitCh chan struct{}
 
-	latestProposal *CheckpointProposal
 	rootHashCache *lru.ARCCache
 }
 
 func NewCheckpointProcessor(
 	chain ChainReader,
 	chainId *big.Int,
-	platonAddr string,
 	bft consensus.Bft,
 	txPoolAPI api.TxPoolAPI,
+	filterAPI api.FilterAPI,
 	caller api.Caller,
+	rootchainConnector *RootchainConnector,
 	magnerAccount TxSigner,
-	newHeadBlockCh chan *types.Log,
+	subscriber NewHeaderBlockSubscriber,
 	bftResultSub *event.TypeMuxSubscription,
 ) (*CheckpointProcessor, error) {
 	p := &CheckpointProcessor{
-		chain:          chain,
-		chainId:        chainId,
-		bft:            bft,
-		txPoolAPI:      txPoolAPI,
-		caller:         caller,
-		managerAccount: magnerAccount,
-		newHeadBlockCh: newHeadBlockCh,
-		bftResultSub:   bftResultSub,
-		checkpointABI:  vm.CheckpointABI(),
-		exitCh:         make(chan struct{}),
+		chain:              chain,
+		chainId:            chainId,
+		bft:                bft,
+		txPoolAPI:          txPoolAPI,
+		filterAPI:          filterAPI,
+		caller:             caller,
+		rootchainConnector: rootchainConnector,
+		managerAccount:     magnerAccount,
+		newHeaderBlockCh:   make(chan *types.Log, 16),
+		bftResultSub:       bftResultSub,
+		fromBlockNumber:    chain.CurrentHeader().Number.Uint64(),
+		checkpointABI:      vm.CheckpointABI(),
+		rootchainABI:       helper.RootChainAbi,
+		exitCh:             make(chan struct{}),
 	}
 
-	client, err := ethclient.Dial(platonAddr)
-	if err != nil {
-		log.Error("Failed to connect to PlatON node", "addr", platonAddr, "err", err)
-		return nil, err
-	}
-	p.platonClient = client
+	p.newHeaderBlockSubscription = subscriber.SubscribeEvents(p.newHeaderBlockCh)
 
+	var err error
 	p.rootHashCache, err = lru.NewARC(10)
 	if err != nil {
 		return nil, err
@@ -117,14 +111,18 @@ func (p *CheckpointProcessor) Stop() {
 
 func (p *CheckpointProcessor) loop() {
 	defer p.bftResultSub.Unsubscribe()
+	defer p.newHeaderBlockSubscription.Unsubscribe()
 
 	for {
 		select {
-		case log := <-p.newHeadBlockCh:
+		case err := <-p.newHeaderBlockSubscription.Err():
+			log.Error("New header block subscription fail", "err", err)
+			return
+		case log := <-p.newHeaderBlockCh:
 			if log == nil {
 				continue
 			}
-			p.handleNewHeadBlock(log)
+			p.handleNewHeaderBlock(log)
 		case result := <-p.bftResultSub.Chan():
 			if result == nil {
 				continue
@@ -147,93 +145,309 @@ func (p *CheckpointProcessor) loop() {
 	}
 }
 
-func (p *CheckpointProcessor) handleNewHeadBlock(log *types.Log) {
-	// TODO: check if need to confirm checkpoint
-	// TODO: submit confirm checkpoint transaction
-
+func (p *CheckpointProcessor) handleNewHeaderBlock(evlog *types.Log) {
+	newHeaderBlock := new(rootchain.RootchainNewHeaderBlock)
+	if err := helper.UnpackLog(helper.RootChainAbi, newHeaderBlock, helper.NewHeaderBlock, evlog); err != nil {
+		log.Error("Unpack new header block log error", "err", err)
+		return
+	}
+	log.Info("Checkpoint commited",
+		"proposer", newHeaderBlock.Proposer,
+		"headerBlockId", newHeaderBlock.HeaderBlockId,
+		"reward", newHeaderBlock.Reward,
+		"Start", newHeaderBlock.Start,
+		"end", newHeaderBlock.End,
+		"root", newHeaderBlock.Root,
+	)
 }
 
 func (p *CheckpointProcessor) handleBlock(block *types.Block) {
-	// TODO: check if need to propose checkpoint
-	// TODO: propose checkpoint
-	p.shouldPropose(block)
-
-	// TODO: should submit checkpoint
+	p.sendCheckpointToAppChain(block)
+	p.sendCheckpointToRootChain(block)
 }
 
-func (p *CheckpointProcessor) shouldPropose(block *types.Block) {
+func (p *CheckpointProcessor) sendCheckpointToAppChain(block *types.Block) {
+	validator, err := p.bft.IsCurrentValidator()
+	isValidator := validator != nil && err == nil
+	if isValidator {
+		expectedCheckpointState, err := p.nextExpectedCheckpoint(block.NumberU64())
+		if err != nil {
+			log.Error("Calculate next expected checkpoint error", "err", err)
+			return
+		}
+
+		start := expectedCheckpointState.newStart
+		end := expectedCheckpointState.newEnd
+
+		pending, err := p.getPendingCheckpoint()
+		if err != nil {
+			log.Error("Fetch pending checkpoint from appchain contract error", "err", err)
+			return
+		}
+
+		if pending != nil && block.NumberU64()-pending.BlockNum.Uint64() < vm.NextProposeDelay {
+			log.Info("Checkpoint already propose", "checkpoint", solidity.ICheckpointToCheckpoint(&pending.Checkpoint).String())
+			return
+		}
+
+		if err := p.createAndSendCheckpointToAppChain(block, start, end); err != nil {
+			log.Error("Sending checkpoint to appchain error", "err", err)
+			return
+		}
+	} else {
+		log.Info("I'm not the validator. skipping newheader", "headerNumber", block.Number())
+	}
+}
+
+func (p *CheckpointProcessor) sendCheckpointToRootChain(block *types.Block) {
+	aggEv, err := p.getCheckpointSigAggEvent(block)
+	if err != nil || aggEv == nil {
+		return
+	}
+
+	isProposer := p.bft.IsCurrentProposer()
+
+	startBlock := aggEv.Start.Uint64()
+	endBlock := aggEv.End.Uint64()
+
+	shouldSend, err := p.shouldSendCheckpoint(startBlock, endBlock)
+	if err != nil {
+		return
+	}
+
+	if isProposer && shouldSend {
+		if err := p.createAndSendCheckpointToRootchain(aggEv, startBlock, endBlock); err != nil {
+			log.Error("Sending checkpoint to rootchain error", "err", err)
+			return
+		}
+	}
+	log.Info("I am not the current proposer or checkpoint already sent. Ignoring.", "number", block.Number())
+}
+
+func (p *CheckpointProcessor) createAndSendCheckpointToAppChain(block *types.Block, start, end uint64) error {
+	log.Debug("Initiating checkpoint to appchain", "start", start, "end", end)
+
+	if end == 0 || start > end {
+		log.Info("Waiting for blocks or invalid start end formation", "start", start, "end", end)
+		return nil
+	}
+
+	root, err := p.rootHash(start, end)
+	if err != nil {
+		return err
+	}
+	log.Info("Root hash calculated", "rootHash", root)
+
+	endBlockHeader := p.chain.GetHeaderByNumber(end)
+	verifiers, err := plugin.StakingInstance().GetVerifierList(endBlockHeader.Hash(), endBlockHeader.Number.Uint64(), true)
+	verifiers = sortVerifierList(verifiers)
+	if err != nil {
+		log.Info("Failed to get verifier list", "hash", endBlockHeader.Hash(), "number", endBlockHeader.Number, "err", err)
+		return err
+	}
+	accountRootHash, err := p.accountHash(verifiers)
+	if err != nil {
+		return err
+	}
+
+	log.Info("Creating and sign new checkpoint", "start", start, "end", end, "root", root, "accountRoot", accountRootHash)
+
+	proposer := p.bft.CurrentProposer()
 	validators, err := plugin.StakingInstance().GetValidator(block.NumberU64())
 	if err != nil {
-		log.Error("Failed to validator list", "number", block.Number, "hash", block.Hash, "err", err)
-		return
+		return err
 	}
 
-	validator, err := validators.FindNodeByID(p.bft.NodeID())
+	current := validators.ValidatorIdList()
+	rewards := make([]*big.Int, len(verifiers))
+	for i, v := range verifiers {
+		rewards[i] = v.ValidatorId
+	}
+	// TODO: slashing
+
+	cp := &Checkpoint{
+		Proposer:    common.Address(proposer.Address),
+		Start:       big.NewInt(0).SetUint64(start),
+		End:         big.NewInt(0).SetUint64(end),
+		RootHash:    root,
+		AccountHash: accountRootHash,
+		ChainId:     p.chainId,
+		Current:     convertToBigInt(current),
+		Rewards:     rewards,
+		Slashing:    make([]*big.Int, 0),
+	}
+
+	tcp := solidity.ICheckpointToCheckpoint((*checkpoint.ICheckpointSigAggregatorCheckpoint)(cp))
+	signature, err := p.bft.BlsSign(tcp.Pack())
 	if err != nil {
-		log.Debug("Current node is not a validator", "number", block.Number(), "hash", block.Hash(), "err", err)
-		return
+		log.Error("BLS sign error", "err", err)
+		return err
 	}
-
-	currentValidator, err := validators.FindNodeByID(p.bft.CurrentProposer())
+	me, err := p.bft.IsCurrentValidator()
 	if err != nil {
-		log.Error("Failed to get current validator", "number", block.Number, "hash", block.Hash, "err", err)
-		return
+		log.Error("Get current valiator error", "err", err)
+		return err
 	}
-
-	pending, err := p.pendingCheckpoint()
-	if err != nil {
-		log.Error("Failed to get pending checkpoint", "number", block.Number(), "hash", block.Hash(), "err", err)
-		return
-	}
-	if pending != nil &&
-		p.latestProposal != nil &&
-		block.NumberU64()-pending.BlockNum.Uint64() < vm.NextProposeDelay &&
-		bytes.Equal(pending.Checkpoint.Proposer[:], p.latestProposal.Checkpoint.Proposer[:]) &&
-		pending.Checkpoint.Start.Cmp(p.latestProposal.Checkpoint.Start) == 0 &&
-		pending.Checkpoint.End.Cmp(p.latestProposal.Checkpoint.End) == 0 &&
-		bytes.Equal(pending.Checkpoint.RootHash[:], p.latestProposal.Checkpoint.RootHash[:]) &&
-		bytes.Equal(pending.Checkpoint.AccountHash[:], p.latestProposal.Checkpoint.AccountHash[:]) {
-		// Already send proposal
-		log.Debug("Already sign checkpoint proposal", "number", block.Number, "hash", block.Hash(),
-			"proposer", pending.Checkpoint.Proposer, "start", pending.Checkpoint.Start, "end", pending.Checkpoint.End)
-		return
-	}
-
-	latest, err := p.getLatestCheckpoint()
-	if err != nil {
-		log.Error("Failed to get latest checkpoint", "number", block.Number(), "hash", block.Hash(), "err", err)
-		return
-	}
-
-	var end uint64 = 1
-	if latest != nil {
-		end = latest.End.Uint64() + 1
-	}
-	blockEpoch := xutil.CalcBlocksEachEpoch()
-	if block.NumberU64()-end < blockEpoch {
-		log.Debug("Current block hight not arrive checkpoint epoch", "number", block.NumberU64(), "blockEpoch", blockEpoch)
-		return
-	}
-
-	proposal := &Checkpoint{
-		Proposer: common.Address(currentValidator.Address),
-		Start:    big.NewInt(0).SetUint64(end),
-		End:      big.NewInt(0).SetUint64(latest.End.Uint64() + blockEpoch),
-		ChainId:  p.chainId,
-	}
-
-	rootHash, err := p.rootHash(proposal.Start.Uint64(), proposal.End.Uint64())
-	if err != nil {
-		log.Error("Failed to get root hash", "start", proposal.Start, "end", proposal.End, "err", err)
-		return
-	}
-
-	// TODO: Should submit checkpoint?
+	log.Info("Sending new checkpoint proposal",
+		"start", start,
+		"end", end,
+		"root", root,
+		"accountRoot", accountRootHash,
+		"validatorId", me.ValidatorId,
+		"signature", signature)
+	return p.submitProposalSignature(cp, me.ValidatorId, signature)
 }
 
-func (p *CheckpointProcessor) confirm(log *types.Log) {}
+func (p *CheckpointProcessor) createAndSendCheckpointToRootchain(aggEv *checkpoint.CheckpointCheckpointSigAggregated, start, end uint64) error {
+	pending, err := p.getPendingCheckpoint()
+	if err != nil {
+		return err
+	}
 
-func (p *CheckpointProcessor) pendingCheckpoint() (*PendingCheckpoint, error) {
+	if pending.Checkpoint.Start.Uint64() != start || pending.Checkpoint.End.Uint64() != end {
+		log.Error("Mismatch pending checkpoint start end formation",
+			"pending.start", pending.Checkpoint.Start,
+			"pending.end", pending.Checkpoint.End,
+			"start", start,
+			"end", end,
+		)
+		return nil
+	}
+
+	shouldSend, err := p.shouldSendCheckpoint(start, end)
+	if err != nil {
+		return err
+	}
+
+	if shouldSend {
+		tcp := solidity.ICheckpointToCheckpoint(&pending.Checkpoint)
+		if err := p.rootchainConnector.SendCheckpoint(tcp.Pack(), aggEv.SignedValidators, aggEv.Signature, p.managerAccount.Sign); err != nil {
+			log.Error("Failed to submit checkpoint to rootchain", "err", err)
+			return err
+		}
+	}
+	return nil
+}
+
+func (p *CheckpointProcessor) submitProposalSignature(proposal *Checkpoint, validatorId uint32, signature []byte) error {
+	cp := (*checkpoint.ICheckpointSigAggregatorCheckpoint)(proposal)
+	vid := big.NewInt(int64(validatorId))
+	data, err := p.checkpointABI.Pack("propose", cp, vid, signature)
+	if err != nil {
+		return err
+	}
+
+	tx := types.NewTransaction(
+		p.managerAccount.Nonce(),
+		cvm.CheckpointSigAggAddr,
+		big.NewInt(0),
+		math.MaxUint64/2,
+		big.NewInt(0),
+		data,
+	)
+	signedTx, err := p.managerAccount.Sign(tx, p.chainId)
+	if err != nil {
+		return err
+	}
+	return p.txPoolAPI.SendTx(context.Background(), signedTx)
+}
+
+func (p *CheckpointProcessor) nextExpectedCheckpoint(latestChildBlock uint64) (*ContractCheckpoint, error) {
+	currentHeaderBlock, err := p.rootchainConnector.CurrentHeaderBlock(defaultBlockInterval)
+	if err != nil {
+		log.Error("Failed to fetching current header block from rootchain contract", "err", err)
+		return nil, err
+	}
+
+	currentHeaderBlockNumber := big.NewInt(0).SetUint64(currentHeaderBlock)
+
+	_, currentStart, currentEnd, _, _, err := p.rootchainConnector.GetHeaderInfo(currentHeaderBlockNumber.Uint64(), defaultBlockInterval)
+	if err != nil {
+		log.Error("Failed to fetching header info from rootchain contract", "currentHeaderBlockNumber", currentHeaderBlockNumber, "err", err)
+		return nil, err
+	}
+
+	var start, end uint64
+	start = currentEnd
+
+	if start > 0 {
+		start = start + 1
+	}
+
+	diff := latestChildBlock - start + 1
+	if diff > 0 {
+		epochBlocks := xutil.CalcBlocksEachEpoch()
+		expectedDiff := diff
+		if expectedDiff > epochBlocks-1 {
+			expectedDiff = epochBlocks - 1
+		}
+		end = expectedDiff + start
+
+		log.Debug("Calculating checkpoint eligibility",
+			"latest", latestChildBlock,
+			"start", start,
+			"end", end,
+		)
+	}
+
+	return NewContractCheckpoint(start, end, &HeaderBlock{
+		start:  currentStart,
+		end:    currentEnd,
+		number: currentHeaderBlockNumber,
+	}), nil
+}
+
+func (p *CheckpointProcessor) getCheckpointSigAggEvent(block *types.Block) (*checkpoint.CheckpointCheckpointSigAggregated, error) {
+	event := p.checkpointABI.Events["CheckpointSigAggregated"]
+
+	logs, err := p.filterAPI.GetLogs(context.Background(), filters.FilterCriteria{
+		FromBlock: new(big.Int).SetUint64(p.fromBlockNumber),
+		ToBlock:   block.Number(),
+		Addresses: []common.Address{cvm.CheckpointSigAggAddr},
+		Topics:    [][]common.Hash{{event.ID}},
+	})
+	if err != nil {
+		log.Error("Failed to filter log", "number", block.Number(), "hash", block.Hash(), "err", err)
+		return nil, err
+	}
+	p.fromBlockNumber = block.NumberU64() + 1
+
+	if len(logs) == 0 {
+		return nil, nil
+	}
+	// Get the latest one
+	evlog := logs[len(logs)-1]
+
+	aggEv := new(checkpoint.CheckpointCheckpointSigAggregated)
+	if err := helper.UnpackLog(p.checkpointABI, aggEv, event.Name, evlog); err != nil {
+		log.Error("Unpack checkpoint sig aggregated log error", "err", err)
+		return nil, err
+	}
+	return aggEv, nil
+}
+
+func (p *CheckpointProcessor) shouldSendCheckpoint(start, end uint64) (bool, error) {
+	currentChildBlock, err := p.rootchainConnector.GetLatestChildBlock()
+	if err != nil {
+		return false, err
+	}
+	log.Debug("Fetched current child block", "currentChildBlock", currentChildBlock)
+
+	shouldSend := false
+	if ((currentChildBlock + 1) == start) || (start == 0 && currentChildBlock == 0) {
+		log.Debug("Checkpoint valid", "startBlock", start)
+		shouldSend = true
+	} else if currentChildBlock > start {
+		log.Info("Start block does not match, checkpoint already sent", "commitedLatestBlock", currentChildBlock, "startBlock", start)
+	} else if currentChildBlock > end {
+		log.Info("Checkpoint already sent", "commitedLatestBlock", currentChildBlock, "startBlock", start)
+	} else {
+		log.Info("No need to send checkpoint")
+	}
+	return shouldSend, nil
+}
+
+func (p *CheckpointProcessor) getPendingCheckpoint() (*PendingCheckpoint, error) {
 	blockNr := rpc.BlockNumber(rpc.PendingBlockNumber)
 
 	const method = "pendingCheckpoint"
@@ -252,9 +466,6 @@ func (p *CheckpointProcessor) pendingCheckpoint() (*PendingCheckpoint, error) {
 		Data: &msgData,
 		Gas:  &gas,
 	}, rpc.BlockNumberOrHash{BlockNumber: &blockNr}, nil)
-	if err != nil {
-		return nil, err
-	}
 
 	pending := new(checkpoint.ICheckpointSigAggregatorPendingCheckpoint)
 	if err := p.checkpointABI.UnpackIntoInterface(pending, method, result); err != nil {
@@ -263,41 +474,11 @@ func (p *CheckpointProcessor) pendingCheckpoint() (*PendingCheckpoint, error) {
 	return (*PendingCheckpoint)(pending), nil
 }
 
-func (p *CheckpointProcessor) getLatestCheckpoint() (*Checkpoint, error) {
-	blockNr := rpc.BlockNumber(rpc.PendingBlockNumber)
-
-	const method = "latestCheckpoint"
-
-	data, err := p.checkpointABI.Pack(method)
-	if err != nil {
-		return nil, err
-	}
-
-	msgData := (hexutil.Bytes)(data)
-	toAddress := cvm.CheckpointSigAggAddr
-	gas := (hexutil.Uint64)(uint64(math.MaxUint64 / 2))
-
-	result, err := p.caller.Call(context.Background(), ethapi.CallArgs{
-		To:   &toAddress,
-		Data: &msgData,
-		Gas:  &gas,
-	}, rpc.BlockNumberOrHash{BlockNumber: &blockNr}, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	cp := new(checkpoint.ICheckpointSigAggregatorCheckpoint)
-	if err := p.checkpointABI.UnpackIntoInterface(cp, method, result); err != nil {
-		return nil, err
-	}
-	return (*Checkpoint)(cp), nil
-}
-
 func (p *CheckpointProcessor) rootHash(start, end uint64) (common.Hash, error) {
 	key := getRootHashKey(start, end)
 
 	if root, known := p.rootHashCache.Get(key); known {
-		return common.BytesToHash(root), nil
+		return common.BytesToHash(root.([]byte)), nil
 	}
 
 	length := end - start + 1
@@ -341,8 +522,8 @@ func (p *CheckpointProcessor) rootHash(start, end uint64) (common.Hash, error) {
 		headers[i] = arr
 	}
 
-	tree := merkle.NewTreeWithOpts(merkle.TreeOptions{EnableHashSorting: false, DisableHashLeves: true})
-	if err := tree.Generate(convert(headers), sha3.blockHeaders256()); err != nil {
+	tree := merkle.NewTreeWithOpts(merkle.TreeOptions{EnableHashSorting: false, DisableHashLeaves: true})
+	if err := tree.Generate(convert(headers), sha3.NewLegacyKeccak256()); err != nil {
 		return common.ZeroHash, err
 	}
 
@@ -351,6 +532,43 @@ func (p *CheckpointProcessor) rootHash(start, end uint64) (common.Hash, error) {
 	return common.BytesToHash(tree.Root().Hash), nil
 }
 
+func (p *CheckpointProcessor) accountHash(verifiers staking.ValidatorExQueue) (common.Hash, error) {
+	accounts := make([][32]byte, nextPowerOfTwo(uint64(len(verifiers))))
+
+	for i := 0; i < len(verifiers); i++ {
+		verifier := verifiers[i]
+		account := crypto.Keccak256(appendBytes32(
+			verifier.ValidatorId.Bytes(),
+			verifier.Shares.ToInt().Bytes(),
+		))
+
+		var arr [32]byte
+		copy(arr[:], account)
+		accounts[i] = arr
+	}
+
+	tree := merkle.NewTreeWithOpts(merkle.TreeOptions{EnableHashSorting: false, DisableHashLeaves: true})
+	if err := tree.Generate(convert(accounts), sha3.NewLegacyKeccak256()); err != nil {
+		return common.ZeroHash, err
+	}
+	return common.BytesToHash(tree.Root().Hash), nil
+}
+
 func getRootHashKey(start, end uint64) string {
 	return strconv.FormatUint(start, 10) + "-" + strconv.FormatUint(end, 10)
+}
+
+func sortVerifierList(verifiers staking.ValidatorExQueue) staking.ValidatorExQueue {
+	sort.Slice(verifiers, func(i, j int) bool {
+		return verifiers[i].ValidatorId.Cmp(verifiers[j].ValidatorId) < 0
+	})
+	return verifiers
+}
+
+func convertToBigInt(l []uint32) []*big.Int {
+	bl := make([]*big.Int, len(l))
+	for i, v := range l {
+		bl[i] = big.NewInt(int64(v))
+	}
+	return bl
 }

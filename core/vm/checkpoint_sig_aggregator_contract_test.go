@@ -4,13 +4,11 @@ import (
 	"math/big"
 	"testing"
 
-	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
 	"github.com/PlatONnetwork/AppChain-Go/common"
 	"github.com/PlatONnetwork/AppChain-Go/common/mock"
 	"github.com/PlatONnetwork/AppChain-Go/common/vm"
 	"github.com/PlatONnetwork/AppChain-Go/core/vm/solidity"
 	"github.com/PlatONnetwork/AppChain-Go/core/vm/solidity/checkpoint"
-	"github.com/PlatONnetwork/AppChain-Go/core/vm/solidity/types"
 	"github.com/PlatONnetwork/AppChain-Go/crypto"
 	"github.com/PlatONnetwork/AppChain-Go/x/xutil"
 	"github.com/stretchr/testify/assert"
@@ -24,9 +22,9 @@ func makePropose() *checkpoint.ICheckpointSigAggregatorCheckpoint {
 		ChainId:     big.NewInt(101),
 		RootHash:    common.HexToHash("0x13421423134"),
 		AccountHash: common.HexToHash("0x14321421432"),
-		Current:     []uint32{1, 2, 3},
-		Rewards:     []uint32{1, 2, 3, 5, 6, 7},
-		Slashing:    []uint32{4},
+		Current:     []*big.Int{big.NewInt(1), big.NewInt(2), big.NewInt(3)},
+		Rewards:     []*big.Int{big1, big.NewInt(2), big.NewInt(3), big.NewInt(4), big.NewInt(5), big.NewInt(7)},
+		Slashing:    []*big.Int{big4},
 	}
 }
 
@@ -43,7 +41,7 @@ func TestPropose_fail(t *testing.T) {
 	cp := makePropose()
 
 	// Validator not exists
-	var validatorId uint32 = 99
+	validatorId := big.NewInt(99)
 	var signature []byte = []byte{0x1, 0x2, 0x3}
 	input, err := CheckpointABI().Pack("propose", cp, validatorId, signature)
 	assert.Nil(t, err)
@@ -61,7 +59,7 @@ func TestPropose_fail(t *testing.T) {
 
 	// Invalid caller
 	cp.Proposer = addrArr[0]
-	validatorId = 0
+	validatorId.SetInt64(0)
 	input, err = CheckpointABI().Pack("propose", cp, validatorId, signature)
 	assert.Nil(t, err)
 	_, err = c.Run(input)
@@ -97,15 +95,6 @@ func TestPropose_fail(t *testing.T) {
 	_, err = c.Run(input)
 	assert.Error(t, err, "expected input list")
 
-	// Invalid propose
-	WriteLatestCheckpoint(chain.StateDB, &StorageCheckpoint{
-		Checkpoint: types.Checkpoint{
-			End: big.NewInt(10),
-		},
-	})
-	_, err = c.Run(input)
-	assert.Equal(t, err, ErrInvalidProposal)
-
 	// Read pending checkpoint fail
 	chain.StateDB.SetState(vm.CheckpointSigAggAddr, pendingCheckpointKey, []byte{1, 2, 3})
 	cp.Start = big.NewInt(11)
@@ -126,7 +115,7 @@ func TestPropose_fail(t *testing.T) {
 	})
 	addr, _ = xutil.NodeId2Addr(nodeIdArr[1])
 	cp.Proposer = common.Address(addr)
-	validatorId = 1
+	validatorId.SetInt64(1)
 	tcp = solidity.ICheckpointToCheckpoint(cp)
 	packed = tcp.Pack()
 	sig = blsKey2.Sign(string(crypto.Keccak256(packed)))
@@ -139,7 +128,7 @@ func TestPropose_fail(t *testing.T) {
 
 	// Propose timeout
 	cp.Proposer = correctCaller
-	validatorId = 0
+	validatorId.SetInt64(0)
 	c.Contract.CallerAddress = correctCaller
 	c.Evm.Context.BlockNumber = big.NewInt(11)
 	tcp = solidity.ICheckpointToCheckpoint(cp)
@@ -204,142 +193,4 @@ func TestPropose(t *testing.T) {
 
 	_, err = c.Run(data)
 	assert.Nil(t, err)
-}
-
-func TestConfirm(t *testing.T) {
-	chain := mock.NewChain()
-	defer chain.SnapDB.Clear()
-
-	build_staking_data(chain.SnapDB, chain.Genesis.Hash())
-	chain.SnapDB.Commit(blockHash)
-
-	addr, _ := xutil.NodeId2Addr(nodeIdArr[0])
-	sender := common.Address(addr)
-
-	evm := newEvm(big1, blockHash, chain)
-	contract := newContract(big.NewInt(10000), sender)
-
-	c := &CheckpointSigAggregatorContract{
-		Contract: contract,
-		Evm:      evm,
-	}
-
-	scp := &StorageCheckpoint{
-		Checkpoint: types.Checkpoint{
-			Proposer:    sender,
-			Start:       big.NewInt(1),
-			End:         big.NewInt(100),
-			ChainId:     big.NewInt(101),
-			RootHash:    common.HexToHash("0x13421423134"),
-			AccountHash: common.HexToHash("0x14321421432"),
-			Current:     []uint32{1, 2, 3},
-			Rewards:     []uint32{1, 2, 3, 5, 6, 7},
-			Slashing:    []uint32{4},
-		},
-	}
-
-	WritePendingCheckpoint(chain.StateDB, scp)
-
-	input, err := CheckpointABI().Pack("confirm", scp.Proposer, scp.RootHash)
-	assert.Nil(t, err)
-
-	out, err := c.Run(input)
-	assert.Nil(t, err)
-	assert.True(t, len(out) == 0)
-
-	scp1, err := ReadPendingCheckpoint(chain.StateDB)
-	assert.Equal(t, err, ErrCheckpointNotFound)
-	assert.Nil(t, scp1)
-
-	scp2, err := ReadLatestCheckpoint(chain.StateDB)
-	assert.Nil(t, err)
-	assert.Equal(t, scp.Checkpoint, scp2.Checkpoint)
-}
-
-func TestLatestCheckpoint(t *testing.T) {
-	chain := mock.NewChain()
-	defer chain.SnapDB.Clear()
-
-	c := &CheckpointSigAggregatorContract{
-		Evm: newEvm(big.NewInt(1), common.HexToHash("0x13412412343"), chain),
-	}
-
-	input, err := CheckpointABI().Pack("latestCheckpoint")
-	assert.Nil(t, err)
-
-	out, err := c.Run(input)
-	assert.Nil(t, err)
-	assert.True(t, len(out) == 0)
-
-	scp := &StorageCheckpoint{
-		Checkpoint: types.Checkpoint{
-			Proposer:    common.HexToAddress("0x1234"),
-			Start:       big.NewInt(1),
-			End:         big.NewInt(2),
-			ChainId:     big.NewInt(5),
-			RootHash:    common.HexToHash("0x12342314"),
-			AccountHash: common.HexToHash("0x1342134"),
-			Current:     []uint32{1, 2, 3},
-			Rewards:     []uint32{1, 2, 3, 8, 9},
-			Slashing:    []uint32{4, 5, 6},
-		},
-	}
-
-	WriteLatestCheckpoint(chain.StateDB, scp)
-
-	out, err = c.Run(input)
-	assert.Nil(t, err)
-
-	var cp checkpoint.ICheckpointSigAggregatorCheckpoint
-	out0, err := CheckpointABI().Unpack("latestCheckpoint", out)
-	assert.Nil(t, err)
-	abi.ConvertType(out0[0], &cp)
-	assert.Equal(t, cp.Proposer[:], scp.Proposer[:])
-	assert.Equal(t, scp.Start, cp.Start)
-	assert.Equal(t, scp.End, cp.End)
-}
-
-func TestPendingCheckpoint(t *testing.T) {
-	chain := mock.NewChain()
-	defer chain.SnapDB.Clear()
-
-	c := &CheckpointSigAggregatorContract{
-		Evm: newEvm(big.NewInt(1), common.HexToHash("0x13412412343"), chain),
-	}
-
-	input, err := CheckpointABI().Pack("pendingCheckpoint")
-	assert.Nil(t, err)
-
-	out, err := c.Run(input)
-	assert.Nil(t, err)
-	assert.True(t, len(out) == 0)
-
-	scp := &StorageCheckpoint{
-		Checkpoint: types.Checkpoint{
-			Proposer:    common.HexToAddress("0x1234"),
-			Start:       big.NewInt(1),
-			End:         big.NewInt(2),
-			ChainId:     big.NewInt(5),
-			RootHash:    common.HexToHash("0x12342314"),
-			AccountHash: common.HexToHash("0x1342134"),
-			Current:     []uint32{1, 2, 3},
-			Rewards:     []uint32{1, 2, 3, 8, 9},
-			Slashing:    []uint32{4, 5, 6},
-		},
-		BlockNum: 10,
-	}
-
-	WritePendingCheckpoint(chain.StateDB, scp)
-
-	out, err = c.Run(input)
-	assert.Nil(t, err)
-
-	var pending checkpoint.ICheckpointSigAggregatorPendingCheckpoint
-	out0, err := CheckpointABI().Unpack("pendingCheckpoint", out)
-	assert.Nil(t, err)
-	abi.ConvertType(out0[0], &pending)
-	assert.Equal(t, scp.Proposer, pending.Checkpoint.Proposer)
-	assert.Equal(t, scp.Start, pending.Checkpoint.Start)
-	assert.Equal(t, scp.End, pending.Checkpoint.End)
-	assert.Equal(t, scp.BlockNum, pending.BlockNum.Uint64())
 }

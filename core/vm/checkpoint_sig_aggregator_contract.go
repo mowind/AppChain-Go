@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"math/big"
 	"reflect"
 	"strings"
-	"math/big"
 
 	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
 	"github.com/PlatONnetwork/AppChain-Go/common"
@@ -53,7 +53,7 @@ func CheckpointABI() *abi.ABI {
 
 type StorageCheckpoint struct {
 	types.Checkpoint
-	SignedValidators []uint32
+	SignedValidators []*big.Int
 	AggSignature     []byte
 	BlockNum         uint64
 	Emitted          bool
@@ -70,14 +70,6 @@ func WritePendingCheckpoint(statedb StateDB, scp *StorageCheckpoint) error {
 
 func ReadPendingCheckpoint(statedb StateDB) (*StorageCheckpoint, error) {
 	return readCheckpoint(statedb, pendingCheckpointKey)
-}
-
-func WriteLatestCheckpoint(statedb StateDB, scp *StorageCheckpoint) error {
-	return writeCheckpoint(statedb, latestCheckpointKey, scp)
-}
-
-func ReadLatestCheckpoint(statedb StateDB) (*StorageCheckpoint, error) {
-	return readCheckpoint(statedb, latestCheckpointKey)
 }
 
 func writeCheckpoint(statedb StateDB, key []byte, scp *StorageCheckpoint) error {
@@ -167,30 +159,27 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 	inputs, _ := method.Inputs.Unpack(input[4:])
 
 	var cp checkpoint.ICheckpointSigAggregatorCheckpoint
-	var validatorId uint32
+	validatorId := new(big.Int)
 	var signature []byte
 
 	abi.ConvertType(inputs[0], &cp)
-	abi.ConvertType(inputs[1], &validatorId)
+	abi.ConvertType(inputs[1], validatorId)
 	abi.ConvertType(inputs[2], &signature)
 
 	log.Debug("Propose checkpoint", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End,
 		"validatorId", validatorId, "signature", fmt.Sprintf("0x%x", signature))
 
-	// FIXME:
-	validator, err := validators.FindNodeByIndex(int(validatorId))
+	validator, err := validators.FindNodeByValidatorId(uint32(validatorId.Uint64()))
 	if err != nil {
 		log.Error("Cannot get the specified validator", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End, "validatorId", validatorId)
 		return nil, ErrValidatorNotFound
 	}
 
-	// FIXME: replace `Sender` to correct
-	if !bytes.Equal(c.Contract.Caller().Bytes(), common.Address(validator.Address).Bytes()) {
+	if !bytes.Equal(c.Contract.Caller().Bytes(), common.Address(validator.StakingAddress).Bytes()) {
 		log.Error("Invalid caller", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End, "caller", c.Contract.Caller(), "validatorId", validatorId)
 		return nil, ErrInvalidCaller
 	}
 
-	// FIXME:
 	if _, err := validators.FindNodeByAddress(common.NodeAddress(cp.Proposer)); err != nil {
 		log.Error("The proposer not a validator", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End)
 		return nil, ErrInvalidProposer
@@ -205,16 +194,6 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 		return nil, ErrVerifySigFail
 	}
 
-	latest, err := ReadLatestCheckpoint(c.Evm.StateDB)
-	if err != nil && err != ErrCheckpointNotFound {
-		return nil, err
-	}
-
-	if latest != nil && latest.End.Add(latest.End, big.NewInt(1)).Cmp(cp.Start) != 0 {
-		log.Error("Invalid checkpoint proposal", "proposer", cp.Proposer, "latestEnd", latest.End, "start", cp.Start)
-		return nil, ErrInvalidProposal
-	}
-
 	pending, err := ReadPendingCheckpoint(c.Evm.StateDB)
 	if err != nil && err != ErrCheckpointNotFound {
 		return nil, err
@@ -227,6 +206,11 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 					"pending.blockNum", pending.BlockNum,
 					"currentProposer", cp.Proposer,
 					"currentBlock", c.Evm.Context.BlockNumber)
+				return nil, ErrInvalidProposal
+			} else if (cp.Start.Cmp(pending.Start) != 0 && cp.End.Cmp(pending.End) != 0) ||
+				cp.Start.Cmp(new(big.Int).Add(pending.End, big1)) != 0 {
+				log.Warn("Propose checkpoint not match pending", "pending.start", pending.Start,
+					"pending.end", pending.End, "start", cp.Start, "end", cp.End)
 				return nil, ErrInvalidProposal
 			} else {
 				// Clearing pending for proposal new checkpoint
@@ -256,7 +240,7 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 	} else {
 		pending = &StorageCheckpoint{
 			Checkpoint:       *tcp,
-			SignedValidators: make([]uint32, 0),
+			SignedValidators: make([]*big.Int, 0),
 			AggSignature:     make([]byte, 0),
 			BlockNum:         c.Evm.Context.BlockNumber.Uint64(),
 			Emitted:          false,
@@ -322,103 +306,6 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 
 // solidity:
 //
-//	function confirm(address proposer, bytes32 root) external
-func (c *CheckpointSigAggregatorContract) Confirm(input []byte) ([]byte, error) {
-	validators, err := plugin.StakingInstance().GetValidator(c.Evm.Context.BlockNumber.Uint64())
-	if err != nil {
-		log.Error("Get validator fail", "blockNumber", c.Evm.Context.BlockNumber, "err", err)
-		return nil, err
-	}
-
-	// Previous check in Run
-	method, _ := CheckpointABI().MethodById(input[:4])
-	inputs, _ := method.Inputs.Unpack(input[4:])
-
-	var proposer common.Address
-	var root common.Hash
-
-	abi.ConvertType(inputs[0], &proposer)
-	abi.ConvertType(inputs[1], &root)
-
-	log.Debug("Confirm propose", "proposer", proposer, "root", root)
-
-	if !bytes.Equal(c.Contract.Caller().Bytes(), proposer.Bytes()) {
-		log.Error("Invalid caller", "proposer", proposer, "caller", c.Contract.Caller())
-		return nil, ErrInvalidCaller
-	}
-
-	// FIXME:
-	if _, err := validators.FindNodeByAddress(common.NodeAddress(proposer)); err != nil {
-		log.Error("The proposer not a validator", "proposer", proposer, "err", err)
-		return nil, ErrInvalidProposer
-	}
-
-	latest, err := ReadLatestCheckpoint(c.Evm.StateDB)
-	if err != nil && err != ErrCheckpointNotFound {
-		return nil, err
-	}
-
-	if latest != nil &&
-		bytes.Equal(latest.Proposer.Bytes(), proposer.Bytes()) &&
-		bytes.Equal(latest.RootHash[:], root[:]) {
-		log.Warn("Propose already confirmed", "proposer", proposer, "root", root)
-		return nil, ErrConfirmed
-	}
-
-	pending, err := ReadPendingCheckpoint(c.Evm.StateDB)
-	if err != nil {
-		if err == ErrCheckpointNotFound {
-			log.Warn("Please propose a checkpoint first", "proposer", proposer, "root", root)
-			return nil, nil
-		}
-		return nil, err
-	}
-
-	if !bytes.Equal(pending.Proposer.Bytes(), proposer.Bytes()) ||
-		!bytes.Equal(pending.RootHash[:], root[:]) {
-		log.Warn("The confirm proposer not found", "proposer", proposer, "root", root)
-		return nil, nil
-	}
-
-	err = WriteLatestCheckpoint(c.Evm.StateDB, pending)
-	if err != nil {
-		return nil, err
-	}
-	// Clear pending checkpoint
-	err = WritePendingCheckpoint(c.Evm.StateDB, nil)
-	if err != nil {
-		return nil, err
-	}
-	return nil, nil
-}
-
-// solidity:
-//
-//	function latestCheckpoint() extenral view returns (Checkpoint memory cp)
-func (c *CheckpointSigAggregatorContract) LatestCheckpoint() ([]byte, error) {
-	scp, err := ReadLatestCheckpoint(c.Evm.StateDB)
-	if err != nil {
-		if err == ErrCheckpointNotFound {
-			return nil, nil
-		}
-		return nil, err
-	}
-	out := CheckpointABI().Methods["latestCheckpoint"].Outputs
-	cp := &checkpoint.ICheckpointSigAggregatorCheckpoint{
-		Proposer: scp.Proposer,
-		Start: scp.Start,
-		End: scp.End,
-		RootHash: scp.RootHash,
-		AccountHash: scp.AccountHash,
-		ChainId: scp.ChainId,
-		Current: scp.Current,
-		Rewards: scp.Rewards,
-	}
-	return out.Pack(cp)
-}
-
-// solidity:
-//
 //	function pendingCheckpoint() external view returns (PendingCheckpoint memory pcp)
 func (c *CheckpointSigAggregatorContract) PendingCheckpoint() ([]byte, error) {
 	pending, err := ReadPendingCheckpoint(c.Evm.StateDB)
@@ -445,7 +332,6 @@ func (c *CheckpointSigAggregatorContract) PendingCheckpoint() ([]byte, error) {
 	}
 	return out.Pack(pcp)
 }
-
 func (c *CheckpointSigAggregatorContract) threshold(num int) int {
 	return num - (num-1)/3
 }

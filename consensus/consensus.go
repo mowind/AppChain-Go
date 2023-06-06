@@ -204,5 +204,9 @@ type Bft interface {
 
 	BlsSign(msg []byte) ([]byte, error)
 
-	CurrentProposer() discover.NodeID
+	IsCurrentValidator() (*cbfttypes.ValidateNode, error)
+
+	IsCurrentProposer() bool
+
+	CurrentProposer() *cbfttypes.ValidateNode
 }

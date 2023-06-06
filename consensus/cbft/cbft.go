@@ -1857,10 +1857,16 @@ func (cbft *Cbft) BlsSign(msg []byte) ([]byte, error) {
 	return cbft.signFnByBls(msg)
 }
 
-func (cbft *Cbft) CurrentProposer() discover.NodeID {
-	numValidators := cbft.validatorPool.Len(cbft.state.Epoch())
-	currentProposer := cbft.state.ViewNumber() % uint64(numValidators)
-	return cbft.validatorPool.GetNodeIDByIndex(cbft.state.Epoch(), int(currentProposer))
+func (cbft *Cbft) IsCurrentValidator() (*cbfttypes.ValidateNode, error){
+	return cbft.isCurrentValidator()
+}
+
+func (cbft *Cbft) IsCurrentProposer() bool {
+	return bytes.Equal(cbft.currentProposer().NodeID.Bytes(), cbft.NodeID().Bytes())
+}
+
+func (cbft *Cbft) CurrentProposer() *cbfttypes.ValidateNode {
+	return cbft.currentProposer()
 }
 
 func (cbft *Cbft) avgRTT() time.Duration {
