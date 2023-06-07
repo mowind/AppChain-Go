@@ -41,7 +41,7 @@ func NewManagerAccount(path string, passphrase string, nonceFn GetNonceFunc, cha
 		private: key.PrivateKey,
 		nonce:   nonce,
 		address: key.Address,
-		signer:  types.NewEIP155Signer(chainId),
+		signer:  types.NewPIP11Signer(chainId, chainId),
 		log:     log.New(),
 	}, nil
 }

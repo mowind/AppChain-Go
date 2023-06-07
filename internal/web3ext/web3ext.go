@@ -20,7 +20,7 @@ package web3ext
 var Modules = map[string]string{
 	"admin":    AdminJs,
 	"debug":    DebugJs,
-	"hskchain":   PlatonJs,
+	"hskchain": PlatonJs,
 	"miner":    MinerJs,
 	"net":      NetJs,
 	"personal": PersonalJs,
@@ -362,6 +362,18 @@ web3._extend({
 			call: 'debug_getWaitSlashingNodeList',
 		}),
 		new web3._extend.Method({
+			name: 'getConsensusNodeList',
+			call: 'debug_getConsensusNodeList',
+		}),
+		new web3._extend.Method({
+			name: 'getValidatorList',
+			call: 'debug_getValidatorList',
+		}),
+		new web3._extend.Method({
+			name: 'getCandidateList',
+			call: 'debug_getCandidateList',
+		}),
+		new web3._extend.Method({
 			name: 'enableDBGC',
 			call: 'debug_enableDBGC',
 		}),
@@ -385,82 +397,82 @@ web3._extend({
 	methods: [
 		new web3._extend.Method({
 		name: 'chainId',
-			call: 'platon_chainId',
+			call: 'hskchain_chainId',
 			params: 0
 		}),
 		new web3._extend.Method({
 			name: 'sign',
-			call: 'platon_sign',
+			call: 'hskchain_sign',
 			params: 2,
 			inputFormatter: [web3._extend.formatters.inputAddressFormatter, null]
 		}),
 		new web3._extend.Method({
 			name: 'resend',
-			call: 'platon_resend',
+			call: 'hskchain_resend',
 			params: 3,
 			inputFormatter: [web3._extend.formatters.inputTransactionFormatter, web3._extend.utils.fromDecimal, web3._extend.utils.fromDecimal]
 		}),
 		new web3._extend.Method({
 			name: 'signTransaction',
-			call: 'platon_signTransaction',
+			call: 'hskchain_signTransaction',
 			params: 1,
 			inputFormatter: [web3._extend.formatters.inputTransactionFormatter]
 		}),
 		new web3._extend.Method({
 			name: 'estimateGas',
-			call: 'platon_estimateGas',
+			call: 'hskchain_estimateGas',
 			params: 2,
 			inputFormatter: [web3._extend.formatters.inputCallFormatter, web3._extend.formatters.inputBlockNumberFormatter],
 			outputFormatter: web3._extend.utils.toDecimal
 		}),
 		new web3._extend.Method({
 			name: 'submitTransaction',
-			call: 'platon_submitTransaction',
+			call: 'hskchain_submitTransaction',
 			params: 1,
 			inputFormatter: [web3._extend.formatters.inputTransactionFormatter]
 		}),
 		new web3._extend.Method({
 			name: 'fillTransaction',
-			call: 'platon_fillTransaction',
+			call: 'hskchain_fillTransaction',
 			params: 1,
 			inputFormatter: [web3._extend.formatters.inputTransactionFormatter]
 		}),
 	    new web3._extend.Method({
 			name: 'getHeaderByNumber',
-			call: 'platon_getHeaderByNumber',
+			call: 'hskchain_getHeaderByNumber',
 			params: 1
 		}),
 		new web3._extend.Method({
 			name: 'getHeaderByHash',
-			call: 'platon_getHeaderByHash',
+			call: 'hskchain_getHeaderByHash',
 			params: 1
 		}),
 		new web3._extend.Method({
 			name: 'getBlockByNumber',
-			call: 'platon_getBlockByNumber',
+			call: 'hskchain_getBlockByNumber',
 			params: 2,
 			inputFormatter: [web3._extend.formatters.inputBlockNumberFormatter, function (val) { return !!val; }]
 		}),
 		new web3._extend.Method({
 			name: 'getBlockByHash',
-			call: 'platon_getBlockByHash',
+			call: 'hskchain_getBlockByHash',
 			params: 2,
 			inputFormatter: [null, function (val) { return !!val; }]
 		}),
 		new web3._extend.Method({
 			name: 'getBlockQuorumCertByHash',
-			call: 'platon_getBlockQuorumCertByHash',
+			call: 'hskchain_getBlockQuorumCertByHash',
 			params: 1
 		}),
 		new web3._extend.Method({
 			name: 'getRawTransaction',
-			call: 'platon_getRawTransactionByHash',
+			call: 'hskchain_getRawTransactionByHash',
 			params: 1
 		}),
 		new web3._extend.Method({
 			name: 'getRawTransactionFromBlock',
 			call: function(args) {
-				return (web3._extend.utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'platon_getRawTransactionByBlockHashAndIndex' : 'platon_getRawTransactionByBlockNumberAndIndex';
+				return (web3._extend.utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'hskchain_getRawTransactionByBlockHashAndIndex' : 'hskchain_getRawTransactionByBlockNumberAndIndex';
 			},
 			params: 2,
 			inputFormatter: [web3._extend.formatters.inputBlockNumberFormatter, web3._extend.utils.toHex]
@@ -469,7 +481,7 @@ web3._extend({
 	properties: [
 		new web3._extend.Property({
 			name: 'pendingTransactions',
-			getter: 'platon_pendingTransactions',
+			getter: 'hskchain_pendingTransactions',
 			outputFormatter: function(txs) {
 				var formatted = [];
 				for (var i = 0; i < txs.length; i++) {

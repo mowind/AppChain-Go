@@ -61,6 +61,10 @@ func (ec *Client) Close() {
 	ec.c.Close()
 }
 
+func (ec *Client) SetNameSpace(nameSpace string) {
+	rpc.NameSpace = nameSpace
+}
+
 // Blockchain Access
 // ChainId retrieves the current chain ID for transaction replay protection.
 func (ec *Client) ChainID(ctx context.Context) (*big.Int, error) {
@@ -358,6 +362,16 @@ func (ec *Client) FilterLogs(ctx context.Context, q platon.FilterQuery) ([]types
 		return nil, err
 	}
 	err = ec.c.CallContext(ctx, &result, "hskchain_getLogs", arg)
+	return result, err
+}
+
+func (ec *Client) FilterPlatONLogs(ctx context.Context, q platon.FilterQuery) ([]types.Log, error) {
+	var result []types.Log
+	arg, err := toFilterArg(q)
+	if err != nil {
+		return nil, err
+	}
+	err = ec.c.CallContext(ctx, &result, "platon_getLogs", arg)
 	return result, err
 }
 

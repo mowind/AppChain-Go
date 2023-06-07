@@ -139,7 +139,7 @@ func genesisStakingData(prevHash common.Hash, snapdb snapshotdb.BaseDB, g *Genes
 
 		// about can power ...
 		powerKey := staking.TallyPowerKey(base.ProgramVersion, mutable.Shares, base.StakingBlockNum, base.StakingTxIndex, base.NodeId)
-		lastHash, err = putbasedbFn(powerKey, nodeAddr.Bytes(), lastHash)
+		lastHash, err = putbasedbFn(powerKey, base.ValidatorId.Bytes(), lastHash)
 		if nil != err {
 			return lastHash, fmt.Errorf("Failed to Store Candidate Power: PutBaseDB failed. nodeId:%s, error:%s",
 				base.NodeId.String(), err.Error())

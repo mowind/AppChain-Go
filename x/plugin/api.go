@@ -21,15 +21,25 @@ import (
 	"github.com/PlatONnetwork/AppChain-Go/common"
 	"github.com/PlatONnetwork/AppChain-Go/common/json"
 	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/state"
+	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/x/staking"
+	"github.com/PlatONnetwork/AppChain-Go/x/xutil"
 )
+
+type BackendAPI interface {
+	StateAndHeaderByNumber(ctx context.Context, blockNr rpc.BlockNumber) (*state.StateDB, *types.Header, error)
+}
 
 // Provides an API interface to obtain data related to the economic model
 type PublicPPOSAPI struct {
 	snapshotDB snapshotdb.DB
+	bkApi      BackendAPI
 }
 
-func NewPublicPPOSAPI() *PublicPPOSAPI {
-	return &PublicPPOSAPI{snapshotdb.Instance()}
+func NewPublicPPOSAPI(api BackendAPI) *PublicPPOSAPI {
+	return &PublicPPOSAPI{snapshotDB: snapshotdb.Instance(), bkApi: api}
 }
 
 // Get node list of zero-out blocks
@@ -52,4 +62,43 @@ func (p *PublicPPOSAPI) GetValidatorByBlockNumber(ctx context.Context, blockNumb
 	}
 	enVal, err := json.Marshal(list)
 	return string(enVal)
+}
+
+// Get the list of consensus nodes for the current consensus cycle.
+func (p *PublicPPOSAPI) GetConsensusNodeList(ctx context.Context) (staking.ValidatorExQueue, error) {
+	_, header, err := p.bkApi.StateAndHeaderByNumber(ctx, rpc.LatestBlockNumber)
+	if err != nil {
+		return nil, err
+	}
+	blockHash := common.ZeroHash
+	if !xutil.IsWorker(header.Extra) {
+		blockHash = header.CacheHash()
+	}
+	return StakingInstance().GetValidatorList(blockHash, header.Number.Uint64(), CurrentRound, QueryStartNotIrr)
+}
+
+// Get the nodes in the current settlement cycle.
+func (p *PublicPPOSAPI) GetValidatorList(ctx context.Context) (staking.ValidatorExQueue, error) {
+	_, header, err := p.bkApi.StateAndHeaderByNumber(ctx, rpc.LatestBlockNumber)
+	if err != nil {
+		return nil, err
+	}
+	blockHash := common.ZeroHash
+	if !xutil.IsWorker(header.Extra) {
+		blockHash = header.CacheHash()
+	}
+	return StakingInstance().GetVerifierList(blockHash, header.Number.Uint64(), QueryStartNotIrr)
+}
+
+// Get all staking nodes.
+func (p *PublicPPOSAPI) GetCandidateList(ctx context.Context) (staking.CandidateHexQueue, error) {
+	_, header, err := p.bkApi.StateAndHeaderByNumber(ctx, rpc.LatestBlockNumber)
+	if err != nil {
+		return nil, err
+	}
+	blockHash := common.ZeroHash
+	if !xutil.IsWorker(header.Extra) {
+		blockHash = header.CacheHash()
+	}
+	return StakingInstance().GetCandidateList(blockHash, header.Number.Uint64())
 }

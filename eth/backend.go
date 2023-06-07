@@ -312,18 +312,23 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	}
 
 	// Initialisation of the event management object handling the root chain
-	rootEventManager := rootchain.NewEventManager(chainDb, config.RCConfig)
+	currentState, err := blockChainCache.StateAt(currentBlock.Root())
+	if err != nil {
+		log.Error("Failed to restore status tree", "blockNumber", currentBlock.Number(), "root", currentBlock.Root())
+		return nil, errors.New("failed to restore status tree")
+	}
+	rootEventManager := rootchain.NewEventManager(currentState, chainDb, config.RCConfig)
 
 	//todo init root chain
-	rootchain, err := rootchain.NewRootChain(blockChainCache, rootEventManager)
+	rootChain, err := rootchain.NewRootChain(blockChainCache, rootEventManager)
 	if err != nil {
 		log.Error("create root chain failed", "error", err)
-		return nil, errors.New("Failed to create root chain")
+		return nil, errors.New("failed to create root chain")
 	}
-	rootchain.Start()
+	rootChain.Start()
 
 	eth.miner = miner.New(eth, &config.Miner, eth.blockchain.Config(), minningConfig, eth.EventMux(), eth.engine,
-		eth.isLocalBlock, blockChainCache, config.VmTimeoutDuration, eth.managerAccount, rootchain)
+		eth.isLocalBlock, blockChainCache, config.VmTimeoutDuration, eth.managerAccount, rootChain)
 
 	reactor := core.NewBlockChainReactor(eth.EventMux(), eth.blockchain.Config().ChainID)
 	node.GetCryptoHandler().SetPrivateKey(stack.Config().NodeKey())
@@ -362,7 +367,7 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 			return nil, errors.New("Failed to recover SnapshotDB")
 		}
 
-		if err := engine.Start(eth.blockchain, blockChainCache, eth.txPool, agency, rootchain); err != nil {
+		if err := engine.Start(eth.blockchain, blockChainCache, eth.txPool, agency, rootChain); err != nil {
 			log.Error("Init cbft consensus engine fail", "error", err)
 			return nil, errors.New("Failed to init cbft consensus engine")
 		}
@@ -465,7 +470,7 @@ func (s *Ethereum) APIs() []rpc.API {
 		}, {
 			Namespace: "debug",
 			Version:   "1.0",
-			Service:   xplugin.NewPublicPPOSAPI(),
+			Service:   xplugin.NewPublicPPOSAPI(s.APIBackend),
 		}, {
 			Namespace: "net",
 			Version:   "1.0",

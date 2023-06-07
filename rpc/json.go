@@ -40,7 +40,7 @@ const (
 	unsubscribeMethodSuffix  = "_unsubscribe"
 	notificationMethodSuffix = "_subscription"
 	ethMethodPrefix          = "eth_"
-	platonMethodPrefix       = "platon_"
+	platonMethodPrefix       = "hskchain_"
 	ethMethod                = "eth"
 	platonMethod             = "hskchain"
 
