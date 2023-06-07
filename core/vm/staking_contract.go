@@ -268,14 +268,7 @@ func (stkc *StakingContract) stakeStateSync(input []byte) ([]byte, error) {
 	return nil, nil
 }
 func (stkc *StakingContract) addStakeStateSyncLog(end *big.Int) error {
-	type StakeStateSync struct {
-		Start *big.Int
-		End   *big.Int
-	}
-	data, err := helper.InnerStakeAbi.Events["StakeStateSync"].Inputs.Pack(&StakeStateSync{
-		Start: new(big.Int).SetBytes(stkc.blockNumber()),
-		End:   end,
-	})
+	data, err := helper.InnerStakeAbi.Events["StakeStateSync"].Inputs.Pack(new(big.Int).SetBytes(stkc.blockNumber()), end)
 	if err != nil {
 		return err
 	}
