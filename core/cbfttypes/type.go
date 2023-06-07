@@ -25,6 +25,7 @@ import (
 	"math"
 	"math/big"
 	"sort"
+	"sync"
 
 	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 
@@ -98,13 +99,13 @@ type RemoveValidatorEvent struct {
 type UpdateValidatorEvent struct{}
 
 type ValidateNode struct {
-	ID        uint32             `json:"id"`
-	Index     uint32             `json:"index"`
-	Address   common.NodeAddress `json:"address"`
-	PubKey    *ecdsa.PublicKey   `json:"-"`
-	NodeID    discover.NodeID    `json:"nodeID"`
-	BlsPubKey *bls.PublicKey     `json:"blsPubKey"`
-	Sender    common.Address     `json:"sender"`
+	ValidatorId    uint32             `json:"validatorId"`
+	Index          uint32             `json:"index"`
+	Address        common.NodeAddress `json:"address"`
+	PubKey         *ecdsa.PublicKey   `json:"-"`
+	NodeID         discover.NodeID    `json:"nodeID"`
+	BlsPubKey      *bls.PublicKey     `json:"blsPubKey"`
+	StakingAddress common.Address     `json:"stakingAddress"`
 }
 
 type ValidateNodeMap map[discover.NodeID]*ValidateNode
@@ -119,6 +120,7 @@ type Validators struct {
 	Nodes            ValidateNodeMap `json:"validateNodes"`
 	ValidBlockNumber uint64          `json:"validateBlockNumber"`
 
+	mu sync.Mutex
 	sortedNodes SortedValidatorNode
 }
 
@@ -159,6 +161,17 @@ func (vs *Validators) NodeList() []discover.NodeID {
 		nodeList = append(nodeList, id)
 	}
 	return nodeList
+}
+
+func (vs *Validators) ValidatorIdList() []uint32 {
+	if len(vs.sortedNodes) == 0 {
+		vs.sort()
+	}
+	ids := make([]uint32, len(vs.sortedNodes))
+	for i, node := range vs.sortedNodes {
+		ids[i] = node.ValidatorId
+	}
+	return ids
 }
 
 func (vs *Validators) NodeListByIndexes(indexes []uint32) ([]*ValidateNode, error) {
@@ -220,9 +233,9 @@ func (vs *Validators) FindNodeByAddress(addr common.NodeAddress) (*ValidateNode,
 	return nil, errors.New("invalid address")
 }
 
-func (vs *Validators) FindNodeByValidatorId(id uint32) (*ValidateNode, error) {
+func (vs *Validators) FindNodeByValidatorId(validatorId uint32) (*ValidateNode, error) {
 	for _, v := range vs.Nodes {
-		if v.ID == id {
+		if v.ValidatorId == validatorId {
 			return v, nil
 		}
 	}
@@ -266,6 +279,13 @@ func (vs *Validators) Equal(rsh *Validators) bool {
 }
 
 func (vs *Validators) sort() {
+	vs.mu.Lock()
+	defer vs.mu.Unlock()
+
+	if len(vs.sortedNodes) > 0 {
+		return
+	}
+
 	for _, node := range vs.Nodes {
 		vs.sortedNodes = append(vs.sortedNodes, node)
 	}

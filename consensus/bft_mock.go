@@ -412,3 +412,7 @@ func (bm *BftMock) Syncing() bool {
 func (bm *BftMock) DecodeExtra(extra []byte) (common.Hash, uint64, error) {
 	return common.Hash{}, 0, nil
 }
+
+func (bm *BftMock) BlsSign(msg []byte) ([]byte, error) {
+	return nil, nil
+}
