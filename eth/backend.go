@@ -372,35 +372,6 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 		}
 	}
 
-	if config.RCConfig.PlatonRPCAddr != "" {
-		filterAPI := filters.NewPublicFilterAPI(eth.APIBackend, false)
-		platonAPI := ethapi.NewPublicBlockChainAPI(eth.APIBackend)
-
-		rootchainConnector, err := processor.NewRootchainConnector(config.RCConfig.PlatonRPCAddr, config.RCConfig.RootChainAddress)
-		if err != nil {
-			log.Error("Creating rootchain connector fail", "err", err)
-			return nil, errors.New("Failed to create rootchain connector")
-		}
-
-		checkpointProcessor, err := processor.NewCheckpointProcessor(
-			eth.blockchain,
-			config.Genesis.Config.ChainID,
-			eth.engine.(consensus.Bft),
-			eth.APIBackend,
-			filterAPI,
-			platonAPI,
-			rootchainConnector,
-			eth.managerAccount,
-			rootEventManager,
-			eth.eventMux.Subscribe(cbfttypes.CbftResult{}))
-		if err != nil {
-			log.Error("Creating checkpoint processor fail", "err", err)
-			return nil, errors.New("Failed to create checkpoint processor")
-		}
-
-		eth.checkpointProcessor = checkpointProcessor
-	}
-
 	// Permit the downloader to use the trie cache allowance during fast sync
 	cacheLimit := cacheConfig.TrieCleanLimit + cacheConfig.TrieDirtyLimit
 	if eth.protocolManager, err = NewProtocolManager(chainConfig, config.SyncMode, config.NetworkId, eth.eventMux, eth.txPool, eth.engine, eth.blockchain, chainDb, cacheLimit); err != nil {
@@ -417,6 +388,35 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 	eth.APIBackend.gpo = gasprice.NewOracle(eth.APIBackend, gpoParams)
 	// Start the RPC service
 	eth.netRPCService = ethapi.NewPublicNetAPI(eth.p2pServer, eth.NetVersion())
+
+	if config.RCConfig.PlatonRPCAddr != "" {
+		filterAPI := filters.NewPublicFilterAPI(eth.APIBackend, false)
+		platonAPI := ethapi.NewPublicBlockChainAPI(eth.APIBackend)
+
+		rootchainConnector, err := processor.NewRootchainConnector(config.RCConfig.PlatonRPCAddr, config.RCConfig.RootChainAddress)
+		if err != nil {
+			log.Error("Creating rootchain connector fail", "err", err)
+			return nil, errors.New("Failed to create rootchain connector")
+		}
+
+		checkpointProcessor, err := processor.NewCheckpointProcessor(
+			eth.blockchain,
+			chainConfig.ChainID,
+			eth.engine.(consensus.Bft),
+			eth.APIBackend,
+			filterAPI,
+			platonAPI,
+			rootchainConnector,
+			eth.managerAccount,
+			rootEventManager,
+			eth.eventMux.Subscribe(cbfttypes.CbftResult{}))
+		if err != nil {
+			log.Error("Creating checkpoint processor fail", "err", err)
+			return nil, errors.New("Failed to create checkpoint processor")
+		}
+
+		eth.checkpointProcessor = checkpointProcessor
+	}
 
 	// Register the backend on the node
 	stack.RegisterAPIs(eth.APIs())

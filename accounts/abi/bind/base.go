@@ -25,7 +25,6 @@ import (
 	"sync"
 
 	platon "github.com/PlatONnetwork/AppChain-Go"
-
 	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
 	"github.com/PlatONnetwork/AppChain-Go/common"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"

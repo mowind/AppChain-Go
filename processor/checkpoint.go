@@ -355,7 +355,6 @@ func (p *CheckpointProcessor) submitProposalSignature(proposal *Checkpoint, vali
 func (p *CheckpointProcessor) nextExpectedCheckpoint(latestChildBlock uint64) (*ContractCheckpoint, error) {
 	currentHeaderBlock, err := p.rootchainConnector.CurrentHeaderBlock(defaultBlockInterval)
 	if err != nil {
-		log.Error("Failed to fetching current header block from rootchain contract", "err", err)
 		return nil, err
 	}
 
