@@ -2,8 +2,8 @@ package vm
 
 import (
 	"bytes"
+	"encoding/hex"
 	"errors"
-	"fmt"
 	"math/big"
 	"reflect"
 	"strings"
@@ -163,11 +163,13 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 	var signature []byte
 
 	abi.ConvertType(inputs[0], &cp)
-	abi.ConvertType(inputs[1], validatorId)
+	abi.ConvertType(inputs[1], &validatorId)
 	abi.ConvertType(inputs[2], &signature)
 
 	log.Debug("Propose checkpoint", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End,
-		"validatorId", validatorId, "signature", fmt.Sprintf("0x%x", signature))
+		"validatorId", validatorId, "signature", hex.EncodeToString(signature),
+		"inputs1", inputs[1],
+	)
 
 	validator, err := validators.FindNodeByValidatorId(uint32(validatorId.Uint64()))
 	if err != nil {
@@ -286,8 +288,9 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 		}
 		topics = append(topics, indexs[0]...)
 
-		data, err := event.Inputs.Pack(cp.Start, cp.End, cp.RootHash, pending.SignedValidators, pending.AggSignature)
+		data, err := event.Inputs.Pack(cp.Proposer, cp.Start, cp.End, cp.RootHash, pending.SignedValidators, pending.AggSignature)
 		if err != nil {
+			log.Error("Cannot pack CheckpointSigAggregated event", "err", err)
 			return nil, err
 		}
 		c.Evm.StateDB.AddLog(&ctypes.Log{

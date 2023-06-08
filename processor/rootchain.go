@@ -1,22 +1,30 @@
 package processor
 
 import (
+	"context"
+	"encoding/hex"
 	"math/big"
+	"strings"
 
+	"github.com/PlatONnetwork/AppChain-Go/accounts/abi/bind"
 	"github.com/PlatONnetwork/AppChain-Go/common"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
 	"github.com/PlatONnetwork/AppChain-Go/ethclient"
 	"github.com/PlatONnetwork/AppChain-Go/innerbindings/rootchain"
 	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/manager"
 )
 
 type RootchainConnector struct {
-	platonClient *ethclient.Client
-	caller       *rootchain.RootchainCaller
-	transactor   *rootchain.RootchainTransactor
+	managerAccount *manager.ManagerAccount
+	platonClient   *ethclient.Client
+	caller         *rootchain.RootchainCaller
+	transactor     *rootchain.RootchainTransactor
+
+	chainId *big.Int
 }
 
-func NewRootchainConnector(platonAddr string, contractAddr common.Address) (*RootchainConnector, error) {
+func NewRootchainConnector(managerAccount *manager.ManagerAccount, platonAddr string, contractAddr common.Address) (*RootchainConnector, error) {
 	client, err := ethclient.Dial(platonAddr)
 	if err != nil {
 		return nil, err
@@ -31,10 +39,17 @@ func NewRootchainConnector(platonAddr string, contractAddr common.Address) (*Roo
 		return nil, err
 	}
 
+	chainId, err := client.ChainID(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
 	return &RootchainConnector{
-		platonClient: client,
-		caller:       caller,
-		transactor:   transactor,
+		managerAccount: managerAccount,
+		platonClient:   client,
+		caller:         caller,
+		transactor:     transactor,
+		chainId:        chainId,
 	}, nil
 }
 
@@ -73,7 +88,7 @@ func (c *RootchainConnector) GetHeaderInfo(number, blockInterval uint64) (
 
 func (c *RootchainConnector) GetLatestChildBlock() (uint64, error) {
 	latestChildBlock, err := c.caller.GetLastChildBlock(nil)
-	if err != nil{
+	if err != nil {
 		log.Error("Could not fetch current child block from rootchain contract", "err", err)
 		return 0, err
 	}
@@ -81,8 +96,22 @@ func (c *RootchainConnector) GetLatestChildBlock() (uint64, error) {
 	return latestChildBlock.Uint64(), nil
 }
 
-type signFn func(*types.Transaction, *big.Int) (*types.Transaction, error)
-func (c *RootchainConnector) SendCheckpoint(signedData []byte, signedValidators []*big.Int, signature []byte, signFn signFn) error {
-	// TODO: submit checkpoint to rootchain
-	return nil
+func (c *RootchainConnector) SendCheckpoint(signedData []byte, signedValidators []*big.Int, signature []byte) error {
+	s := make([]string, 0)
+	for _, id := range signedValidators {
+		s = append(s, id.String())
+	}
+	log.Info("Sending new checkpoint",
+		"signedValidators", strings.Join(s, ","),
+		"signature", hex.EncodeToString(signature),
+	)
+
+	_, err := c.transactor.SubmitCheckpoint(&bind.TransactOpts{
+		From: c.managerAccount.Address(),
+		Signer: func(s types.Signer, a common.Address, t *types.Transaction) (*types.Transaction, error) {
+			return c.managerAccount.Sign(t, c.chainId)
+		},
+		Nonce: big.NewInt(0).SetUint64(c.managerAccount.Nonce()),
+	}, signedData, signedValidators, signature)
+	return err
 }

@@ -2,6 +2,7 @@ package processor
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"math"
 	"math/big"
@@ -179,6 +180,11 @@ func (p *CheckpointProcessor) sendCheckpointToAppChain(block *types.Block) {
 		start := expectedCheckpointState.newStart
 		end := expectedCheckpointState.newEnd
 
+		if end > block.NumberU64() {
+			log.Debug("Waiting for blocks", "number", block.NumberU64(), "end", end)
+			return
+		}
+
 		pending, err := p.getPendingCheckpoint()
 		if err != nil {
 			log.Error("Fetch pending checkpoint from appchain contract error", "err", err)
@@ -278,7 +284,7 @@ func (p *CheckpointProcessor) createAndSendCheckpointToAppChain(block *types.Blo
 	}
 
 	tcp := solidity.ICheckpointToCheckpoint((*checkpoint.ICheckpointSigAggregatorCheckpoint)(cp))
-	signature, err := p.bft.BlsSign(tcp.Pack())
+	signature, err := p.bft.BlsSign(crypto.Keccak256(tcp.Pack()))
 	if err != nil {
 		log.Error("BLS sign error", "err", err)
 		return err
@@ -294,7 +300,7 @@ func (p *CheckpointProcessor) createAndSendCheckpointToAppChain(block *types.Blo
 		"root", root,
 		"accountRoot", accountRootHash,
 		"validatorId", me.ValidatorId,
-		"signature", signature)
+		"signature", hex.EncodeToString(signature))
 	return p.submitProposalSignature(cp, me.ValidatorId, signature)
 }
 
@@ -321,7 +327,7 @@ func (p *CheckpointProcessor) createAndSendCheckpointToRootchain(aggEv *checkpoi
 
 	if shouldSend {
 		tcp := solidity.ICheckpointToCheckpoint(&pending.Checkpoint)
-		if err := p.rootchainConnector.SendCheckpoint(tcp.Pack(), aggEv.SignedValidators, aggEv.Signature, p.managerAccount.Sign); err != nil {
+		if err := p.rootchainConnector.SendCheckpoint(tcp.Pack(), aggEv.SignedValidators, aggEv.Signature); err != nil {
 			log.Error("Failed to submit checkpoint to rootchain", "err", err)
 			return err
 		}
@@ -341,7 +347,7 @@ func (p *CheckpointProcessor) submitProposalSignature(proposal *Checkpoint, vali
 		p.managerAccount.Nonce(),
 		cvm.CheckpointSigAggAddr,
 		big.NewInt(0),
-		math.MaxUint64/2,
+		50000,
 		big.NewInt(0),
 		data,
 	)
@@ -373,19 +379,15 @@ func (p *CheckpointProcessor) nextExpectedCheckpoint(latestChildBlock uint64) (*
 		start = start + 1
 	}
 
-	diff := latestChildBlock - start + 1
-	if diff > 0 {
-		epochBlocks := xutil.CalcBlocksEachEpoch()
-		expectedDiff := diff
-		if expectedDiff > epochBlocks-1 {
-			expectedDiff = epochBlocks - 1
-		}
-		end = expectedDiff + start
+	epochBlocks := xutil.CalcBlocksEachEpoch()
+	end = epochBlocks + start - 1
 
+	if latestChildBlock >= end {
 		log.Debug("Calculating checkpoint eligibility",
 			"latest", latestChildBlock,
 			"start", start,
 			"end", end,
+			"epochBlocks", epochBlocks,
 		)
 	}
 
@@ -465,12 +467,18 @@ func (p *CheckpointProcessor) getPendingCheckpoint() (*PendingCheckpoint, error)
 		Data: &msgData,
 		Gas:  &gas,
 	}, rpc.BlockNumberOrHash{BlockNumber: &blockNr}, nil)
-
-	pending := new(checkpoint.ICheckpointSigAggregatorPendingCheckpoint)
-	if err := p.checkpointABI.UnpackIntoInterface(pending, method, result); err != nil {
+	if err != nil {
 		return nil, err
 	}
-	return (*PendingCheckpoint)(pending), nil
+
+	if len(result) > 0 {
+		pending := new(checkpoint.ICheckpointSigAggregatorPendingCheckpoint)
+		if err := p.checkpointABI.UnpackIntoInterface(pending, method, result); err != nil {
+			return nil, err
+		}
+		return (*PendingCheckpoint)(pending), nil
+	}
+	return nil, nil
 }
 
 func (p *CheckpointProcessor) rootHash(start, end uint64) (common.Hash, error) {
