@@ -20,32 +20,24 @@ package eth
 import (
 	"errors"
 	"fmt"
-	"github.com/PlatONnetwork/AppChain-Go/manager"
-	"github.com/PlatONnetwork/AppChain-Go/rootchain"
 	"math/big"
 	"os"
 	"sync"
 	"sync/atomic"
 
-	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/wal"
-
-	"github.com/PlatONnetwork/AppChain-Go/x/gov"
-
-	"github.com/PlatONnetwork/AppChain-Go/x/handler"
-
-	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
-
-	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/evidence"
-
 	"github.com/PlatONnetwork/AppChain-Go/accounts"
 	"github.com/PlatONnetwork/AppChain-Go/common"
 	"github.com/PlatONnetwork/AppChain-Go/consensus"
 	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/evidence"
 	ctypes "github.com/PlatONnetwork/AppChain-Go/consensus/cbft/types"
 	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/validator"
+	"github.com/PlatONnetwork/AppChain-Go/consensus/cbft/wal"
 	"github.com/PlatONnetwork/AppChain-Go/core"
 	"github.com/PlatONnetwork/AppChain-Go/core/bloombits"
+	"github.com/PlatONnetwork/AppChain-Go/core/cbfttypes"
 	"github.com/PlatONnetwork/AppChain-Go/core/rawdb"
+	"github.com/PlatONnetwork/AppChain-Go/core/snapshotdb"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
 	"github.com/PlatONnetwork/AppChain-Go/core/vm"
 	"github.com/PlatONnetwork/AppChain-Go/eth/downloader"
@@ -55,12 +47,17 @@ import (
 	"github.com/PlatONnetwork/AppChain-Go/event"
 	"github.com/PlatONnetwork/AppChain-Go/internal/ethapi"
 	"github.com/PlatONnetwork/AppChain-Go/log"
+	"github.com/PlatONnetwork/AppChain-Go/manager"
 	"github.com/PlatONnetwork/AppChain-Go/miner"
 	"github.com/PlatONnetwork/AppChain-Go/node"
 	"github.com/PlatONnetwork/AppChain-Go/p2p"
 	"github.com/PlatONnetwork/AppChain-Go/p2p/discover"
 	"github.com/PlatONnetwork/AppChain-Go/params"
+	"github.com/PlatONnetwork/AppChain-Go/processor"
+	"github.com/PlatONnetwork/AppChain-Go/rootchain"
 	"github.com/PlatONnetwork/AppChain-Go/rpc"
+	"github.com/PlatONnetwork/AppChain-Go/x/gov"
+	"github.com/PlatONnetwork/AppChain-Go/x/handler"
 	xplugin "github.com/PlatONnetwork/AppChain-Go/x/plugin"
 	"github.com/PlatONnetwork/AppChain-Go/x/xcom"
 )
@@ -96,6 +93,8 @@ type Ethereum struct {
 
 	lock           sync.RWMutex // Protects the variadic fields (e.g. gas price and etherbase)
 	managerAccount *manager.ManagerAccount
+
+	checkpointProcessor *processor.CheckpointProcessor
 }
 
 // New creates a new Ethereum object (including the
@@ -373,6 +372,35 @@ func New(stack *node.Node, config *Config) (*Ethereum, error) {
 		}
 	}
 
+	if config.RCConfig.PlatonRPCAddr != "" {
+		filterAPI := filters.NewPublicFilterAPI(eth.APIBackend, false)
+		platonAPI := ethapi.NewPublicBlockChainAPI(eth.APIBackend)
+
+		rootchainConnector, err := processor.NewRootchainConnector(config.RCConfig.PlatonRPCAddr, config.RCConfig.RootChainAddress)
+		if err != nil {
+			log.Error("Creating rootchain connector fail", "err", err)
+			return nil, errors.New("Failed to create rootchain connector")
+		}
+
+		checkpointProcessor, err := processor.NewCheckpointProcessor(
+			eth.blockchain,
+			config.Genesis.Config.ChainID,
+			eth.engine.(consensus.Bft),
+			eth.APIBackend,
+			filterAPI,
+			platonAPI,
+			rootchainConnector,
+			eth.managerAccount,
+			rootEventManager,
+			eth.eventMux.Subscribe(cbfttypes.CbftResult{}))
+		if err != nil {
+			log.Error("Creating checkpoint processor fail", "err", err)
+			return nil, errors.New("Failed to create checkpoint processor")
+		}
+
+		eth.checkpointProcessor = checkpointProcessor
+	}
+
 	// Permit the downloader to use the trie cache allowance during fast sync
 	cacheLimit := cacheConfig.TrieCleanLimit + cacheConfig.TrieDirtyLimit
 	if eth.protocolManager, err = NewProtocolManager(chainConfig, config.SyncMode, config.NetworkId, eth.eventMux, eth.txPool, eth.engine, eth.blockchain, chainDb, cacheLimit); err != nil {
@@ -635,6 +663,9 @@ func (s *Ethereum) Stop() error {
 	s.blockchain.Stop()
 	s.engine.Close()
 	core.GetReactorInstance().Close()
+	if s.checkpointProcessor != nil {
+		s.checkpointProcessor.Stop()
+	}
 	s.chainDb.Close()
 	s.eventMux.Stop()
 	return nil

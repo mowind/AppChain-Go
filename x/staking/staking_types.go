@@ -553,10 +553,11 @@ type Validator struct {
 	NodeId          discover.NodeID
 	BlsPubKey       bls.PublicKeyHex
 	Shares          *big.Int
+	StakingAddress  common.Address
 }
 
 func (val *Validator) String() string {
-	return fmt.Sprintf(`{"NodeId": "%s","NodeAddress": "%s","BlsPubKey": "%s","ProgramVersion": %d,"Shares": %d,"StakingBlockNum": %d,"StakingTxIndex": %d,"ValidatorTerm": %d}`,
+	return fmt.Sprintf(`{"NodeId": "%s","NodeAddress": "%s","BlsPubKey": "%s","ProgramVersion": %d,"Shares": %d,"StakingBlockNum": %d,"StakingTxIndex": %d,"ValidatorTerm": %d,"stakingAddress": "%s"}`,
 		val.NodeId.String(),
 		fmt.Sprintf("%x", val.NodeAddress.Bytes()),
 		fmt.Sprintf("%x", val.BlsPubKey.Bytes()),
@@ -564,7 +565,8 @@ func (val *Validator) String() string {
 		val.Shares,
 		val.StakingBlockNum,
 		val.StakingTxIndex,
-		val.ValidatorTerm)
+		val.ValidatorTerm,
+		val.StakingAddress)
 }
 
 type ValidatorQueue []*Validator
@@ -719,15 +721,12 @@ func CompareDefault(removes NeedRemoveCans, left, right *Validator) int {
 //
 // What is the invalid ?  That are DuplicateSign and lowRatio&invalid and lowVersion and withdrew&NotInEpochValidators
 //
-//
-//
 // Invalid Status: From invalid to valid
 // ProgramVersion: From small to big
 // validaotorTerm: From big to small
 // Shares： From small to big
 // BlockNumber: From big to small
 // TxIndex: From big to small
-//
 //
 // Compare Left And Right
 // 1: Left > Right

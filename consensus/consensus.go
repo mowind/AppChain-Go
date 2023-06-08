@@ -201,4 +201,12 @@ type Bft interface {
 
 	// NodeID is temporary.
 	NodeID() discover.NodeID
+
+	BlsSign(msg []byte) ([]byte, error)
+
+	IsCurrentValidator() (*cbfttypes.ValidateNode, error)
+
+	IsCurrentProposer() bool
+
+	CurrentProposer() *cbfttypes.ValidateNode
 }

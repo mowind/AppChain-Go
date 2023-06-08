@@ -1,11 +1,13 @@
 package types
 
 import (
+	"encoding/json"
 	"math/big"
 	"reflect"
 
 	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
 	"github.com/PlatONnetwork/AppChain-Go/common"
+	"github.com/PlatONnetwork/AppChain-Go/common/hexutil"
 )
 
 var (
@@ -17,9 +19,9 @@ var (
 		{Name: "rootHash", InternalType: "RootHash", Type: "bytes32"},
 		{Name: "accountHash", InternalType: "AccountHash", Type: "bytes32"},
 		{Name: "chainId", InternalType: "ChainId", Type: "uint256"},
-		{Name: "current", InternalType: "Current", Type: "uint32[]"},
-		{Name: "rewards", InternalType: "Rewards", Type: "uint32[]"},
-		{Name: "slashing", InternalType: "Slashing", Type: "uint32[]"},
+		{Name: "current", InternalType: "Current", Type: "uint256[]"},
+		{Name: "rewards", InternalType: "Rewards", Type: "uint256[]"},
+		{Name: "slashing", InternalType: "Slashing", Type: "uint256[]"},
 	}
 
 	// CheckpointType is the ABI type of a Checkpoint.
@@ -35,15 +37,20 @@ func getAbiArgs() abi.Arguments {
 // Checkpoint represents snapshots of the AppChain state and is supposed to be attested by 2/3+ of the
 // validator set before it is validated and submitted on the contracts deployed on PlatON.
 type Checkpoint struct {
-	Proposer    common.Address
-	Start       *big.Int
-	End         *big.Int
-	RootHash    common.Hash
-	AccountHash common.Hash
-	ChainId     *big.Int
-	Current     []uint32
-	Rewards     []uint32
-	Slashing    []uint32
+	Proposer    common.Address `json:"proposer"`
+	Start       *big.Int       `json:"start"`
+	End         *big.Int       `json:"end"`
+	RootHash    common.Hash    `json:"rootHash"`
+	AccountHash common.Hash    `json:"accountHash"`
+	ChainId     *big.Int       `json:"chainId"`
+	Current     []*big.Int     `json:"-"`
+	Rewards     []*big.Int     `json:"-"`
+	Slashing    []*big.Int     `json:"-"`
+}
+
+func (cp *Checkpoint) String() string {
+	b, _ := json.Marshal(cp)
+	return string(b)
 }
 
 // Pack returns a standard message of the Checkpoint.
@@ -56,9 +63,9 @@ func (cp *Checkpoint) Pack() []byte {
 		RootHash    common.Hash
 		AccountHash common.Hash
 		ChainId     *big.Int
-		Current     []uint32
-		Rewards     []uint32
-		Slashing    []uint32
+		Current     []*big.Int
+		Rewards     []*big.Int
+		Slashing    []*big.Int
 	}{
 		cp.Proposer,
 		cp.Start,
@@ -71,7 +78,10 @@ func (cp *Checkpoint) Pack() []byte {
 		cp.Slashing,
 	})
 
-	return packed
+	enc := hexutil.Encode(packed)
+	enc = "0x" + enc[66:]
+	return (hexutil.MustDecode(enc))
+
 }
 
 func (cp *Checkpoint) Equal(other *Checkpoint) bool {

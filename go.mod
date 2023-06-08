@@ -51,6 +51,7 @@ require (
 	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7
 	github.com/tealeg/xlsx v1.0.5
 	github.com/wsddn/go-ecdh v0.0.0-20161211032359-48726bab9208
+	github.com/xsleonard/go-merkle v1.1.0
 	golang.org/x/crypto v0.1.0
 	golang.org/x/sys v0.1.0
 	golang.org/x/text v0.4.0
