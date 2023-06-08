@@ -131,13 +131,11 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 	// Query current active version
 	originVersion := params.GenesisVersion
 
-	var blskeyBytes []byte
 	var blsPubKey bls.PublicKeyHex
-	blsPubKey.UnmarshalText(blskeyBytes)
-	/*blsPubKey, err := blsPubKeyHex.ParseBlsPubKey()
-	if err != nil {
+	if err := blsPubKey.UnmarshalText(event.BlsPubkey); err != nil {
+		log.Error("bls public key decoding failure", "error", err)
 		return nil, err
-	}*/
+	}
 
 	canOld, err := stkc.Plugin.GetCandidateInfo(blockHash, event.ValidatorId)
 	if snapshotdb.NonDbNotFoundErr(err) {
@@ -191,25 +189,25 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 	can.CandidateMutable = canMutable
 
 	err = stkc.Plugin.CreateCandidate(state, blockHash, blockNumber, event.ValidatorId, can)
-	return nil, nil
+	return nil, err
 }
 func (stkc *StakingContract) handleUnstakeInit(vLog *types.Log) ([]byte, error) {
 	event := new(stakinginfo.StakinginfoUnstakeInit)
-	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.Staked, vLog); err != nil {
+	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.UnstakeInit, vLog); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 func (stkc *StakingContract) handleSignerChange(vLog *types.Log) ([]byte, error) {
 	event := new(stakinginfo.StakinginfoSignerChange)
-	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.Staked, vLog); err != nil {
+	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.SignerChange, vLog); err != nil {
 		return nil, err
 	}
 	return nil, nil
 }
 func (stkc *StakingContract) handleStakeUpdate(vLog *types.Log) ([]byte, error) {
 	event := new(stakinginfo.StakinginfoStakeUpdate)
-	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.Staked, vLog); err != nil {
+	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.StakeUpdate, vLog); err != nil {
 		return nil, err
 	}
 	txHash := stkc.Evm.StateDB.TxHash()
@@ -219,18 +217,18 @@ func (stkc *StakingContract) handleStakeUpdate(vLog *types.Log) ([]byte, error) 
 
 	canOld, err := stkc.Plugin.GetCandidateInfo(blockHash, event.ValidatorId)
 	if snapshotdb.NonDbNotFoundErr(err) {
-		log.Error("Failed to createStaking by GetCandidateInfo", "txHash", txHash,
+		log.Error("Failed to update stakeInfo by GetCandidateInfo", "txHash", txHash,
 			"blockNumber", blockNumber, "validatorId", event.ValidatorId, "err", err)
 		return nil, err
 	}
 
-	if canOld.IsNotEmpty() {
-		return txResultHandler(vm.StakingContractAddr, stkc.Evm, "createStaking",
+	if canOld.IsEmpty() {
+		return txResultHandler(vm.StakingContractAddr, stkc.Evm, "stakeUpdate",
 			"can is not nil",
-			TxCreateStaking, staking.ErrCanAlreadyExist)
+			TxEditorCandidate, staking.ErrCanNoExist)
 	}
-	stkc.Plugin.StakeUpdate(state, blockHash, blockNumber, event.ValidatorId, event.NewAmount, canOld)
-	return nil, nil
+	err = stkc.Plugin.StakeUpdate(state, blockHash, blockNumber, event.ValidatorId, event.NewAmount, canOld)
+	return nil, err
 }
 
 func (stkc *StakingContract) stakeStateSync(input []byte) ([]byte, error) {
