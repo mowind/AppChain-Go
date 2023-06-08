@@ -804,7 +804,7 @@ func (w *worker) createStakeStateSyncTx(state *state.StateDB) (*types.Transactio
 		return nil, nil, err
 	}
 	nonce := w.managerAccount.Nonce()
-	tx := types.NewTransaction(nonce, vm2.StakingContractAddr, nil, 80000000, big.NewInt(0), data)
+	tx := types.NewTransaction(nonce, vm2.StakingContractAddr, nil, 1800000, big.NewInt(0), data)
 	tx, err = w.managerAccount.Sign(tx, nil)
 	if err != nil {
 		return nil, nil, err
@@ -1023,7 +1023,9 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64, 
 		Time:       uint64(timestamp),
 	}
 
-	log.Info("Cbft begin to consensus for new block", "number", header.Number, "nonce", hexutil.Encode(header.Nonce[:]), "gasLimit", header.GasLimit, "parentHash", parent.Hash(), "parentNumber", parent.NumberU64(), "parentStateRoot", parent.Root(), "timestamp", common.MillisToString(timestamp))
+	log.Info("Cbft begin to consensus for new block", "number", header.Number, "nonce", hexutil.Encode(header.Nonce[:]), "gasLimit", header.GasLimit,
+		"parentHash", parent.Hash(), "parentNumber", parent.NumberU64(), "parentStateRoot", parent.Root(),
+		"timestamp", common.MillisToString(timestamp), "deadline", blockDeadline)
 	// Initialize the header extra in Prepare function of engine
 	if err := w.engine.Prepare(w.chain, header); err != nil {
 		log.Error("Failed to prepare header for mining", "err", err)
@@ -1040,7 +1042,7 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64, 
 	extraData := w.makeExtraData()
 	copy(header.Extra[:len(extraData)], extraData)
 
-	copy(header.Extra[types.ExtraStakePos:], w.current.stateSyncExtra)
+	copy(header.Extra[types.ExtraStakePos:types.ExtraStakePos+32], w.current.stateSyncExtra)
 	// BeginBlocker()
 	if err := core.GetReactorInstance().BeginBlocker(header, w.current.state); nil != err {
 		log.Error("Failed to GetReactorInstance BeginBlocker on worker", "blockNumber", header.Number, "err", err)
@@ -1084,6 +1086,17 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64, 
 		return err
 	}
 
+	// Set the transaction to a pending state for the submitted event and wait for it to be packaged.
+	if w.current.stakeSyncTx != nil {
+		// If there are transactions with synchronised events,
+		// it means that an account for sending special transactions has been configured and there are events that need to be synchronised.
+		txs := pending[w.managerAccount.Address()]
+		if txs == nil {
+			txs = make(types.Transactions, 0)
+		}
+		txs = append(txs, w.current.stakeSyncTx)
+		pending[w.managerAccount.Address()] = txs
+	}
 	log.Debug("Fetch pending transactions success", "number", header.Number, "pendingLength", len(pending), "time", common.PrettyDuration(time.Since(startTime)))
 
 	// Short circuit if there is no available pending transactions
@@ -1129,19 +1142,28 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64, 
 	var localTimeout = false
 	tempContractCache := make(map[common.Address]struct{})
 
-	//todo add inner contract txs
+	// Adding transactions for built-in contracts.
+	// Priority packaging of transactions for special accounts.
 	if w.managerAccount != nil && w.current.stakeSyncTx != nil {
-		//create tx
-		ownerTxs := localTxs[w.managerAccount.Address()]
-		ownerTxs = append(ownerTxs, w.current.stakeSyncTx)
-		sort.Sort(types.TxByNonce(ownerTxs))
+		// If account is not added to local, then you need to filter for presence in remote.
+		specialTxs := make(types.Transactions, 0)
+		if txs, ok := localTxs[w.managerAccount.Address()]; ok {
+			specialTxs = append(specialTxs, txs...)
+		}
+		if txs, ok := remoteTxs[w.managerAccount.Address()]; ok {
+			specialTxs = append(specialTxs, txs...)
+		}
+		sort.Sort(types.TxByNonce(specialTxs))
 		txs := types.NewTransactionsByPriceAndNonce(w.current.signer, map[common.Address]types.Transactions{
-			w.managerAccount.Address(): ownerTxs,
+			w.managerAccount.Address(): specialTxs,
 		})
 		if failed, _ := w.committer.CommitTransactions(header, txs, interrupt, timestamp, blockDeadline, tempContractCache); failed {
 			return fmt.Errorf("commit transactions error")
 		}
 		delete(localTxs, w.managerAccount.Address())
+		delete(remoteTxs, w.managerAccount.Address())
+		log.Debug("worker successfully executes special transactions", "blockNumber", header.Number, "extra", hex.EncodeToString(header.Extra),
+			"specialAccount", w.managerAccount.Address().Hex(), "specialTxs", len(specialTxs), "locals", len(localTxs), "remotes", len(remoteTxs))
 	}
 
 	if len(localTxs) > 0 {
@@ -1158,6 +1180,7 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64, 
 
 	startTime = time.Now()
 	if !localTimeout && len(remoteTxs) > 0 {
+		// TODO 过滤外部发送的to地址为：Staking合约
 		txs := types.NewTransactionsByPriceAndNonce(w.current.signer, remoteTxs)
 
 		if failed, _ := w.committer.CommitTransactions(header, txs, interrupt, timestamp, blockDeadline, tempContractCache); failed {

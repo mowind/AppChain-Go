@@ -37,6 +37,7 @@ var (
 	ErrSubscriptionQueueOverflow = errors.New("subscription queue overflow")
 	errClientReconnected         = errors.New("client reconnected")
 	errDead                      = errors.New("connection lost")
+	NameSpace                    = "hskchain"
 )
 
 const (
@@ -410,7 +411,7 @@ func (c *Client) Notify(ctx context.Context, method string, args ...interface{})
 
 // EthSubscribe registers a subscripion under the "eth" namespace.
 func (c *Client) EthSubscribe(ctx context.Context, channel interface{}, args ...interface{}) (*ClientSubscription, error) {
-	return c.Subscribe(ctx, "hskchain", channel, args...)
+	return c.Subscribe(ctx, NameSpace, channel, args...)
 }
 
 // ShhSubscribe registers a subscripion under the "shh" namespace.

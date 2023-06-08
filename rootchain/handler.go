@@ -4,7 +4,9 @@ import (
 	"context"
 	appchain "github.com/PlatONnetwork/AppChain-Go"
 	"github.com/PlatONnetwork/AppChain-Go/common"
+	comvm "github.com/PlatONnetwork/AppChain-Go/common/vm"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
+	"github.com/PlatONnetwork/AppChain-Go/core/vm"
 	"github.com/PlatONnetwork/AppChain-Go/ethclient"
 	"github.com/PlatONnetwork/AppChain-Go/ethdb"
 	"github.com/PlatONnetwork/AppChain-Go/event"
@@ -22,8 +24,6 @@ type EventManager struct {
 	exit     chan struct{}
 	db       ethdb.Database
 	RCConfig *config.RootChainContractConfig
-	// When packing events, the height of the latest listened event - x = the block height of the packing cut-off.
-	backNumbers uint64
 
 	// Get events from the specified block height
 	fromBlockNumber uint64
@@ -34,14 +34,17 @@ type EventManager struct {
 	mu                  sync.RWMutex
 }
 
-func NewEventManager(db ethdb.Database, rcConfig *config.RootChainContractConfig) *EventManager {
+func NewEventManager(stateDB vm.StateDB, db ethdb.Database, rcConfig *config.RootChainContractConfig) *EventManager {
+	start := new(big.Int).SetBytes(stateDB.GetState(comvm.StakingContractAddr, vm.BlockNumberKey))
 	eventManager := &EventManager{
 		exit:            make(chan struct{}),
 		db:              db,
 		RCConfig:        rcConfig,
-		backNumbers:     10,
-		fromBlockNumber: 1,
+		fromBlockNumber: rcConfig.ContractDeployedNumber,
 		blockLogs:       make(map[uint64][]*types.Log, 0),
+	}
+	if start.Uint64() > 0 {
+		eventManager.fromBlockNumber = start.Uint64()
 	}
 	return eventManager
 }
@@ -64,6 +67,7 @@ func (em *EventManager) Listen() error {
 		return err
 	}
 	newHeadChan := make(chan *types.Header)
+	client.SetNameSpace("platon")
 	newHeadSubscribe, err := client.SubscribeNewHead(context.Background(), newHeadChan)
 	if err != nil {
 		close(newHeadChan)
@@ -102,7 +106,7 @@ func (em *EventManager) Listen() error {
 					helper.SignerChangeID, helper.StakeUpdateID, helper.NewHeaderBlockID}},
 			}
 
-			logs, err := client.FilterLogs(context.Background(), filterParams)
+			logs, err := client.FilterPlatONLogs(context.Background(), filterParams)
 			if err != nil {
 				log.Error("failed to get filtered logs", "fromBlock", filterParams.FromBlock, "toBlock", filterParams.ToBlock, "error", err)
 				// TODO 处理获取事件失败的情况
@@ -162,8 +166,8 @@ func (em *EventManager) BuildEventList(startBlockNumber uint64, endBlockNumber u
 	if endBlockNumber == 0 {
 		// If it is the node that is out of the block, that logic is taken.
 		// Calculate the cut-off block height for packing events based on the estimated inter-node synchronization block delay.
-		if em.fromBlockNumber > em.backNumbers {
-			endBlockNumber = em.fromBlockNumber - em.backNumbers - 1
+		if em.fromBlockNumber > em.RCConfig.DelayNumbers {
+			endBlockNumber = em.fromBlockNumber - em.RCConfig.DelayNumbers - 1
 		}
 	}
 	if startBlockNumber > em.fromBlockNumber {
@@ -172,7 +176,7 @@ func (em *EventManager) BuildEventList(startBlockNumber uint64, endBlockNumber u
 	}
 	if endBlockNumber >= em.fromBlockNumber || endBlockNumber < startBlockNumber {
 		log.Debug("Not enough events", "startBlockNumber", startBlockNumber, "latestHeight", em.fromBlockNumber-1,
-			"backNumbers", em.backNumbers, "endBlockNumber", endBlockNumber)
+			"backNumbers", em.RCConfig.DelayNumbers, "endBlockNumber", endBlockNumber)
 		return nil, nil, nil
 	}
 	blockNumberList := make(BlockNumberListSort, 0)

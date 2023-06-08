@@ -19,6 +19,7 @@ package vm
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/hex"
 	"fmt"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
 	"github.com/PlatONnetwork/AppChain-Go/crypto"
@@ -117,6 +118,8 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.Staked, vLog); err != nil {
 		return nil, err
 	}
+	log.Debug("staked event information", "signer", event.Signer.Hex(), "validatorId", event.ValidatorId, "nonce", event.Nonce,
+		"activationEpoch", event.ActivationEpoch, "amount", event.Amount, "totalStakedAmount", event.Total, "signerPubkey", hex.EncodeToString(event.SignerPubkey))
 
 	txHash := stkc.Evm.StateDB.TxHash()
 	txIndex := stkc.Evm.StateDB.TxIdx()
@@ -155,7 +158,7 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 	init candidate info
 	*/
 
-	pk, err := crypto.UnmarshalPubkey(event.SignerPubkey)
+	nodeId, err := discover.BytesID(event.SignerPubkey)
 	if err != nil {
 		return txResultHandler(vm.StakingContractAddr, stkc.Evm, "createStaking",
 			"invalid public key",
@@ -163,7 +166,7 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 	}
 	canBase := &staking.CandidateBase{
 		ValidatorId:     event.ValidatorId,
-		NodeId:          discover.PubkeyID(pk),
+		NodeId:          nodeId,
 		BlsPubKey:       blsPubKey,
 		StakingAddress:  from,
 		BenefitAddress:  from,
@@ -284,11 +287,7 @@ func (stkc *StakingContract) addStakeStateSyncLog(end *big.Int) error {
 }
 
 func (stkc *StakingContract) SetBlockNumber(number *big.Int) error {
-	value, err := helper.InnerStakeAbi.Methods[helper.BlockNumber].Outputs.Pack(number)
-	if err != nil {
-		return err
-	}
-	stkc.Evm.StateDB.SetState(vm.StakingContractAddr, BlockNumberKey, value)
+	stkc.Evm.StateDB.SetState(vm.StakingContractAddr, BlockNumberKey, number.Bytes())
 	return nil
 }
 func (stkc *StakingContract) blockNumber() []byte {

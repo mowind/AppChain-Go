@@ -47,7 +47,17 @@ func (cbft *Cbft) OnPrepareBlock(id string, msg *protocols.PrepareBlock) error {
 		cbft.log.Error("Verify header fail", "number", msg.Block.Number(), "hash", msg.Block.Hash(), "err", err)
 		return err
 	}
-	if err := cbft.VerifyRootChainTx(msg.Block); err != nil {
+	var parentBlock *types.Block
+	// get parent header
+	parentBlock = cbft.blockTree.FindBlockByHash(msg.Block.Header().ParentHash)
+	if parentBlock == nil {
+		parentBlock = cbft.state.ViewBlockByIndex(msg.BlockIndex - 1)
+		if parentBlock == nil {
+			cbft.log.Error("Parent block not found", "parentHash", msg.Block.Header().ParentHash.Hex())
+			return errors.New("Parent block not found")
+		}
+	}
+	if err := cbft.VerifyRootChainTx(parentBlock, msg.Block); err != nil {
 		cbft.log.Error("Verify root chain tx", "number", msg.Block.Number(), "hash", msg.Block.Hash(), "err", err)
 		return err
 	}

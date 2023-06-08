@@ -408,58 +408,25 @@ func (can *CandidateMutable) IsInvalidWithdrew() bool {
 
 // Display amount field using 0x hex
 type CandidateHex struct {
-	ValidatorId          uint32
-	NodeId               discover.NodeID
-	BlsPubKey            bls.PublicKeyHex
-	StakingAddress       common.Address
-	BenefitAddress       common.Address
-	RewardPer            uint16
-	NextRewardPer        uint16
-	RewardPerChangeEpoch uint32
-	StakingTxIndex       uint32
-	ProgramVersion       uint32
-	Status               CandidateStatus
-	StakingEpoch         uint32
-	StakingBlockNum      uint64
-	Shares               *hexutil.Big
-	Released             *hexutil.Big
-	ReleasedHes          *hexutil.Big
-	RestrictingPlan      *hexutil.Big
-	RestrictingPlanHes   *hexutil.Big
-	DelegateEpoch        uint32
-	DelegateTotal        *hexutil.Big
-	DelegateTotalHes     *hexutil.Big
-	DelegateRewardTotal  *hexutil.Big
-	Description
+	ValidatorId     uint32
+	NodeId          discover.NodeID
+	BlsPubKey       bls.PublicKeyHex
+	StakingAddress  common.Address
+	ProgramVersion  uint32
+	Status          CandidateStatus
+	StakingBlockNum uint64
+	Shares          *hexutil.Big
 }
 
 func (can *CandidateHex) String() string {
-	return fmt.Sprintf(`{"NodeId": "%s","BlsPubKey": "%s","StakingAddress": "%s","BenefitAddress": "%s","RewardPer": "%d","NextRewardPer": "%d","RewardPerChangeEpoch": "%d","StakingTxIndex": %d,"ProgramVersion": %d,"Status": %d,"StakingEpoch": %d,"StakingBlockNum": %d,"Shares": "%s","Released": "%s","ReleasedHes": "%s","RestrictingPlan": "%s","RestrictingPlanHes": "%s","DelegateEpoch": "%d","DelegateTotal": "%s","DelegateTotalHes": "%s","ExternalId": "%s","NodeName": "%s","Website": "%s","Details": "%s","DelegateRewardTotal": "%s"}`,
+	return fmt.Sprintf(`{"NodeId": "%s","BlsPubKey": "%s","StakingAddress": "%s","ProgramVersion": %d,"Status": %d,"StakingBlockNum": %d,"Shares": "%s"}`,
 		fmt.Sprintf("%x", can.NodeId.Bytes()),
 		fmt.Sprintf("%x", can.BlsPubKey.Bytes()),
 		fmt.Sprintf("%x", can.StakingAddress.Bytes()),
-		fmt.Sprintf("%x", can.BenefitAddress.Bytes()),
-		can.RewardPer,
-		can.NextRewardPer,
-		can.RewardPerChangeEpoch,
-		can.StakingTxIndex,
 		can.ProgramVersion,
 		can.Status,
-		can.StakingEpoch,
 		can.StakingBlockNum,
-		can.Shares,
-		can.Released,
-		can.ReleasedHes,
-		can.RestrictingPlan,
-		can.RestrictingPlanHes,
-		can.DelegateEpoch,
-		can.DelegateTotal,
-		can.DelegateTotalHes,
-		can.ExternalId,
-		can.NodeName,
-		can.Website,
-		can.Details,
-		can.DelegateRewardTotal)
+		can.Shares)
 }
 
 func (can *CandidateHex) IsNotEmpty() bool {
@@ -913,54 +880,23 @@ type ValidatorEx struct {
 	BlsPubKey bls.PublicKeyHex
 	// The account used to initiate the staking
 	StakingAddress common.Address
-	// The account receive the block rewards and the staking rewards
-	BenefitAddress common.Address
-	// Delegate reward amount percent for current settlement cycle
-	RewardPer uint16
-	// Delegate reward amount percent for next settlement cycle
-	NextRewardPer uint16
-	// Number of settlement cycles when changing the commission reward percentage
-	RewardPerChangeEpoch uint32
-	// The tx index at the time of staking
-	StakingTxIndex uint32
 	// The version of the node process
 	ProgramVersion uint32
-	// Block height at the time of staking
-	StakingBlockNum uint64
 	// All vons of staking and delegated
 	//Shares *big.Int
 	Shares *hexutil.Big
-	// Node desc
-	Description
 	// this is the term of validator in consensus round
 	// [0, N]
 	ValidatorTerm uint32
-	// Effective total delegate
-	DelegateTotal *hexutil.Big
-
-	DelegateRewardTotal *hexutil.Big
 }
 
 func (vex *ValidatorEx) String() string {
-	return fmt.Sprintf(`{"NodeId": "%s","NodeAddress": "%s","BlsPubKey": "%s","StakingAddress": "%s","BenefitAddress": "%s","RewardPer": "%d","NextRewardPer": "%d","RewardPerChangeEpoch": "%d","StakingTxIndex": %d,"ProgramVersion": %d,"StakingBlockNum": %d,"Shares": "%s","ExternalId": "%s","NodeName": "%s","Website": "%s","Details": "%s","ValidatorTerm": %d,"DelegateTotal": "%s"}`,
+	return fmt.Sprintf(`{"NodeId": "%s","BlsPubKey": "%s","StakingAddress": "%s","Shares": "%s","ValidatorTerm": %d}`,
 		vex.NodeId.String(),
-		fmt.Sprintf("%x", vex.StakingAddress.Bytes()),
 		fmt.Sprintf("%x", vex.BlsPubKey.Bytes()),
 		fmt.Sprintf("%x", vex.StakingAddress.Bytes()),
-		fmt.Sprintf("%x", vex.BenefitAddress.Bytes()),
-		vex.RewardPer,
-		vex.NextRewardPer,
-		vex.RewardPerChangeEpoch,
-		vex.StakingTxIndex,
-		vex.ProgramVersion,
-		vex.StakingBlockNum,
 		vex.Shares,
-		vex.ExternalId,
-		vex.NodeName,
-		vex.Website,
-		vex.Details,
-		vex.ValidatorTerm,
-		vex.DelegateTotal)
+		vex.ValidatorTerm)
 }
 
 type ValidatorExQueue []*ValidatorEx

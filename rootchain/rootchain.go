@@ -2,6 +2,7 @@ package rootchain
 
 import (
 	"bytes"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"github.com/PlatONnetwork/AppChain-Go/common"
@@ -12,6 +13,7 @@ import (
 	"github.com/PlatONnetwork/AppChain-Go/innerbindings/helper"
 	"github.com/PlatONnetwork/AppChain-Go/log"
 	"math/big"
+	"time"
 )
 
 type RootChainReader interface {
@@ -22,7 +24,7 @@ type RootChainReader interface {
 }
 
 type RootChainCheck interface {
-	CheckStakeStateSyncExtra(header *types.Header, tx *types.Transaction) error
+	CheckStakeStateSyncExtra(parent *types.Header, header *types.Header, tx *types.Transaction) error
 }
 type StateReader interface {
 	StateAt(root common.Hash) (*state.StateDB, error)
@@ -41,12 +43,14 @@ func NewRootChain(blockChainCache StateReader, eventManager *EventManager) (*Roo
 
 func (r RootChain) Start() error {
 	go func() {
-		r.eventManager.Listen()
+		if err := r.eventManager.Listen(); err != nil {
+			log.Error("Listening for event failures on RootChain", "error", err)
+		}
 	}()
 	return nil
 }
 
-func (r RootChain) CheckStakeStateSyncExtra(header *types.Header, tx *types.Transaction) error {
+func (r RootChain) CheckStakeStateSyncExtra(parent *types.Header, header *types.Header, tx *types.Transaction) error {
 	end := types.DecodeStakeExtra(header.Extra)
 	//if there is no stake tx in block, both tx and end is must empty
 	if tx == nil {
@@ -56,7 +60,7 @@ func (r RootChain) CheckStakeStateSyncExtra(header *types.Header, tx *types.Tran
 		return nil
 	}
 
-	stateDb, err := r.stateReader.StateAt(header.ParentHash)
+	stateDb, err := r.stateReader.StateAt(parent.Root)
 	if err != nil {
 		return err
 	}
@@ -69,8 +73,10 @@ func (r RootChain) CheckStakeStateSyncExtra(header *types.Header, tx *types.Tran
 	if err != nil {
 		return err
 	}
-	if bytes.Equal(tx.Data(), data) {
-		return errors.New(fmt.Sprintf("header extra check failed: expect tx data doesn't match actual tx data"))
+	if !bytes.Equal(tx.Data(), data) {
+		errMsg := fmt.Sprintf("header extra check failed: expect tx data doesn't match actual tx data")
+		log.Error(errMsg, "txData", hex.EncodeToString(tx.Data()), "data", hex.EncodeToString(data))
+		return errors.New(errMsg)
 	}
 	log.Debug("verify that the rootChain's events pass", "blockNumber", header.Number, "eventStartBlockNumber", start, "eventEndBlockNumber", end,
 		"logsSize", len(logs))
@@ -78,10 +84,12 @@ func (r RootChain) CheckStakeStateSyncExtra(header *types.Header, tx *types.Tran
 }
 
 func (r RootChain) GetStakeLogs(start *big.Int, limit uint64) ([]*types.Log, *big.Int, error) {
+	startTime := time.Now()
 	endBlockNumber, logs, err := r.eventManager.BuildEventList(start.Uint64(), 0, limit)
 	if err != nil {
 		return nil, nil, err
 	}
+	log.Info("haoshi", "time", time.Since(startTime))
 	return logs, endBlockNumber, nil
 }
 

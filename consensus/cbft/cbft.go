@@ -671,7 +671,7 @@ func (cbft *Cbft) VerifyHeader(chain consensus.ChainReader, header *types.Header
 	return nil
 }
 
-func (cbft *Cbft) VerifyRootChainTx(block *types.Block) error {
+func (cbft *Cbft) VerifyRootChainTx(parentBlock *types.Block, block *types.Block) error {
 	if node, err := cbft.isCurrentValidator(); err == nil && node != nil {
 		var stakeTx *types.Transaction
 		txs := helper.FindStakeStateSyncTxs(block.Transactions())
@@ -682,7 +682,7 @@ func (cbft *Cbft) VerifyRootChainTx(block *types.Block) error {
 			stakeTx = txs[0]
 		}
 		header := block.Header()
-		if err := cbft.rootChainCheck.CheckStakeStateSyncExtra(header, stakeTx); err != nil {
+		if err := cbft.rootChainCheck.CheckStakeStateSyncExtra(parentBlock.Header(), header, stakeTx); err != nil {
 			cbft.log.Error("Verify header stake state extra failed", "number", header.Number, "hash", header.Hash, "err", err)
 			return fmt.Errorf("verify header stake state extra failed, number:%d, hash:%s", header.Number.Uint64(), header.Hash().String())
 		}
