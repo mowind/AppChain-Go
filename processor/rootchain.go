@@ -21,6 +21,7 @@ func NewRootchainConnector(platonAddr string, contractAddr common.Address) (*Roo
 	if err != nil {
 		return nil, err
 	}
+	client.SetNameSpace("platon")
 	caller, err := rootchain.NewRootchainCaller(contractAddr, client)
 	if err != nil {
 		return nil, err
