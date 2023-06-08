@@ -657,7 +657,7 @@ var (
 	}
 
 	RootChainConfig = cli.StringFlag{
-		Name:   "rootChainConfig",
+		Name:   "rootchain_config",
 		Usage:  "rootchain related configuration, PRC address, contract address, etc.",
 		EnvVar: "",
 		Value:  "",
