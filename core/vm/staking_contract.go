@@ -119,7 +119,8 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 		return nil, err
 	}
 	log.Debug("staked event information", "signer", event.Signer.Hex(), "validatorId", event.ValidatorId, "nonce", event.Nonce,
-		"activationEpoch", event.ActivationEpoch, "amount", event.Amount, "totalStakedAmount", event.Total, "signerPubkey", hex.EncodeToString(event.SignerPubkey))
+		"activationEpoch", event.ActivationEpoch, "amount", event.Amount, "totalStakedAmount", event.Total,
+		"signerPubkey", hex.EncodeToString(event.SignerPubkey), "blsPubkey", hex.EncodeToString(event.BlsPubkey))
 
 	txHash := stkc.Evm.StateDB.TxHash()
 	txIndex := stkc.Evm.StateDB.TxIdx()
@@ -132,10 +133,7 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 	originVersion := params.GenesisVersion
 
 	var blsPubKey bls.PublicKeyHex
-	if err := blsPubKey.UnmarshalText(event.BlsPubkey); err != nil {
-		log.Error("bls public key decoding failure", "error", err)
-		return nil, err
-	}
+	copy(blsPubKey[:], event.BlsPubkey)
 
 	canOld, err := stkc.Plugin.GetCandidateInfo(blockHash, event.ValidatorId)
 	if snapshotdb.NonDbNotFoundErr(err) {
