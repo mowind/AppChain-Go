@@ -141,7 +141,7 @@ func (p *CheckpointProcessor) loop() {
 				continue
 			}
 			p.newChildBlockCh <- block
-		case block := <- p.newChildBlockCh:
+		case block := <-p.newChildBlockCh:
 			p.handleBlock(block)
 		case <-p.exitCh:
 			log.Info("Checkpoint processor stopping...")
@@ -250,7 +250,7 @@ func (p *CheckpointProcessor) createAndSendCheckpointToAppChain(block *types.Blo
 
 	endBlockHeader := p.chain.GetHeaderByNumber(end)
 	verifiers, err := plugin.StakingInstance().GetVerifierList(endBlockHeader.Hash(), endBlockHeader.Number.Uint64(), true)
-	verifiers = sortVerifierList(verifiers)
+	//verifiers = sortVerifierList(verifiers)
 	if err != nil {
 		log.Info("Failed to get verifier list", "hash", endBlockHeader.Hash(), "number", endBlockHeader.Number, "err", err)
 		return err
@@ -260,9 +260,10 @@ func (p *CheckpointProcessor) createAndSendCheckpointToAppChain(block *types.Blo
 		return err
 	}
 
-	log.Info("Creating and sign new checkpoint", "start", start, "end", end, "root", root, "accountRoot", accountRootHash)
-
 	proposer := p.bft.CurrentProposer()
+
+	log.Info("Creating and sign new checkpoint", "proposer", proposer.Address, "start", start, "end", end, "root", root, "accountRoot", accountRootHash)
+
 	validators, err := plugin.StakingInstance().GetValidator(block.NumberU64())
 	if err != nil {
 		return err
@@ -300,6 +301,7 @@ func (p *CheckpointProcessor) createAndSendCheckpointToAppChain(block *types.Blo
 		return err
 	}
 	log.Info("Sending new checkpoint proposal",
+		"proposer", cp.Proposer,
 		"start", start,
 		"end", end,
 		"root", root,

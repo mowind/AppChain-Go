@@ -165,8 +165,13 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 	abi.ConvertType(inputs[1], &validatorId)
 	abi.ConvertType(inputs[2], &signature)
 
-	log.Debug("Propose checkpoint", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End,
-		"validatorId", validatorId, "signature", hex.EncodeToString(signature),
+	log.Info("Propose checkpoint",
+		"number", c.Evm.Context.BlockNumber,
+		"proposer", cp.Proposer,
+		"start", cp.Start,
+		"end", cp.End,
+		"validatorId", validatorId,
+		"signature", hex.EncodeToString(signature),
 	)
 
 	validator, err := validators.FindNodeByValidatorId(uint32(validatorId.Uint64()))
@@ -239,6 +244,7 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 					return nil, ErrProposalTimeout
 				}
 
+				log.Debug("Checkpoint equal", "pending", pending.Checkpoint.String(), "tcp", tcp.String())
 				if !pending.Checkpoint.Equal(tcp) {
 					log.Warn("The proposal not equal pending")
 					return nil, ErrInvalidProposal
