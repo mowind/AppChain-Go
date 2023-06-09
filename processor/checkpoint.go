@@ -189,19 +189,14 @@ func (p *CheckpointProcessor) sendCheckpointToAppChain(block *types.Block) {
 			return
 		}
 
-		pending, err := p.getPendingCheckpoint()
+		shouldPropose, err := p.shouldPropose(block.Number(), big.NewInt(0).SetUint64(uint64(validator.ValidatorId)))
 		if err != nil {
-			log.Error("Fetch pending checkpoint from appchain contract error", "err", err)
+			log.Error("Cannot check should propose", "number", block.Number(), "validatorId", validator.ValidatorId, "err", err)
 			return
 		}
 
-		if pending != nil &&
-			(block.NumberU64() < pending.BlockNum.Uint64() ||
-				block.NumberU64()-pending.BlockNum.Uint64() < vm.NextProposeDelay) {
-			log.Info("Checkpoint already propose",
-				"number", block.NumberU64(),
-				"pending.blockNum", pending.BlockNum,
-				"checkpoint", solidity.ICheckpointToCheckpoint(&pending.Checkpoint).String())
+		if !shouldPropose {
+			log.Info("Checkpoint already propose", "number", block.NumberU64())
 			return
 		}
 
@@ -497,6 +492,38 @@ func (p *CheckpointProcessor) getPendingCheckpoint() (*PendingCheckpoint, error)
 		return (*PendingCheckpoint)(pending), nil
 	}
 	return nil, nil
+}
+
+func (p *CheckpointProcessor) shouldPropose(number, validatorId *big.Int) (bool, error) {
+	blockNr := rpc.BlockNumber(rpc.PendingBlockNumber)
+
+	const method = "shouldPropose"
+
+	data, err := p.checkpointABI.Pack(method, number, validatorId)
+	if err != nil {
+		return false, err
+	}
+
+	msgData := (hexutil.Bytes)(data)
+	toAddress := cvm.CheckpointSigAggAddr
+	gas := (hexutil.Uint64)(uint64(math.MaxUint64 / 2))
+
+	result, err := p.caller.Call(context.Background(), ethapi.CallArgs{
+		To:   &toAddress,
+		Data: &msgData,
+		Gas:  &gas,
+	}, rpc.BlockNumberOrHash{BlockNumber: &blockNr}, nil)
+	if err != nil {
+		return false, err
+	}
+
+	out, err := p.checkpointABI.Unpack("shouldPropose", result)
+	if err != nil {
+		return false, err
+	}
+
+	should := *abi.ConvertType(out[0], new(bool)).(*bool)
+	return should, nil
 }
 
 func (p *CheckpointProcessor) rootHash(start, end uint64) (common.Hash, error) {

@@ -39,4 +39,9 @@ interface ICheckpointSigAggregator {
         external
         view
         returns (PendingCheckpoint memory pcp);
+
+    function shouldPropose(
+        uint256 number,
+        uint256 validatorId
+    ) external view returns (bool);
 }

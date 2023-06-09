@@ -289,14 +289,6 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 		topics := make([]common.Hash, 1)
 		topics[0] = event.ID
 
-		/*
-			indexs, err := abi.MakeTopics([]interface{}{cp.Proposer})
-			if err != nil {
-				return nil, err
-			}
-			topics = append(topics, indexs[0]...)
-		*/
-
 		data, err := event.Inputs.Pack(cp.Proposer, cp.Start, cp.End, cp.RootHash, pending.SignedValidators, pending.AggSignature)
 		if err != nil {
 			log.Error("Cannot pack CheckpointSigAggregated event", "err", err)
@@ -352,6 +344,37 @@ func (c *CheckpointSigAggregatorContract) PendingCheckpoint() ([]byte, error) {
 	}
 	return out.Pack(pcp)
 }
+
+// solidity:
+//
+//   function shouldPropose(uint256 number, uint256 validatorId) external view returns (bool)
+func (c *CheckpointSigAggregatorContract) ShouldPropose(input []byte) ([]byte, error) {
+	method, _ := CheckpointABI().MethodById(input[:4])
+	inputs, _ := method.Inputs.Unpack(input[4:])
+
+	number := new(big.Int)
+	validatorId := new(big.Int)
+
+	abi.ConvertType(inputs[0], &number)
+	abi.ConvertType(inputs[1], &validatorId)
+
+	log.Debug("Should propose", "number", number, "validatorId", validatorId)
+
+	pending, err := ReadPendingCheckpoint(c.Evm.StateDB)
+	if err != nil {
+		log.Debug("Cannot getpending checkpoint", "err", err)
+		if err == ErrCheckpointNotFound {
+			return method.Outputs.Pack(true)
+		}
+		return method.Outputs.Pack(false)
+	}
+
+	if number.Uint64() < pending.BlockNum || (number.Uint64() - pending.BlockNum < NextProposeDelay) {
+		return method.Outputs.Pack(false)
+	}
+	return method.Outputs.Pack(true)
+}
+
 func (c *CheckpointSigAggregatorContract) threshold(num int) int {
 	return num - (num-1)/3
 }
