@@ -117,8 +117,9 @@ func (em *EventManager) Listen() error {
 			for _, log := range logs {
 				// checkpoint events are not stored and are notified directly to the special handling logic.
 				// feed.Send()
+				tmplog := log
 				if log.Topics[0] == helper.NewHeaderBlockID {
-					em.checkpointEventFeed.Send(log)
+					em.checkpointEventFeed.Send(&tmplog)
 					continue
 				}
 
