@@ -49,7 +49,7 @@ type ICheckpointSigAggregatorPendingCheckpoint struct {
 
 // CheckpointMetaData contains all meta data concerning the Checkpoint contract.
 var CheckpointMetaData = &bind.MetaData{
-	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"root\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"signedValidators\",\"type\":\"uint256[]\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"CheckpointSigAggregated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"pendingCheckpoint\",\"outputs\":[{\"components\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"rootHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"accountHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"current\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"rewards\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"slashing\",\"type\":\"uint256[]\"}],\"internalType\":\"structICheckpointSigAggregator.Checkpoint\",\"name\":\"checkpoint\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"blockNum\",\"type\":\"uint256\"}],\"internalType\":\"structICheckpointSigAggregator.PendingCheckpoint\",\"name\":\"pcp\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"rootHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"accountHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"current\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"rewards\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"slashing\",\"type\":\"uint256[]\"}],\"internalType\":\"structICheckpointSigAggregator.Checkpoint\",\"name\":\"cp\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"validatorId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"propose\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
+	ABI: "[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"root\",\"type\":\"bytes32\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"signedValidators\",\"type\":\"uint256[]\"},{\"indexed\":false,\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"CheckpointSigAggregated\",\"type\":\"event\"},{\"inputs\":[],\"name\":\"pendingCheckpoint\",\"outputs\":[{\"components\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"rootHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"accountHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"current\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"rewards\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"slashing\",\"type\":\"uint256[]\"}],\"internalType\":\"structICheckpointSigAggregator.Checkpoint\",\"name\":\"checkpoint\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"blockNum\",\"type\":\"uint256\"}],\"internalType\":\"structICheckpointSigAggregator.PendingCheckpoint\",\"name\":\"pcp\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"address\",\"name\":\"proposer\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"end\",\"type\":\"uint256\"},{\"internalType\":\"bytes32\",\"name\":\"rootHash\",\"type\":\"bytes32\"},{\"internalType\":\"bytes32\",\"name\":\"accountHash\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"chainId\",\"type\":\"uint256\"},{\"internalType\":\"uint256[]\",\"name\":\"current\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"rewards\",\"type\":\"uint256[]\"},{\"internalType\":\"uint256[]\",\"name\":\"slashing\",\"type\":\"uint256[]\"}],\"internalType\":\"structICheckpointSigAggregator.Checkpoint\",\"name\":\"cp\",\"type\":\"tuple\"},{\"internalType\":\"uint256\",\"name\":\"validatorId\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"signature\",\"type\":\"bytes\"}],\"name\":\"propose\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}]",
 }
 
 // CheckpointABI is the input ABI used to generate the binding from.
@@ -330,15 +330,10 @@ type CheckpointCheckpointSigAggregated struct {
 
 // FilterCheckpointSigAggregated is a free log retrieval operation binding the contract event 0x0a99bf0861db40d636b7c0ded85657d5deab3a0b41d1c321a959963c223d4917.
 //
-// Solidity: event CheckpointSigAggregated(address indexed proposer, uint256 start, uint256 end, bytes32 root, uint256[] signedValidators, bytes signature)
-func (_Checkpoint *CheckpointFilterer) FilterCheckpointSigAggregated(opts *bind.FilterOpts, proposer []common.Address) (*CheckpointCheckpointSigAggregatedIterator, error) {
+// Solidity: event CheckpointSigAggregated(address proposer, uint256 start, uint256 end, bytes32 root, uint256[] signedValidators, bytes signature)
+func (_Checkpoint *CheckpointFilterer) FilterCheckpointSigAggregated(opts *bind.FilterOpts) (*CheckpointCheckpointSigAggregatedIterator, error) {
 
-	var proposerRule []interface{}
-	for _, proposerItem := range proposer {
-		proposerRule = append(proposerRule, proposerItem)
-	}
-
-	logs, sub, err := _Checkpoint.contract.FilterLogs(opts, "CheckpointSigAggregated", proposerRule)
+	logs, sub, err := _Checkpoint.contract.FilterLogs(opts, "CheckpointSigAggregated")
 	if err != nil {
 		return nil, err
 	}
@@ -347,15 +342,10 @@ func (_Checkpoint *CheckpointFilterer) FilterCheckpointSigAggregated(opts *bind.
 
 // WatchCheckpointSigAggregated is a free log subscription operation binding the contract event 0x0a99bf0861db40d636b7c0ded85657d5deab3a0b41d1c321a959963c223d4917.
 //
-// Solidity: event CheckpointSigAggregated(address indexed proposer, uint256 start, uint256 end, bytes32 root, uint256[] signedValidators, bytes signature)
-func (_Checkpoint *CheckpointFilterer) WatchCheckpointSigAggregated(opts *bind.WatchOpts, sink chan<- *CheckpointCheckpointSigAggregated, proposer []common.Address) (event.Subscription, error) {
+// Solidity: event CheckpointSigAggregated(address proposer, uint256 start, uint256 end, bytes32 root, uint256[] signedValidators, bytes signature)
+func (_Checkpoint *CheckpointFilterer) WatchCheckpointSigAggregated(opts *bind.WatchOpts, sink chan<- *CheckpointCheckpointSigAggregated) (event.Subscription, error) {
 
-	var proposerRule []interface{}
-	for _, proposerItem := range proposer {
-		proposerRule = append(proposerRule, proposerItem)
-	}
-
-	logs, sub, err := _Checkpoint.contract.WatchLogs(opts, "CheckpointSigAggregated", proposerRule)
+	logs, sub, err := _Checkpoint.contract.WatchLogs(opts, "CheckpointSigAggregated")
 	if err != nil {
 		return nil, err
 	}
@@ -389,7 +379,7 @@ func (_Checkpoint *CheckpointFilterer) WatchCheckpointSigAggregated(opts *bind.W
 
 // ParseCheckpointSigAggregated is a log parse operation binding the contract event 0x0a99bf0861db40d636b7c0ded85657d5deab3a0b41d1c321a959963c223d4917.
 //
-// Solidity: event CheckpointSigAggregated(address indexed proposer, uint256 start, uint256 end, bytes32 root, uint256[] signedValidators, bytes signature)
+// Solidity: event CheckpointSigAggregated(address proposer, uint256 start, uint256 end, bytes32 root, uint256[] signedValidators, bytes signature)
 func (_Checkpoint *CheckpointFilterer) ParseCheckpointSigAggregated(log types.Log) (*CheckpointCheckpointSigAggregated, error) {
 	event := new(CheckpointCheckpointSigAggregated)
 	if err := _Checkpoint.contract.UnpackLog(event, "CheckpointSigAggregated", log); err != nil {

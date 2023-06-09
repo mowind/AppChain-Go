@@ -111,7 +111,6 @@ func (c *RootchainConnector) SendCheckpoint(signedData []byte, signedValidators 
 		Signer: func(s types.Signer, a common.Address, t *types.Transaction) (*types.Transaction, error) {
 			return c.managerAccount.Sign(t, c.chainId)
 		},
-		Nonce: big.NewInt(0).SetUint64(c.managerAccount.Nonce()),
 	}, signedData, signedValidators, signature)
 	return err
 }

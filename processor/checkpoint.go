@@ -158,7 +158,7 @@ func (p *CheckpointProcessor) handleNewHeaderBlock(evlog *types.Log) {
 		"reward", newHeaderBlock.Reward,
 		"Start", newHeaderBlock.Start,
 		"end", newHeaderBlock.End,
-		"root", newHeaderBlock.Root,
+		"root", hex.EncodeToString(newHeaderBlock.Root[:]),
 	)
 }
 
@@ -191,8 +191,13 @@ func (p *CheckpointProcessor) sendCheckpointToAppChain(block *types.Block) {
 			return
 		}
 
-		if pending != nil && block.NumberU64()-pending.BlockNum.Uint64() < vm.NextProposeDelay {
-			log.Info("Checkpoint already propose", "checkpoint", solidity.ICheckpointToCheckpoint(&pending.Checkpoint).String())
+		if pending != nil &&
+			(block.NumberU64() < pending.BlockNum.Uint64() ||
+				block.NumberU64()-pending.BlockNum.Uint64() < vm.NextProposeDelay) {
+			log.Info("Checkpoint already propose",
+				"number", block.NumberU64(),
+				"pending.blockNum", pending.BlockNum,
+				"checkpoint", solidity.ICheckpointToCheckpoint(&pending.Checkpoint).String())
 			return
 		}
 
@@ -277,10 +282,11 @@ func (p *CheckpointProcessor) createAndSendCheckpointToAppChain(block *types.Blo
 		End:         big.NewInt(0).SetUint64(end),
 		RootHash:    root,
 		AccountHash: accountRootHash,
-		ChainId:     p.chainId,
-		Current:     convertToBigInt(current),
-		Rewards:     rewards,
-		Slashing:    make([]*big.Int, 0),
+		//ChainId:     p.chainId,
+		ChainId:  big.NewInt(136), // FIXME:
+		Current:  convertToBigInt(current),
+		Rewards:  rewards,
+		Slashing: make([]*big.Int, 0),
 	}
 
 	tcp := solidity.ICheckpointToCheckpoint((*checkpoint.ICheckpointSigAggregatorCheckpoint)(cp))
@@ -310,7 +316,7 @@ func (p *CheckpointProcessor) createAndSendCheckpointToRootchain(aggEv *checkpoi
 		return err
 	}
 
-	if pending.Checkpoint.Start.Uint64() != start || pending.Checkpoint.End.Uint64() != end {
+	if pending != nil && (pending.Checkpoint.Start.Uint64() != start || pending.Checkpoint.End.Uint64() != end) {
 		log.Error("Mismatch pending checkpoint start end formation",
 			"pending.start", pending.Checkpoint.Start,
 			"pending.end", pending.Checkpoint.End,
@@ -381,6 +387,9 @@ func (p *CheckpointProcessor) nextExpectedCheckpoint(latestChildBlock uint64) (*
 
 	epochBlocks := xutil.CalcBlocksEachEpoch()
 	end = epochBlocks + start - 1
+	if start == 0 {
+		end = end + 1
+	}
 
 	if latestChildBlock >= end {
 		log.Debug("Calculating checkpoint eligibility",
@@ -473,9 +482,14 @@ func (p *CheckpointProcessor) getPendingCheckpoint() (*PendingCheckpoint, error)
 
 	if len(result) > 0 {
 		pending := new(checkpoint.ICheckpointSigAggregatorPendingCheckpoint)
-		if err := p.checkpointABI.UnpackIntoInterface(pending, method, result); err != nil {
+		out, err := p.checkpointABI.Unpack("pendingCheckpoint", result)
+		if err != nil {
 			return nil, err
 		}
+		abi.ConvertType(out[0], &pending)
+		log.Debug("Get pending checkpoint", "proposer", pending.Checkpoint.Proposer,
+			"start", pending.Checkpoint.Start, "end", pending.Checkpoint.End,
+			"blockNum", pending.BlockNum)
 		return (*PendingCheckpoint)(pending), nil
 	}
 	return nil, nil

@@ -4,7 +4,7 @@ pragma solidity ^0.8.12;
 
 interface ICheckpointSigAggregator {
     event CheckpointSigAggregated(
-        address indexed proposer,
+        address proposer,
         uint256 start,
         uint256 end,
         bytes32 root,
