@@ -167,7 +167,6 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 
 	log.Debug("Propose checkpoint", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End,
 		"validatorId", validatorId, "signature", hex.EncodeToString(signature),
-		"inputs1", inputs[1],
 	)
 
 	validator, err := validators.FindNodeByValidatorId(uint32(validatorId.Uint64()))
