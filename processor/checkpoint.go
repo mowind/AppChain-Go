@@ -56,6 +56,7 @@ type CheckpointProcessor struct {
 	newHeaderBlockSubscription event.Subscription
 	newHeaderBlockCh           chan *types.Log
 	bftResultSub               *event.TypeMuxSubscription
+	newChildBlockCh            chan *types.Block
 
 	fromBlockNumber uint64
 
@@ -87,6 +88,7 @@ func NewCheckpointProcessor(
 		managerAccount:     magnerAccount,
 		newHeaderBlockCh:   make(chan *types.Log, 16),
 		bftResultSub:       bftResultSub,
+		newChildBlockCh:    make(chan *types.Block, 64),
 		fromBlockNumber:    chain.CurrentHeader().Number.Uint64(),
 		checkpointABI:      vm.CheckpointABI(),
 		rootchainABI:       helper.RootChainAbi,
@@ -138,6 +140,8 @@ func (p *CheckpointProcessor) loop() {
 				log.Error("Cbft result error: block is nil")
 				continue
 			}
+			p.newChildBlockCh <- block
+		case block := <- p.newChildBlockCh:
 			p.handleBlock(block)
 		case <-p.exitCh:
 			log.Info("Checkpoint processor stopping...")
