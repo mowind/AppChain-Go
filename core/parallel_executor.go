@@ -99,7 +99,7 @@ func (exe *Executor) ExecuteTransactions(ctx *ParallelContext) error {
 		if err := txDag.MakeDagGraph(ctx, exe); err != nil {
 			return err
 		}
-		log.Trace("Make dag graph cost", "number", ctx.header.Number.Uint64(), "time", time.Since(start))
+		log.Trace("Make dag graph cost", "number", ctx.header.Number.Uint64(), "time", time.Since(start), "blockDeadline", ctx.blockDeadline, "timeNow", time.Now())
 
 		start = time.Now()
 		batchNo := 0
