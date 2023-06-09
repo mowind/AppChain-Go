@@ -299,6 +299,10 @@ func (cbft *Cbft) Start(chain consensus.ChainReader, blockCacheWriter consensus.
 		cbft.log.Error("Load wal failed", "err", err)
 		return err
 	}
+
+	//after load wal update txpool local address
+	cbft.updateTxPool()
+
 	utils.SetFalse(&cbft.loading)
 
 	go cbft.receiveLoop()
@@ -308,6 +312,15 @@ func (cbft *Cbft) Start(chain consensus.ChainReader, blockCacheWriter consensus.
 	utils.SetTrue(&cbft.start)
 	cbft.log.Info("Cbft engine start")
 	return nil
+}
+
+func (cbft *Cbft) updateTxPool() {
+	for _, addr := range cbft.validatorPool.GetPreValidators() {
+		cbft.txPool.RemoveLocalAddr(addr)
+	}
+	for _, addr := range cbft.validatorPool.GetCurrentValidators() {
+		cbft.txPool.AddLocalAddr(addr)
+	}
 }
 
 // ReceiveMessage Entrance: The messages related to the consensus are entered from here.
@@ -1857,7 +1870,7 @@ func (cbft *Cbft) BlsSign(msg []byte) ([]byte, error) {
 	return cbft.signFnByBls(msg)
 }
 
-func (cbft *Cbft) IsCurrentValidator() (*cbfttypes.ValidateNode, error){
+func (cbft *Cbft) IsCurrentValidator() (*cbfttypes.ValidateNode, error) {
 	return cbft.isCurrentValidator()
 }
 

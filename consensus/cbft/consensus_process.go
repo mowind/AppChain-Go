@@ -588,6 +588,8 @@ func (cbft *Cbft) tryChangeView() {
 		if err := cbft.validatorPool.Update(block.NumberU64(), cbft.state.Epoch()+1, cbft.eventMux); err == nil {
 			cbft.log.Info("Update validator success", "number", block.NumberU64())
 		}
+		//update txpool local address
+		cbft.updateTxPool()
 	}
 
 	if enough {
