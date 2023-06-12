@@ -156,7 +156,7 @@ func (p *CheckpointProcessor) handleNewHeaderBlock(evlog *types.Log) {
 		log.Error("Unpack new header block log error", "err", err)
 		return
 	}
-	log.Info("Checkpoint commited",
+	log.Info("Checkpoint committed",
 		"proposer", newHeaderBlock.Proposer,
 		"headerBlockId", newHeaderBlock.HeaderBlockId,
 		"reward", newHeaderBlock.Reward,
