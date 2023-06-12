@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"github.com/PlatONnetwork/AppChain-Go/common"
 	vm2 "github.com/PlatONnetwork/AppChain-Go/common/vm"
 	"github.com/PlatONnetwork/AppChain-Go/core/state"
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
@@ -23,10 +22,10 @@ type RootChainReader interface {
 }
 
 type RootChainCheck interface {
-	CheckStakeStateSyncExtra(parent *types.Header, header *types.Header, tx *types.Transaction) error
+	CheckStakeStateSyncExtra(parent *types.Block, header *types.Header, tx *types.Transaction) error
 }
 type StateReader interface {
-	StateAt(root common.Hash) (*state.StateDB, error)
+	MakeStateDB(block *types.Block) (*state.StateDB, error)
 }
 type RootChain struct {
 	stateReader  StateReader
@@ -49,7 +48,7 @@ func (r RootChain) Start() error {
 	return nil
 }
 
-func (r RootChain) CheckStakeStateSyncExtra(parent *types.Header, header *types.Header, tx *types.Transaction) error {
+func (r RootChain) CheckStakeStateSyncExtra(parent *types.Block, header *types.Header, tx *types.Transaction) error {
 	end := types.DecodeStakeExtra(header.Extra)
 
 	// If the condition is met, then there are no events to process.
@@ -68,7 +67,7 @@ func (r RootChain) CheckStakeStateSyncExtra(parent *types.Header, header *types.
 		return fmt.Errorf("extra number is not empty, but the transaction is empty")
 	}
 
-	stateDb, err := r.stateReader.StateAt(parent.Root)
+	stateDb, err := r.stateReader.MakeStateDB(parent)
 	if err != nil {
 		return err
 	}
