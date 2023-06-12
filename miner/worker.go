@@ -1031,7 +1031,7 @@ func (w *worker) commitNewWork(interrupt *int32, noempty bool, timestamp int64, 
 
 	log.Info("Cbft begin to consensus for new block", "number", header.Number, "nonce", hexutil.Encode(header.Nonce[:]), "gasLimit", header.GasLimit,
 		"parentHash", parent.Hash(), "parentNumber", parent.NumberU64(), "parentStateRoot", parent.Root(),
-		"timestamp", common.MillisToString(timestamp), "deadline", blockDeadline)
+		"timestamp", common.MillisToString(timestamp), "deadline", common.MillisToString(blockDeadline.UnixMilli()))
 	// Initialize the header extra in Prepare function of engine
 	if err := w.engine.Prepare(w.chain, header); err != nil {
 		log.Error("Failed to prepare header for mining", "err", err)
