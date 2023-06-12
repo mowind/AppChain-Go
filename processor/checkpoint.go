@@ -104,6 +104,7 @@ func NewCheckpointProcessor(
 	}
 
 	go p.loop()
+	go p.processBlock()
 
 	return p, nil
 }
@@ -112,8 +113,33 @@ func (p *CheckpointProcessor) Stop() {
 	close(p.exitCh)
 }
 
-func (p *CheckpointProcessor) loop() {
+func(p *CheckpointProcessor) loop() {
 	defer p.bftResultSub.Unsubscribe()
+
+	for {
+		select {
+		case result := <-p.bftResultSub.Chan():
+			if result == nil {
+				continue
+			}
+			cbftRsult, ok := result.Data.(cbfttypes.CbftResult)
+			if !ok {
+				log.Error("Receive bft result type error")
+				continue
+			}
+			block := cbftRsult.Block
+			if block == nil {
+				log.Error("Cbft result error: block is nil")
+				continue
+			}
+			p.newChildBlockCh <- block
+		case <- p.exitCh:
+			log.Info("Checkpoint loop stopping...")
+		}
+	}
+}
+
+func (p *CheckpointProcessor) processBlock() {
 	defer p.newHeaderBlockSubscription.Unsubscribe()
 
 	for {
@@ -144,7 +170,7 @@ func (p *CheckpointProcessor) loop() {
 		case block := <-p.newChildBlockCh:
 			p.handleBlock(block)
 		case <-p.exitCh:
-			log.Info("Checkpoint processor stopping...")
+			log.Info("Checkpoint processBlock stopping...")
 			return
 		}
 	}
