@@ -305,7 +305,19 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 			Topics:      topics,
 			Data:        data,
 		})
-		log.Info("Emit CheckpointSigAggregated", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End, "root", hex.EncodeToString(cp.RootHash[:]))
+
+		s := make([]string, 0)
+		for _, id := range pending.SignedValidators {
+			s = append(s, id.String())
+		}
+		log.Info("Emit CheckpointSigAggregated",
+			"proposer", cp.Proposer,
+			"start", cp.Start,
+			"end", cp.End,
+			"root", hex.EncodeToString(cp.RootHash[:]),
+			"signedValidator", strings.Join(s, ","),
+			"signature", hex.EncodeToString(pending.AggSignature),
+		)
 		pending.Emitted = true
 	}
 
@@ -352,7 +364,7 @@ func (c *CheckpointSigAggregatorContract) PendingCheckpoint() ([]byte, error) {
 
 // solidity:
 //
-//   function shouldPropose(uint256 number, uint256 validatorId) external view returns (bool)
+//	function shouldPropose(uint256 number, uint256 validatorId) external view returns (bool)
 func (c *CheckpointSigAggregatorContract) ShouldPropose(input []byte) ([]byte, error) {
 	method, _ := CheckpointABI().MethodById(input[:4])
 	inputs, _ := method.Inputs.Unpack(input[4:])
@@ -374,7 +386,7 @@ func (c *CheckpointSigAggregatorContract) ShouldPropose(input []byte) ([]byte, e
 		return method.Outputs.Pack(false)
 	}
 
-	if number.Uint64() < pending.BlockNum || (number.Uint64() - pending.BlockNum < NextProposeDelay) {
+	if number.Uint64() < pending.BlockNum || (number.Uint64()-pending.BlockNum < NextProposeDelay) {
 		return method.Outputs.Pack(false)
 	}
 	return method.Outputs.Pack(true)

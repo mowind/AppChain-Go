@@ -8,6 +8,7 @@ import (
 	"math/big"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/PlatONnetwork/AppChain-Go/accounts/abi"
@@ -113,7 +114,7 @@ func (p *CheckpointProcessor) Stop() {
 	close(p.exitCh)
 }
 
-func(p *CheckpointProcessor) loop() {
+func (p *CheckpointProcessor) loop() {
 	defer p.bftResultSub.Unsubscribe()
 
 	for {
@@ -133,7 +134,7 @@ func(p *CheckpointProcessor) loop() {
 				continue
 			}
 			p.newChildBlockCh <- block
-		case <- p.exitCh:
+		case <-p.exitCh:
 			log.Info("Checkpoint loop stopping...")
 		}
 	}
@@ -260,7 +261,7 @@ func (p *CheckpointProcessor) createAndSendCheckpointToAppChain(block *types.Blo
 	log.Info("Root hash calculated", "rootHash", root)
 
 	endBlockHeader := p.chain.GetHeaderByNumber(end)
-	verifiers, err := plugin.StakingInstance().GetVerifierList(endBlockHeader.Hash(), endBlockHeader.Number.Uint64(), true)
+	verifiers, err := plugin.StakingInstance().GetVerifierList(endBlockHeader.Hash(), endBlockHeader.Number.Uint64(), false)
 	//verifiers = sortVerifierList(verifiers)
 	if err != nil {
 		log.Info("Failed to get verifier list", "hash", endBlockHeader.Hash(), "number", endBlockHeader.Number, "err", err)
@@ -345,8 +346,21 @@ func (p *CheckpointProcessor) createAndSendCheckpointToRootchain(aggEv *checkpoi
 
 	if shouldSend {
 		tcp := solidity.ICheckpointToCheckpoint(&pending.Checkpoint)
+		s := make([]string, 0)
+		for _, id := range aggEv.SignedValidators {
+			s = append(s, id.String())
+		}
+		log.Info("Sending new checkpoint to rootchain",
+			"proposer", tcp.Proposer,
+			"start", tcp.Start,
+			"end", tcp.End,
+			"rootHash", hex.EncodeToString(tcp.RootHash[:]),
+			"accountHash", hex.EncodeToString(tcp.AccountHash[:]),
+			"signedValidators", strings.Join(s, ","),
+			"signature", hex.EncodeToString(aggEv.Signature),
+		)
 		if err := p.rootchainConnector.SendCheckpoint(tcp.Pack(), aggEv.SignedValidators, aggEv.Signature); err != nil {
-			log.Error("Failed to submit checkpoint to rootchain", "err", err)
+			log.Error("Failed to submit checkpoint to rootchain", "checkpoint", tcp.String(), "err", err)
 			return err
 		}
 	}
@@ -536,6 +550,7 @@ func (p *CheckpointProcessor) shouldPropose(number, validatorId *big.Int) (bool,
 	}
 
 	should := *abi.ConvertType(out[0], new(bool)).(*bool)
+	log.Debug("Should propose", "number", number, "validatorId", validatorId, "should", should)
 	return should, nil
 }
 
