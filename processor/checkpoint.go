@@ -152,21 +152,6 @@ func (p *CheckpointProcessor) processBlock() {
 				continue
 			}
 			p.handleNewHeaderBlock(log)
-		case result := <-p.bftResultSub.Chan():
-			if result == nil {
-				continue
-			}
-			cbftRsult, ok := result.Data.(cbfttypes.CbftResult)
-			if !ok {
-				log.Error("Receive bft result type error")
-				continue
-			}
-			block := cbftRsult.Block
-			if block == nil {
-				log.Error("Cbft result error: block is nil")
-				continue
-			}
-			p.newChildBlockCh <- block
 		case block := <-p.newChildBlockCh:
 			p.handleBlock(block)
 		case <-p.exitCh:
