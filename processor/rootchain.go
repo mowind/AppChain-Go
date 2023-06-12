@@ -101,7 +101,7 @@ func (c *RootchainConnector) SendCheckpoint(signedData []byte, signedValidators 
 	for _, id := range signedValidators {
 		s = append(s, id.String())
 	}
-	log.Info("Sending new checkpoint",
+	log.Debug("Sending new checkpoint",
 		"signedValidators", strings.Join(s, ","),
 		"signature", hex.EncodeToString(signature),
 	)

@@ -45,8 +45,8 @@ type Checkpoint struct {
 	AccountHash common.Hash    `json:"accountHash"`
 	ChainId     *big.Int       `json:"chainId"`
 	Current     []*big.Int     `json:"current"`
-	Rewards     []*big.Int     `json:"rewards"`
-	Slashing    []*big.Int     `json:"slashing"`
+	Rewards     []*big.Int     `json:"-"`
+	Slashing    []*big.Int     `json:"-"`
 }
 
 func (cp *Checkpoint) String() string {
