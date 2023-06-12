@@ -181,10 +181,10 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 	}
 
 	// FIXME: uncomment
-	//if !bytes.Equal(c.Contract.Caller().Bytes(), common.Address(validator.StakingAddress).Bytes()) {
-	//	log.Error("Invalid caller", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End, "caller", c.Contract.Caller(), "validatorId", validatorId)
-	//	return nil, ErrInvalidCaller
-	//}
+	if !bytes.Equal(c.Contract.Caller().Bytes(), common.Address(validator.StakingAddress).Bytes()) {
+		log.Error("Invalid caller", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End, "caller", c.Contract.Caller(), "validatorId", validatorId)
+		return nil, ErrInvalidCaller
+	}
 
 	if _, err := validators.FindNodeByAddress(common.NodeAddress(cp.Proposer)); err != nil {
 		log.Error("The proposer not a validator", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End)
@@ -244,9 +244,8 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 					return nil, ErrProposalTimeout
 				}
 
-				log.Debug("Checkpoint equal", "pending", pending.Checkpoint.String(), "tcp", tcp.String())
 				if !pending.Checkpoint.Equal(tcp) {
-					log.Warn("The proposal not equal pending")
+					log.Warn("The proposal not equal pending", "pending", pending.Checkpoint.String(), "checkpoint", tcp.String())
 					return nil, ErrInvalidProposal
 				}
 			}
