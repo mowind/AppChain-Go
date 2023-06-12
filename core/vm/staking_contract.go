@@ -135,13 +135,13 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 	log.Debug("StakingOperation: staked event information", "blockNumber", blockNumber, "txHash", txHash.Hex(),
 		"signer", event.Signer.Hex(), "validatorId", event.ValidatorId, "nonce", event.Nonce,
 		"activationEpoch", event.ActivationEpoch, "amount", event.Amount, "totalStakedAmount", event.Total,
-		"signerPubkey", hex.EncodeToString(event.SignerPubkey), "blsPubkey", hex.EncodeToString(event.BlsPubkey))
+		"signerPubkey", hex.EncodeToString(event.Pubkeys[:64]), "blsPubkey", hex.EncodeToString(event.Pubkeys[64:]))
 
 	// Query current active version
 	originVersion := params.GenesisVersion
 
 	var blsPubKey bls.PublicKeyHex
-	copy(blsPubKey[:], event.BlsPubkey)
+	copy(blsPubKey[:], event.Pubkeys[64:])
 
 	canOld, err := stkc.Plugin.GetCandidateInfo(blockHash, event.ValidatorId)
 	if snapshotdb.NonDbNotFoundErr(err) {
@@ -162,7 +162,7 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 	init candidate info
 	*/
 
-	nodeId, err := discover.BytesID(event.SignerPubkey)
+	nodeId, err := discover.BytesID(event.Pubkeys[:64])
 	if err != nil {
 		return txResultHandler(vm.StakingContractAddr, stkc.Evm, "createStaking",
 			"invalid public key",
@@ -172,7 +172,7 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 		ValidatorId:     event.ValidatorId,
 		NodeId:          nodeId,
 		BlsPubKey:       blsPubKey,
-		StakingAddress:  from,
+		StakingAddress:  event.Owner,
 		BenefitAddress:  from,
 		StakingBlockNum: blockNumber.Uint64(),
 		StakingTxIndex:  txIndex,
