@@ -295,9 +295,9 @@ func (p *CheckpointProcessor) createAndSendCheckpointToAppChain(block *types.Blo
 		RootHash:    root,
 		AccountHash: accountRootHash,
 		ChainId:     p.chainId,
-		Current:  convertToBigInt(current),
-		Rewards:  rewards,
-		Slashing: make([]*big.Int, 0),
+		Current:     convertToBigInt(current),
+		Rewards:     rewards,
+		Slashing:    make([]*big.Int, 0),
 	}
 
 	tcp := solidity.ICheckpointToCheckpoint((*checkpoint.ICheckpointSigAggregatorCheckpoint)(cp))
