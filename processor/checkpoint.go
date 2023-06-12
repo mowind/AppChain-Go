@@ -294,8 +294,7 @@ func (p *CheckpointProcessor) createAndSendCheckpointToAppChain(block *types.Blo
 		End:         big.NewInt(0).SetUint64(end),
 		RootHash:    root,
 		AccountHash: accountRootHash,
-		//ChainId:     p.chainId,
-		ChainId:  big.NewInt(136), // FIXME:
+		ChainId:     p.chainId,
 		Current:  convertToBigInt(current),
 		Rewards:  rewards,
 		Slashing: make([]*big.Int, 0),
