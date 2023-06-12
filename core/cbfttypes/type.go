@@ -236,7 +236,7 @@ func (vs *Validators) FindNodeByAddress(addr common.NodeAddress) (*ValidateNode,
 func (vs *Validators) AllNodeAddress() []common.Address {
 	var addrs []common.Address
 	for _, node := range vs.Nodes {
-		addrs = append(addrs, common.Address(node.Address))
+		addrs = append(addrs, node.StakingAddress)
 	}
 	return addrs
 }
