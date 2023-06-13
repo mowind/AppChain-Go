@@ -197,13 +197,35 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 	err = stkc.Plugin.CreateCandidate(state, blockHash, blockNumber, event.ValidatorId, can)
 	return nil, err
 }
+
 func (stkc *StakingContract) handleUnstakeInit(vLog *types.Log) ([]byte, error) {
 	event := new(stakinginfo.StakinginfoUnstakeInit)
 	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.UnstakeInit, vLog); err != nil {
 		return nil, err
 	}
-	return nil, nil
+	txHash := stkc.Evm.StateDB.TxHash()
+	blockNumber := stkc.Evm.Context.BlockNumber
+	blockHash := stkc.Evm.Context.BlockHash
+	state := stkc.Evm.StateDB
+	log.Debug("StakingOperation: unstakeInit event information", "blockNumber", blockNumber, "txHash", txHash.Hex(),
+		"validatorId", event.ValidatorId, "validatorOwner", event.User, "nonce", event.Nonce, "deactivationEpoch", event.DeactivationEpoch,
+		"amount", event.Amount)
+	canOld, err := stkc.Plugin.GetCandidateInfo(blockHash, event.ValidatorId)
+	if snapshotdb.NonDbNotFoundErr(err) {
+		log.Error("Failed to update stakeInfo by GetCandidateInfo", "txHash", txHash,
+			"blockNumber", blockNumber, "validatorId", event.ValidatorId, "err", err)
+		return nil, err
+	}
+
+	if canOld.IsEmpty() {
+		return txResultHandler(vm.StakingContractAddr, stkc.Evm, "unstakeInit",
+			"can is not nil",
+			TxEditorCandidate, staking.ErrCanNoExist)
+	}
+	err = stkc.Plugin.UnStake(state, blockHash, blockNumber, event.ValidatorId, canOld)
+	return nil, err
 }
+
 func (stkc *StakingContract) handleSignerChange(vLog *types.Log) ([]byte, error) {
 	event := new(stakinginfo.StakinginfoSignerChange)
 	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.SignerChange, vLog); err != nil {
@@ -211,6 +233,7 @@ func (stkc *StakingContract) handleSignerChange(vLog *types.Log) ([]byte, error)
 	}
 	return nil, nil
 }
+
 func (stkc *StakingContract) handleStakeUpdate(vLog *types.Log) ([]byte, error) {
 	event := new(stakinginfo.StakinginfoStakeUpdate)
 	if err := helper.UnpackLog(helper.StakingInfoAbi, event, helper.StakeUpdate, vLog); err != nil {
@@ -394,24 +417,6 @@ func (stkc *StakingContract) getCandidateList() ([]byte, error) {
 	return callResultHandler(stkc.Evm, "getCandidateList",
 		arr, nil), nil
 }
-
-//func (stkc *StakingContract) getRelatedListByDelAddr(addr common.Address) ([]byte, error) {
-//
-//	blockHash := stkc.Evm.Context.BlockHash
-//	arr, err := stkc.Plugin.GetRelatedListByDelAddr(blockHash, addr)
-//	if snapshotdb.NonDbNotFoundErr(err) {
-//		return callResultHandler(stkc.Evm, fmt.Sprintf("getRelatedListByDelAddr, delAddr: %s", addr),
-//			arr, staking.ErrGetDelegateRelated.Wrap(err.Error())), nil
-//	}
-//
-//	if snapshotdb.IsDbNotFoundErr(err) || arr.IsEmpty() {
-//		return callResultHandler(stkc.Evm, fmt.Sprintf("getRelatedListByDelAddr, delAddr: %s", addr),
-//			arr, staking.ErrGetDelegateRelated.Wrap("RelatedList info is not found")), nil
-//	}
-//
-//	return callResultHandler(stkc.Evm, fmt.Sprintf("getRelatedListByDelAddr, delAddr: %s", addr),
-//		arr, nil), nil
-//}
 
 func (stkc *StakingContract) getCandidateInfo(validatorId uint32) ([]byte, error) {
 	blockNumber := stkc.Evm.Context.BlockNumber

@@ -487,6 +487,31 @@ func (sk *StakingPlugin) StakeUpdate(state xcom.StateDB, blockHash common.Hash, 
 	return nil
 }
 
+func (sk *StakingPlugin) UnStake(state xcom.StateDB, blockHash common.Hash, blockNumber *big.Int, validatorId *big.Int, can *staking.Candidate) error {
+	if err := sk.db.DelCanPowerStore(blockHash, can); nil != err {
+		log.Error("Failed to WithdrewStaking on stakingPlugin: Delete Candidate old power is failed",
+			"blockNumber", blockNumber.Uint64(), "blockHash", blockHash.Hex(), "nodeId", can.NodeId.String(), "err", err)
+		return err
+	}
+	epoch := xutil.CalculateEpoch(blockNumber.Uint64())
+	can.StakingEpoch = uint32(epoch)
+
+	if err := sk.db.SetCanMutableStore(blockHash, validatorId, can.CandidateMutable); nil != err {
+		log.Error("Failed to WithdrewStaking on stakingPlugin: Store CandidateMutable info is failed",
+			"blockNumber", blockNumber.Uint64(), "blockHash", blockHash.Hex(), "nodeId", can.NodeId.String(), "err", err)
+		return err
+	}
+
+	// sub the account staking Reference Count
+	if err := sk.db.SubAccountStakeRc(blockHash, can.StakingAddress); nil != err {
+		log.Error("Failed to WithdrewStaking on stakingPlugin: Store Staking Account Reference Count (sub) is failed",
+			"blockNumber", blockNumber.Uint64(), "blockHash", blockHash.Hex(), "nodeId", can.NodeId.String(),
+			"staking Account", can.StakingAddress.String(), "err", err)
+		return err
+	}
+	return nil
+}
+
 // This method may only be called when creatStaking
 /*func (sk *StakingPlugin) RollBackStaking(state xcom.StateDB, blockHash common.Hash, blockNumber *big.Int,
 	addr common.NodeAddress, typ uint16) error {
