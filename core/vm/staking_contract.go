@@ -181,6 +181,7 @@ func (stkc *StakingContract) handleStaked(vLog *types.Log) ([]byte, error) {
 
 	amount := new(big.Int).Set(event.Amount)
 	canMutable := &staking.CandidateMutable{
+		Status:               staking.Valided,
 		Shares:               amount,
 		Released:             new(big.Int).SetInt64(0),
 		ReleasedHes:          new(big.Int).SetInt64(0),
