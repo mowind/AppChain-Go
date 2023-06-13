@@ -180,7 +180,6 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 		return nil, ErrValidatorNotFound
 	}
 
-	// FIXME: uncomment
 	if !bytes.Equal(c.Contract.Caller().Bytes(), common.Address(validator.StakingAddress).Bytes()) {
 		log.Error("Invalid caller", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End, "caller", c.Contract.Caller(), "validatorId", validatorId)
 		return nil, ErrInvalidCaller
