@@ -180,7 +180,6 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 		return nil, ErrValidatorNotFound
 	}
 
-	// FIXME: uncomment
 	if !bytes.Equal(c.Contract.Caller().Bytes(), common.Address(validator.StakingAddress).Bytes()) {
 		log.Error("Invalid caller", "proposer", cp.Proposer, "start", cp.Start, "end", cp.End, "caller", c.Contract.Caller(), "validatorId", validatorId)
 		return nil, ErrInvalidCaller
@@ -213,20 +212,20 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 					"currentProposer", cp.Proposer,
 					"currentBlock", c.Evm.Context.BlockNumber)
 				return nil, ErrInvalidProposal
-			} else if (cp.Start.Cmp(pending.Start) != 0 && cp.End.Cmp(pending.End) != 0) ||
+			} else if !(cp.Start.Cmp(pending.Start) == 0 && cp.End.Cmp(pending.End) == 0) &&
 				cp.Start.Cmp(new(big.Int).Add(pending.End, big1)) != 0 {
 				log.Warn("Propose checkpoint not match pending", "pending.start", pending.Start,
 					"pending.end", pending.End, "start", cp.Start, "end", cp.End)
 				return nil, ErrInvalidProposal
 			} else {
 				// Clearing pending for proposal new checkpoint
-				log.Debug("Clearing pending")
+				log.Debug("Clearing pending", "pending", pending.String())
 				pending = nil
 			}
 		} else {
 			// For single validator
 			if (c.Evm.Context.BlockNumber.Uint64() - pending.BlockNum) >= NextProposeDelay {
-				log.Debug("Clearing pending")
+				log.Debug("Clearing pending", "pending", pending.String())
 				pending = nil
 			} else {
 				for _, signed := range pending.SignedValidators {
@@ -379,7 +378,7 @@ func (c *CheckpointSigAggregatorContract) ShouldPropose(input []byte) ([]byte, e
 
 	pending, err := ReadPendingCheckpoint(c.Evm.StateDB)
 	if err != nil {
-		log.Debug("Cannot getpending checkpoint", "err", err)
+		log.Debug("Cannot get pending checkpoint", "err", err)
 		if err == ErrCheckpointNotFound {
 			return method.Outputs.Pack(true)
 		}

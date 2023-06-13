@@ -136,6 +136,7 @@ func (p *CheckpointProcessor) loop() {
 			p.newChildBlockCh <- block
 		case <-p.exitCh:
 			log.Info("Checkpoint loop stopping...")
+			return
 		}
 	}
 }
@@ -274,7 +275,7 @@ func (p *CheckpointProcessor) createAndSendCheckpointToAppChain(block *types.Blo
 
 	proposer := p.bft.CurrentProposer()
 
-	log.Info("Creating and sign new checkpoint", "proposer", proposer.Address, "start", start, "end", end, "root", root, "accountRoot", accountRootHash)
+	log.Info("Creating and sign new checkpoint", "proposer", proposer.Address.String(), "start", start, "end", end, "root", root, "accountRoot", accountRootHash)
 
 	validators, err := plugin.StakingInstance().GetValidator(block.NumberU64())
 	if err != nil {
