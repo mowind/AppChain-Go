@@ -293,7 +293,7 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 		topics := make([]common.Hash, 1)
 		topics[0] = event.ID
 
-		data, err := event.Inputs.Pack(cp.Proposer, cp.Start, cp.End, cp.RootHash, pending.SignedValidators, pending.AggSignature)
+		data, err := event.Inputs.Pack(cp.Proposer, cp.Start, cp.End, cp.Hashes[0], pending.SignedValidators, pending.AggSignature)
 		if err != nil {
 			log.Error("Cannot pack CheckpointSigAggregated event", "err", err)
 			return nil, err
@@ -313,7 +313,7 @@ func (c *CheckpointSigAggregatorContract) Propose(input []byte) ([]byte, error) 
 			"proposer", cp.Proposer,
 			"start", cp.Start,
 			"end", cp.End,
-			"root", hex.EncodeToString(cp.RootHash[:]),
+			"root", hex.EncodeToString(cp.Hashes[0][:]),
 			"signedValidator", strings.Join(s, ","),
 			"signature", hex.EncodeToString(pending.AggSignature),
 		)
@@ -347,14 +347,14 @@ func (c *CheckpointSigAggregatorContract) PendingCheckpoint() ([]byte, error) {
 	out := CheckpointABI().Methods["pendingCheckpoint"].Outputs
 	pcp := &checkpoint.ICheckpointSigAggregatorPendingCheckpoint{
 		Checkpoint: checkpoint.ICheckpointSigAggregatorCheckpoint{
-			Proposer:    pending.Proposer,
-			Start:       pending.Start,
-			End:         pending.End,
-			RootHash:    pending.RootHash,
-			AccountHash: pending.AccountHash,
-			ChainId:     pending.ChainId,
-			Current:     pending.Current,
-			Rewards:     pending.Rewards,
+			Proposer: pending.Proposer,
+			Hashes:   solidity.ToBytes32Slice(pending.Hashes),
+			Start:    pending.Start,
+			End:      pending.End,
+			Current:  pending.Current,
+			Rewards:  pending.Rewards,
+			ChainId:  pending.ChainId,
+			Slashing: pending.Slashing,
 		},
 		BlockNum: big.NewInt(0).SetUint64(pending.BlockNum),
 	}
