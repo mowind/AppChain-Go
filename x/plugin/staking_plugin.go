@@ -1602,6 +1602,22 @@ func (sk *StakingPlugin) GetVerifierCandidateInfo(blockHash common.Hash, blockNu
 	return queue, nil
 }
 
+func (sk *StakingPlugin) GetVerifierListFilterInitNode(blockHash common.Hash, blockNumber uint64, isCommit bool) (staking.ValidatorExQueue, error) {
+	nodeList, err := sk.GetVerifierList(blockHash, blockNumber, isCommit)
+	if err != nil {
+		return nil, err
+	}
+	returnList := make(staking.ValidatorExQueue, 0, len(nodeList))
+	if nodeList.IsNotEmpty() {
+		for i := 0; i < len(nodeList); i++ {
+			if nodeList[i].StakingBlockNum > 0 {
+				returnList = append(returnList, nodeList[i])
+			}
+		}
+	}
+	return returnList, nil
+}
+
 func (sk *StakingPlugin) GetVerifierList(blockHash common.Hash, blockNumber uint64, isCommit bool) (staking.ValidatorExQueue, error) {
 	verifierList, err := sk.getVerifierList(blockHash, blockNumber, isCommit)
 	if nil != err {
@@ -1646,13 +1662,14 @@ func (sk *StakingPlugin) GetVerifierList(blockHash common.Hash, blockNumber uint
 		//shares, _ := new(big.Int).SetString(v.StakingWeight[1], 10)
 
 		valEx := &staking.ValidatorEx{
-			ValidatorId:    can.ValidatorId,
-			NodeId:         can.NodeId,
-			BlsPubKey:      can.BlsPubKey,
-			StakingAddress: can.StakingAddress,
-			ProgramVersion: can.ProgramVersion,
-			Shares:         (*hexutil.Big)(v.Shares),
-			ValidatorTerm:  v.ValidatorTerm,
+			ValidatorId:     can.ValidatorId,
+			NodeId:          can.NodeId,
+			BlsPubKey:       can.BlsPubKey,
+			StakingAddress:  can.StakingAddress,
+			StakingBlockNum: can.StakingBlockNum,
+			ProgramVersion:  can.ProgramVersion,
+			Shares:          (*hexutil.Big)(v.Shares),
+			ValidatorTerm:   v.ValidatorTerm,
 		}
 		queue[i] = valEx
 	}
@@ -1796,13 +1813,14 @@ func (sk *StakingPlugin) GetValidatorList(blockHash common.Hash, blockNumber uin
 		}
 
 		valEx := &staking.ValidatorEx{
-			ValidatorId:    can.ValidatorId,
-			NodeId:         can.NodeId,
-			BlsPubKey:      can.BlsPubKey,
-			StakingAddress: can.StakingAddress,
-			ProgramVersion: can.ProgramVersion,
-			Shares:         (*hexutil.Big)(v.Shares),
-			ValidatorTerm:  v.ValidatorTerm,
+			ValidatorId:     can.ValidatorId,
+			NodeId:          can.NodeId,
+			BlsPubKey:       can.BlsPubKey,
+			StakingAddress:  can.StakingAddress,
+			StakingBlockNum: can.StakingBlockNum,
+			ProgramVersion:  can.ProgramVersion,
+			Shares:          (*hexutil.Big)(v.Shares),
+			ValidatorTerm:   v.ValidatorTerm,
 		}
 		queue[i] = valEx
 	}
