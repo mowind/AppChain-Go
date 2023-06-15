@@ -223,6 +223,11 @@ func (stkc *StakingContract) handleUnstakeInit(vLog *types.Log) ([]byte, error) 
 			"can is not nil",
 			TxEditorCandidate, staking.ErrCanNoExist)
 	}
+	if canOld.IsInvalid() {
+		return txResultHandler(vm.StakingContractAddr, stkc.Evm, "withdrewStaking",
+			fmt.Sprintf("can status is: %d", canOld.Status),
+			TxWithdrewCandidate, staking.ErrCanStatusInvalid)
+	}
 	err = stkc.Plugin.UnStake(state, blockHash, blockNumber, event.ValidatorId, canOld)
 	return nil, err
 }
@@ -259,6 +264,11 @@ func (stkc *StakingContract) handleStakeUpdate(vLog *types.Log) ([]byte, error) 
 			"can is not nil",
 			TxEditorCandidate, staking.ErrCanNoExist)
 	}
+	if canOld.IsInvalid() {
+		return txResultHandler(vm.StakingContractAddr, stkc.Evm, "stakeUpdate",
+			fmt.Sprintf("can status is: %d", canOld.Status),
+			TxEditorCandidate, staking.ErrCanStatusInvalid)
+	}
 	err = stkc.Plugin.StakeUpdate(state, blockHash, blockNumber, event.ValidatorId, event.NewAmount, canOld)
 	return nil, err
 }
@@ -281,12 +291,13 @@ func (stkc *StakingContract) stakeStateSync(input []byte) ([]byte, error) {
 	}
 	stakeFuncMap := stkc.stakeInfoFunc()
 	for _, event := range args.Events {
-		var log types.Log
-		if err := log.DecodeRLP(rlp.NewStream(bytes.NewReader(event), 0)); err != nil {
+		var rootChainLog types.Log
+		if err := rootChainLog.DecodeRLP(rlp.NewStream(bytes.NewReader(event), 0)); err != nil {
 			return nil, err
 		}
-		if fn, ok := stakeFuncMap[log.Topics[0]]; ok {
-			if res, err := fn(&log); err != nil {
+		if fn, ok := stakeFuncMap[rootChainLog.Topics[0]]; ok {
+			if res, err := fn(&rootChainLog); err != nil {
+				log.Error("Failed to execute rootChainEvent", "eventId", rootChainLog.Topics[0].Hex(), "result", hex.EncodeToString(res), "error", err)
 				return res, err
 			}
 		} else {

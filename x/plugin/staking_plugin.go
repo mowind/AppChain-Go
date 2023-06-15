@@ -495,6 +495,8 @@ func (sk *StakingPlugin) UnStake(state xcom.StateDB, blockHash common.Hash, bloc
 	}
 	epoch := xutil.CalculateEpoch(blockNumber.Uint64())
 	can.StakingEpoch = uint32(epoch)
+	can.CleanShares()
+	can.Status |= staking.Invalided | staking.Withdrew
 
 	if err := sk.db.SetCanMutableStore(blockHash, validatorId, can.CandidateMutable); nil != err {
 		log.Error("Failed to WithdrewStaking on stakingPlugin: Store CandidateMutable info is failed",
