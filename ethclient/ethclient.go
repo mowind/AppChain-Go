@@ -431,6 +431,32 @@ func (ec *Client) PendingTransactionCount(ctx context.Context) (uint, error) {
 
 // TODO: SubscribePendingTransactions (needs server side)
 
+// OverrideAccount indicates the overriding fields of account during the execution
+// of a message call.
+// Note, state and stateDiff can't be specified at the same time. If state is
+// set, message execution will only use the data in the given state. Otherwise
+// if statDiff is set, all diff will be applied first and then execute the call
+// message.
+type OverrideAccount struct {
+	Nonce     *hexutil.Uint64              `json:"nonce"`
+	Code      *hexutil.Bytes               `json:"code"`
+	Balance   **hexutil.Big                `json:"balance"`
+	State     *map[common.Hash]common.Hash `json:"state"`
+	StateDiff *map[common.Hash]common.Hash `json:"stateDiff"`
+}
+
+// StateOverride is the collection of overridden accounts.
+type StateOverride map[common.Address]OverrideAccount
+
+func (ec *Client) Call(ctx context.Context, msg platon.CallMsg, blockNumber *big.Int, overrides *StateOverride) ([]byte, error) {
+	var hex hexutil.Bytes
+	err := ec.c.CallContext(ctx, &hex, "platon_call", toCallArg(msg), toBlockNumArg(blockNumber), overrides)
+	if err != nil {
+		return nil, err
+	}
+	return hex, nil
+}
+
 // Contract Calling
 
 // CallContract executes a message call transaction, which is directly executed in the VM
