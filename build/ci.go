@@ -243,6 +243,7 @@ func doInstall(cmdline []string) {
 				if *mv == "on" {
 					gohskchaininstall.Args = append(gohskchaininstall.Args, "-tags=mpcon vcon")
 				}
+				gohskchaininstall.Args = append(gohskchaininstall.Args, "-ldflags=-extldflags=-Wl,--allow-multiple-definition")
 				packages3 := []string{"./cmd/hskchain"}
 				gohskchaininstall.Args = append(gohskchaininstall.Args, packages3...)
 				build.MustRun(gohskchaininstall)
