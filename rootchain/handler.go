@@ -81,7 +81,7 @@ func (em *EventManager) Listen() error {
 		return err
 	}
 	newHeadChan := make(chan *types.Header)
-	client.SetNameSpace("platon")
+	client.SetNameSpace("eth")
 	newHeadSubscribe, err := client.SubscribeNewHead(context.Background(), newHeadChan)
 	if err != nil {
 		close(newHeadChan)
@@ -120,7 +120,7 @@ func (em *EventManager) Listen() error {
 					helper.SignerChangeID, helper.StakeUpdateID, helper.NewHeaderBlockID}},
 			}
 
-			logs, err := client.FilterPlatONLogs(context.Background(), filterParams)
+			logs, err := client.FilterLogs(context.Background(), filterParams)
 			if err != nil {
 				log.Error("failed to get filtered logs", "fromBlock", filterParams.FromBlock, "toBlock", filterParams.ToBlock, "error", err)
 				// TODO 处理获取事件失败的情况

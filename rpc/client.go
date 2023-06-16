@@ -28,6 +28,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	json2 "github.com/PlatONnetwork/AppChain-Go/common/json"
 	"github.com/PlatONnetwork/AppChain-Go/log"
 )
 
@@ -297,6 +298,7 @@ func (c *Client) CallContext(ctx context.Context, result interface{}, method str
 	if err != nil {
 		return err
 	}
+
 	op := &requestOp{ids: []json.RawMessage{msg.ID}, resp: make(chan *jsonrpcMessage, 1)}
 
 	if c.isHTTP {
@@ -466,10 +468,10 @@ func (c *Client) Subscribe(ctx context.Context, namespace string, channel interf
 }
 
 func (c *Client) newMessage(method string, paramsIn ...interface{}) (*jsonrpcMessage, error) {
-	msg := &jsonrpcMessage{Version: vsn, ID: c.nextID(), Method: method, Bech32: true}
+	msg := &jsonrpcMessage{Version: vsn, ID: c.nextID(), Method: method, Bech32: false}
 	if paramsIn != nil { // prevent sending "params":null
 		var err error
-		if msg.Params, err = json.Marshal(paramsIn); err != nil {
+		if msg.Params, err = json2.Marshal(paramsIn); err != nil {
 			return nil, err
 		}
 	}

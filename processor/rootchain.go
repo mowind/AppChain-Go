@@ -29,7 +29,7 @@ func NewRootchainConnector(managerAccount *manager.ManagerAccount, platonAddr st
 	if err != nil {
 		return nil, err
 	}
-	client.SetNameSpace("platon")
+	client.SetNameSpace("eth")
 	caller, err := rootchain.NewRootchainCaller(contractAddr, client)
 	if err != nil {
 		return nil, err

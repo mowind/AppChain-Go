@@ -21,13 +21,14 @@ import (
 	"crypto/ecdsa"
 	"encoding/binary"
 	"fmt"
-	"github.com/PlatONnetwork/AppChain-Go/common/math"
 	"io"
 	"math/big"
 	"sync"
 	"sync/atomic"
 	"time"
 	"unsafe"
+
+	"github.com/PlatONnetwork/AppChain-Go/common/math"
 
 	"golang.org/x/crypto/sha3"
 
@@ -71,7 +72,8 @@ func (n BlockNonce) MarshalText() ([]byte, error) {
 
 // UnmarshalText implements encoding.TextUnmarshaler.
 func (n *BlockNonce) UnmarshalText(input []byte) error {
-	return hexutil.UnmarshalFixedText("BlockNonce", input, n[:])
+	input1 := common.HexLeftPadZero(input[2:], len(n)*2)
+	return hexutil.UnmarshalFixedUnprefixedText("BlockNonce", input1, n[:])
 }
 
 func (n *BlockNonce) ETHBlockNonce() ETHBlockNonce {

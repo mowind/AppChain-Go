@@ -105,6 +105,20 @@ func LeftPadBytes(slice []byte, l int) []byte {
 	return padded
 }
 
+func HexLeftPadZero(slice []byte, l int) []byte {
+	if l <= len(slice) {
+		return slice
+	}
+
+	padded := make([]byte, l)
+	paddedLen := l - len(slice)
+	paddedZero := bytes.Repeat([]byte{'0'}, paddedLen)
+	copy(padded[:paddedLen], paddedZero)
+	copy(padded[paddedLen:], slice)
+
+	return padded
+}
+
 func Int32ToBytes(n int32) []byte {
 	tmp := int32(n)
 	bytesBuffer := bytes.NewBuffer([]byte{})
