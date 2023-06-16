@@ -243,7 +243,6 @@ func doInstall(cmdline []string) {
 				if *mv == "on" {
 					gohskchaininstall.Args = append(gohskchaininstall.Args, "-tags=mpcon vcon")
 				}
-				gohskchaininstall.Args = append(gohskchaininstall.Args, "-ldflags=-extldflags=-Wl,--allow-multiple-definition")
 				packages3 := []string{"./cmd/hskchain"}
 				gohskchaininstall.Args = append(gohskchaininstall.Args, packages3...)
 				build.MustRun(gohskchaininstall)
@@ -307,6 +306,8 @@ func buildFlags(env build.Environment) (flags []string) {
 	if runtime.GOOS == "windows" {
 		ld = append(ld, "-extldflags", "-static")
 	}
+
+	ld = append(ld, "-extldflags", "-Wl,--allow-multiple-definition")
 
 	if len(ld) > 0 {
 		flags = append(flags, "-ldflags", strings.Join(ld, " "))
