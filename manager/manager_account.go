@@ -13,6 +13,7 @@ import (
 	"github.com/PlatONnetwork/AppChain-Go/core/types"
 	"github.com/PlatONnetwork/AppChain-Go/crypto"
 	"github.com/PlatONnetwork/AppChain-Go/log"
+	etypes "github.com/ethereum/go-ethereum/core/types"
 )
 
 type GetNonceFunc func(addr common.Address) uint64
@@ -102,4 +103,8 @@ func (m *ManagerAccount) Sign(tx *types.Transaction, chainId *big.Int) (*types.T
 	}
 	tx, err = tx.WithSignature(signer, signature)
 	return tx, nil
+}
+
+func (m *ManagerAccount) SignEthTx(tx *etypes.Transaction, chainId *big.Int) (*etypes.Transaction, error) {
+	return etypes.SignTx(tx, etypes.NewEIP155Signer(chainId), m.private)
 }
